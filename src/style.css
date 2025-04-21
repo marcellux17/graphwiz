@@ -1,0 +1,32 @@
+#container{
+  font-size: 1rem;
+}
+#edit-container #message-box{
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  z-index: 5;
+}
+#container .vis-network{
+  border: solid 1px black;
+  margin-bottom: 10px;
+  background-color: blanchedalmond;
+}
+#edit-container{
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+}
+#edit-buttons{
+  display: flex;
+  flex-direction: column;
+  margin-left: 10px;
+}
+#edit-buttons button{
+  font-size: 1.2rem;
+  margin-bottom: 0.2em;
+}
+html{
+  font-size: 20px;
+}
