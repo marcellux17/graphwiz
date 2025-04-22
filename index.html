@@ -1,23 +1,28 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="/src/style.css">
-    <script type="module" src="/src/main.ts" defer></script>
-  </head>
-  <body>
-    <div id="edit-container">
-      <div id="message-box">messages will appear here</div>
-      <div id="container">
-      </div>
-      <div id="edit-buttons">
-        <button id="add-edge">Add edge</button>
-        <button id="add-node">Add node</button>
-        <button id="delete-mode">Delete selected</button>
-        <button id="focus-view">Focus view</button>
-        <button id="escape-mode">Escape current editing mode</button>
-      </div>
-    </div>
-  </body>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="stylesheet" href="/src/style.css" />
+        <script type="module" src="/src/main.ts" defer></script>
+    </head>
+    <body>
+        <div id="edit-container">
+            <div id="message-box" class="message-box">Select mode on the toolbar</div>
+            <div id="container"></div>
+            <div id="modify-graph">
+                <button id="add-edge">Add edge</button>
+                <button id="add-node">Add node</button>
+                <button id="delete-mode">Delete selected</button>
+                <button id="focus-view">Focus view</button>
+                <button id="escape-mode">Escape current editing mode</button>
+                <button id="visualize-graph">graph draw</button>
+                <div id="change-data" class="hide">
+                    <label for="label" id="label-message" ></label>
+                    <input type="text" id="change-label" maxlength="10" />
+                    <!-- <p class="message-box hidden"></p> -->
+                </div>
+            </div>
+        </div>
+    </body>
 </html>
