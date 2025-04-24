@@ -2,7 +2,10 @@ import { Node, Edge } from "vis-network";
 import { DataSet, Network } from "vis-network/standalone";
 import { undirectedGraph } from "./datastructures/graphs";
 
+//for vis js to inject canvas into
 const container = document.querySelector<HTMLElement>("#container")!;
+
+//editing buttons
 const addEdgeButton = document.querySelector<HTMLButtonElement>("#add-edge");
 const focusButton = document.querySelector<HTMLButtonElement>("#focus-view");
 const addNodeButton = document.querySelector<HTMLButtonElement>("#add-node");
@@ -10,10 +13,20 @@ const deleteModeButton =
     document.querySelector<HTMLButtonElement>("#delete-mode");
 const escapeModeButton =
     document.querySelector<HTMLButtonElement>("#escape-mode");
+
+//animation related elements
+const animationBox = document.querySelector<HTMLDivElement>("#animation-box")!;
+const backButton = document.querySelector<HTMLButtonElement>("#back");
+const forwardButton = document.querySelector<HTMLButtonElement>("#forward");
+const pauseButton = document.querySelector<HTMLButtonElement>("#pause")!;
+const playButton = document.querySelector<HTMLButtonElement>("#play")!;
 const runAnimationButton =
     document.querySelector<HTMLButtonElement>("#run-animation");
+
+//displaying feedback for the user
 const messageBox = document.querySelector<HTMLDivElement>("#message-box")!;
 
+//for changing the label of a graph
 const label = document.querySelector<HTMLLabelElement>("#label-message")!;
 const labelInput = document.querySelector<HTMLInputElement>("#change-label")!;
 const inputGroup = document.querySelector<HTMLDivElement>("#change-data")!;
@@ -21,6 +34,8 @@ const inputGroup = document.querySelector<HTMLDivElement>("#change-data")!;
 //const messageForLabel = document.querySelector<HTMLParagraphElement>("#change-data .message-box")!;
 
 //types
+type animationMoveDirection = "forward" | "backward";
+type animationState = "running" | "paused";
 type canvasState =
     | "add-edge-mode"
     | "none"
@@ -30,6 +45,7 @@ type canvasState =
     | "step-by-step"
     | "animation-running";
 // run-animation: to start animation vs. animation-running: animation is currently running
+// none is set when we click the escape button
 
 //GLOBAL VARIABLES
 let selectedNode: string;
@@ -40,8 +56,9 @@ let interval: number;
 let animationSpeed = 1000; //in ms
 let animationSpeedChange = 1000; //in case the user wants to change the speed of the animation
 let currentAnimationStateNumber = 0;
-let visitedNodeColor = "rgb(57, 130, 81)";
-let nodeColor = "rgb(127, 241, 165)";
+let visitedNodeColor = "#5b63b7";
+let nodeColor = "#acaeff";
+let currentAnimationState: animationState = "running";
 
 const graph_nodes = new DataSet<Node>([]);
 const graph_edges = new DataSet<Edge>([]);
@@ -50,8 +67,8 @@ const data = {
     edges: graph_edges,
 };
 const options = {
-    width: "700px",
-    height: "700px",
+    width: "100%",
+    height: "100%",
     autoResize: false,
     physics: {
         enabled: false,
@@ -64,8 +81,9 @@ const options = {
         shape: "circle",
         color: nodeColor,
         widthConstraint: {
-            minimum: 50,
+            minimum: 75,
         },
+        font: "15px arial white",
     },
     edges: {
         smooth: false,
@@ -124,6 +142,7 @@ let states: Map<string, boolean>[] | undefined;
 
 //events on the network
 network.on("selectNode", (e) => {
+    //so that we don't do anything while animation is running
     if (canvas_state === "animation-running") {
         return;
     }
@@ -131,14 +150,16 @@ network.on("selectNode", (e) => {
         return;
     }
     selectedNode = e.nodes[0];
+    //if a node was selected in run-animation state we run the algorithm and then return
     if (canvas_state == "run-animation") {
         states = graph.DFS(selectedNode);
-        console.log(states);
+        //changing canvas_state to animation-running happens only here
+        changeAnimationState("running");
         changeCanvasState("animation-running");
         return;
     }
     const node = graph_nodes.get(selectedNode);
-    inputGroup.classList.remove("hide");
+    MakeVisible(inputGroup);
     label.textContent = `Change label of the selected node`;
     labelInput.value = node?.label == undefined ? "" : node.label;
 });
@@ -167,7 +188,7 @@ escapeModeButton?.addEventListener("click", () => {
     changeCanvasState("none");
 });
 
-runAnimationButton?.addEventListener("click", (e) => {
+runAnimationButton?.addEventListener("click", () => {
     changeCanvasState("run-animation");
 });
 
@@ -179,66 +200,98 @@ labelInput.addEventListener("input", () => {
         label: new_label,
     });
 });
-
+//animation box state changes
+pauseButton?.addEventListener("click", () => {
+    changeAnimationState("paused");
+    clearInterval(interval);
+    MakeInvisible(pauseButton);
+    MakeVisible(playButton);
+});
+forwardButton?.addEventListener("click", () => {
+    if (currentAnimationState === "paused") {
+        clearInterval(interval);
+        changeCurrentAnimationStateNumber("forward");
+        ColorNodes(states![currentAnimationStateNumber]);
+    }
+});
+backButton?.addEventListener("click", () => {
+    if (currentAnimationState === "paused") {
+        clearInterval(interval);
+        changeCurrentAnimationStateNumber("backward");
+        ColorNodes(states![currentAnimationStateNumber]);
+    }
+});
+playButton?.addEventListener("click", () => {
+    changeAnimationState("running");
+    runAnimation();
+    MakeInvisible(playButton);
+    MakeVisible(pauseButton);
+});
+function changeAnimationState(state: animationState): void {
+    currentAnimationState = state;
+    ChangeMessageBox(currentAnimationState);
+}
 function changeCanvasState(mode: canvasState): void {
-    if (
-        (canvas_state === "run-animation" ||
-            canvas_state === "animation-running") &&
+    if ((canvas_state === "run-animation" ||canvas_state === "animation-running") 
+        &&
         mode !== "none" &&
         mode !== "animation-running"
     ) {
         //checks if we are currently in run-animation mode and we try to modify the graph
         return;
     }
+    const prev_canvas_state = canvas_state;
     canvas_state = mode;
-    let additionalmessage = "";
     switch (mode) {
         case "add-edge-mode":
-            additionalmessage =
-                "to create an edge click and drag from one node to the other";
+            ChangeMessageBox(
+                "to create an edge click and drag from one node to the other"
+            );
             network.addEdgeMode();
             break;
         case "add-node-mode":
-            additionalmessage = "click on a blank position to add node";
+            ChangeMessageBox("click on a blank position to add node");
             network.addNodeMode();
             break;
         case "delete":
-            additionalmessage = "select an element and click delete";
+            ChangeMessageBox("select an element and click delete");
             network.deleteSelected();
             break;
         case "none":
-            additionalmessage = "select mode on the toolbar";
+            if (prev_canvas_state === "run-animation" || prev_canvas_state === "animation-running")
+                ResetNodes();
+            ChangeMessageBox("select mode on the toolbar");
             network.disableEditMode();
+            MakeInvisible(animationBox);
             break;
         case "run-animation":
             network.unselectAll();
-            additionalmessage = "select a node to run animation";
+            ChangeMessageBox("select a node to run animation");
             resetInput();
             network.disableEditMode();
             break;
         case "animation-running":
-            additionalmessage = "animation currently running";
+            changeAnimationState("running");
+            MakeVisible(animationBox);
+            MakeInvisible(playButton);
+            MakeVisible(pauseButton);
             runAnimation();
             network.disableEditMode();
             break;
     }
-    messageBox.textContent = additionalmessage;
 }
 function resetInput(): void {
     selectedNode = "";
     label.textContent = "";
     labelInput.value = "";
-    inputGroup.classList.add("hide");
+    MakeInvisible(inputGroup);
     //   messageForLabel.classList.add('hidden')
 }
+//runs animation on the return value of the selected graph algorithm
+//checks for userinput changes to change speed
 function runAnimation(): void {
     if (states) {
         interval = setInterval(() => {
-            if(currentAnimationStateNumber === states!.length){
-                currentAnimationStateNumber = 0;
-                clearInterval(interval)
-                return;
-            }
             //if animation speed has been altered by the user
             if (animationSpeed !== animationSpeedChange) {
                 animationSpeed = animationSpeedChange;
@@ -247,16 +300,64 @@ function runAnimation(): void {
             } else {
                 const currentState = states![currentAnimationStateNumber];
                 ColorNodes(currentState);
-                currentAnimationStateNumber++;
+                //animation finished running
+                if (currentAnimationStateNumber === states!.length - 1) {
+                    clearInterval(interval);
+                    changeAnimationState("paused");
+                    MakeInvisible(pauseButton);
+                    MakeVisible(playButton);
+                    return;
+                }
+                changeCurrentAnimationStateNumber("forward");
             }
         }, animationSpeed);
     }
 }
+//colores nodes based on state
 function ColorNodes(state: Map<string, boolean>): void {
     for (const [nodeId, visited] of state) {
         graph_nodes.update({
             id: nodeId,
             color: visited ? visitedNodeColor : nodeColor,
         });
+    }
+}
+function ResetNodes(): void {
+    states = undefined;
+    currentAnimationStateNumber = 0;
+    graph_nodes.forEach((node, id) => {
+        graph_nodes.update({
+            id,
+            color: nodeColor,
+        });
+    });
+}
+function MakeVisible(element: HTMLElement): void {
+    element.classList.remove("hide");
+}
+function MakeInvisible(element: HTMLElement): void {
+    element.classList.add("hide");
+}
+
+function ChangeMessageBox(new_message: string): void {
+    messageBox.textContent = new_message;
+}
+function changeCurrentAnimationStateNumber(
+    direction: animationMoveDirection
+): void {
+    switch (direction) {
+        case "forward":
+            //ha az utolso state-ben vagyunk nem megyünk már előre
+            if (currentAnimationStateNumber === states!.length - 1) {
+                return;
+            }
+            currentAnimationStateNumber++;
+            break;
+        case "backward":
+            if (currentAnimationStateNumber === 0) {
+                return;
+            }
+            currentAnimationStateNumber--;
+            break;
     }
 }

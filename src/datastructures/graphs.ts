@@ -5,7 +5,7 @@ export class undirectedGraph {
     private Nodes: Map<string, Node>;
     private Labels: Map<string, boolean>;
     private i: number = 1; //just so nodes have different labels, though user can change them (its just for visuals)
-    private numberOfNodes:number = 0;
+    private numberOfNodes: number = 0;
     constructor() {
         this.Nodes = new Map<string, Node>();
         this.Labels = new Map<string, boolean>();
@@ -65,21 +65,24 @@ export class undirectedGraph {
     //where the keys are nodeIds and their values are boolean values representing whether they have been visited or not
     DFS(startingNodeId: string): Map<string, boolean>[] {
         const queue = new Queue<string>(this.numberOfNodes);
-        const states:Map<string, boolean>[] = [];
+        const states: Map<string, boolean>[] = [];
         const visited = new Map<string, boolean>();
         let prevState = new Map<string, boolean>();
+        //setting each node to false in prevState
+        this.Nodes.forEach((node, nodeId) => {
+            prevState.set(nodeId, false);
+        });
         queue.Enqueue(startingNodeId);
         visited.set(startingNodeId, true);
-        while(!queue.isEmpty()){
+        while (!queue.isEmpty()) {
             const currentElementId = queue.Dequeue()!;
             const newstate = new Map<string, boolean>(prevState);
-            newstate.set(currentElementId, true),
-            prevState = newstate;
+            newstate.set(currentElementId, true), (prevState = newstate);
             states.push(newstate);
-            //getting the node itself 
+            //getting the node itself
             const currentElement = this.Nodes.get(currentElementId)!;
-            for(const neighbourId of currentElement.AdjacencyList.keys()){
-                if(!visited.get(neighbourId)){
+            for (const neighbourId of currentElement.AdjacencyList.keys()) {
+                if (!visited.get(neighbourId)) {
                     queue.Enqueue(neighbourId);
                     visited.set(neighbourId, true);
                 }
