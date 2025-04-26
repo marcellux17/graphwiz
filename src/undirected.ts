@@ -22,6 +22,7 @@ const pauseButton = document.querySelector<HTMLButtonElement>("#pause")!;
 const playButton = document.querySelector<HTMLButtonElement>("#play")!;
 const runAnimationButton =
     document.querySelector<HTMLButtonElement>("#run-animation");
+const selectAlgorithm = document.querySelector<HTMLSelectElement>("#algorithms")!;
 
 //displaying feedback for the user
 const messageBox = document.querySelector<HTMLDivElement>("#message-box")!;
@@ -55,10 +56,11 @@ let canvas_state: canvasState = "none";
 let interval: number;
 let animationSpeed = 1000; //in ms
 let animationSpeedChange = 1000; //in case the user wants to change the speed of the animation
-let currentAnimationStateNumber = 0;
+let currentAnimationStateNumber = -1;//in the animation function it first increments so it does not point to a negative index of the states
 let visitedNodeColor = "#5b63b7";
 let nodeColor = "#acaeff";
 let currentAnimationState: animationState = "running";
+let selectedAlgorithm : string;// "dfs" or "bfs"
 
 const graph_nodes = new DataSet<Node>([]);
 const graph_edges = new DataSet<Edge>([]);
@@ -152,8 +154,9 @@ network.on("selectNode", (e) => {
     selectedNode = e.nodes[0];
     //if a node was selected in run-animation state we run the algorithm and then return
     if (canvas_state == "run-animation") {
-        states = graph.DFS(selectedNode);
+        states = selectedAlgorithm === "dfs" ? graph.DFS(selectedNode):graph.BFS(selectedNode);
         //changing canvas_state to animation-running happens only here
+        MakeInvisible(selectAlgorithm);
         changeAnimationState("running");
         changeCanvasState("animation-running");
         return;
@@ -227,6 +230,9 @@ playButton?.addEventListener("click", () => {
     MakeInvisible(playButton);
     MakeVisible(pauseButton);
 });
+selectAlgorithm?.addEventListener("input", () => {
+    selectedAlgorithm = selectAlgorithm.value;
+})
 function changeAnimationState(state: animationState): void {
     currentAnimationState = state;
     ChangeMessageBox(currentAnimationState);
@@ -250,7 +256,7 @@ function changeCanvasState(mode: canvasState): void {
             network.addEdgeMode();
             break;
         case "add-node-mode":
-            ChangeMessageBox("click on a blank position to add node");
+            ChangeMessageBox("click on a blank position to add a node");
             network.addNodeMode();
             break;
         case "delete":
@@ -260,6 +266,7 @@ function changeCanvasState(mode: canvasState): void {
         case "none":
             if (prev_canvas_state === "run-animation" || prev_canvas_state === "animation-running")
                 ResetNodes();
+                MakeVisible(selectAlgorithm);
             ChangeMessageBox("select mode on the toolbar");
             network.disableEditMode();
             MakeInvisible(animationBox);
@@ -288,7 +295,7 @@ function resetInput(): void {
     //   messageForLabel.classList.add('hidden')
 }
 //runs animation on the return value of the selected graph algorithm
-//checks for userinput changes to change speed
+//checks for userinput changes to change speed (have not yet been added)
 function runAnimation(): void {
     if (states) {
         interval = setInterval(() => {
@@ -298,6 +305,7 @@ function runAnimation(): void {
                 clearInterval(interval);
                 runAnimation();
             } else {
+                changeCurrentAnimationStateNumber("forward");
                 const currentState = states![currentAnimationStateNumber];
                 ColorNodes(currentState);
                 //animation finished running
@@ -308,11 +316,12 @@ function runAnimation(): void {
                     MakeVisible(playButton);
                     return;
                 }
-                changeCurrentAnimationStateNumber("forward");
             }
         }, animationSpeed);
     }
 }
+//IT MAY LOOK INEFFICIENT TO ITERATE OVER A MAP BUT IT DOES NOT REQUIRE US TO ITERATE OVER EACH BUCKET
+//SINCE V8 MAINTAINS AN INTERNAL LIST OF KEYS
 //colores nodes based on state
 function ColorNodes(state: Map<string, boolean>): void {
     for (const [nodeId, visited] of state) {
@@ -324,7 +333,7 @@ function ColorNodes(state: Map<string, boolean>): void {
 }
 function ResetNodes(): void {
     states = undefined;
-    currentAnimationStateNumber = 0;
+    currentAnimationStateNumber = -1;
     graph_nodes.forEach((node, id) => {
         graph_nodes.update({
             id,

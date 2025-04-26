@@ -43,20 +43,25 @@ html {
     margin-right: 10px;
     margin-top: 10px;
 }
-#modify-graph button {
+#modify-graph >*{
+  margin-bottom: 0.2em;
+}
+#modify-graph button, select {
     padding: 0.5em 1.5em;
     box-sizing: border-box;
     font-size: 1rem;
-    margin-bottom: 0.2em;
     border-radius: 5px;
     border: transparent;
     background-color: #cbccff;
     color: #5b63b7;
     font-weight: bold;
 }
-#modify-graph button:hover {
+#modify-graph button:hover{
     background-color: #acaeff;
     transition: all 0.3s linear;
+}
+#modify-graph select.hide{
+  display:none;
 }
 #change-data.hide {
     display: none;
