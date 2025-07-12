@@ -63,6 +63,10 @@ html {
 #modify-graph select.hide{
   display:none;
 }
+#algorithms:focus {
+  outline: none;
+}
+
 #change-data.hide {
     display: none;
 }
@@ -108,6 +112,67 @@ html {
 }
 #animation-box button.hide{
   display:none;
+}
+#toggle-speed{
+    background-color: #cbccff;
+    border: none;
+    position: absolute;
+    right: 0px;
+    top: 50%;
+    transform: translateY(-43%);
+    padding: 0;
+    height: 25px;
+    width: 25px;
+}
+#hide-speed.hide{
+  display: none;
+}
+#open-speed.hide{
+  display: none;
+}
+#toggle-speed svg{
+    fill: #5b63b7;
+}
+#toggle-speed:hover svg{
+    cursor: pointer;
+}
+#speed-input{
+    width: 200px;
+    position: absolute;
+    left: 0px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+#speed-input.hide{
+  display: none;
+}
+.tooltip{
+    top: -40px;
+    right: 0;
+    position: absolute;
+    transition: all 0.5s linear;
+    background-color: #cbccff;
+    white-space: nowrap;
+    padding: 1px 5px;
+    border: none;
+    border-radius: 3px;
+    color: #5b63b7;
+    font-weight: bold;
+}
+.tooltip.hide{
+  display: none;
+}
+#speed-box{
+    width: 250px;
+    height: 30px;
+    position: relative;
+}
+
+#speed-box-wrapper{
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+  z-index: 5;
 }
 button{
   box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;

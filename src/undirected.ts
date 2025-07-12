@@ -34,6 +34,14 @@ const inputGroup = document.querySelector<HTMLDivElement>("#change-data")!;
 
 //const messageForLabel = document.querySelector<HTMLParagraphElement>("#change-data .message-box")!;
 
+//speed changing elements selected from speed-box
+const toggleSpeedButton = document.querySelector<HTMLButtonElement>("#toggle-speed");
+const openSpeedRangeInputButton = document.querySelector<HTMLButtonElement>("#open-speed");
+const hideSpeedRangeInputButton = document.querySelector<HTMLButtonElement>("#hide-speed");
+const speedRangeInput = document.querySelector<HTMLInputElement>("#speed-input");
+
+
+
 //types
 type animationMoveDirection = "forward" | "backward";
 type animationState = "running" | "paused";
@@ -166,7 +174,30 @@ network.on("selectNode", (e) => {
     label.textContent = `Change label of the selected node`;
     labelInput.value = node?.label == undefined ? "" : node.label;
 });
+//speed changing related events
+toggleSpeedButton?.addEventListener("mouseover", () => {
+  const tooltip = toggleSpeedButton.parentElement?.querySelector<HTMLElement>(".tooltip");
+  MakeVisible(tooltip)
+});
 
+toggleSpeedButton?.addEventListener("mouseleave", () => {
+  const tooltip = toggleSpeedButton.parentElement?.querySelector<HTMLElement>(".tooltip");
+  MakeInvisible(tooltip)
+});
+
+openSpeedRangeInputButton?.addEventListener("click", () => {
+  MakeVisible(speedRangeInput);
+  MakeVisible(hideSpeedRangeInputButton);
+  MakeInvisible(openSpeedRangeInputButton);
+});
+
+hideSpeedRangeInputButton?.addEventListener("click", () => {
+  MakeInvisible(speedRangeInput);
+  MakeVisible(openSpeedRangeInputButton);
+  MakeInvisible(hideSpeedRangeInputButton);
+});
+
+//
 network.on("deselectNode", () => {
     resetInput();
 });
@@ -308,7 +339,7 @@ function runAnimation(): void {
                 changeCurrentAnimationStateNumber("forward");
                 const currentState = states![currentAnimationStateNumber];
                 ColorNodes(currentState);
-                //animation finished running
+                //if animation finished running
                 if (currentAnimationStateNumber === states!.length - 1) {
                     clearInterval(interval);
                     changeAnimationState("paused");
@@ -341,11 +372,11 @@ function ResetNodes(): void {
         });
     });
 }
-function MakeVisible(element: HTMLElement): void {
-    element.classList.remove("hide");
+function MakeVisible(element: HTMLElement|undefined|null): void {
+    if(element)element.classList.remove("hide");
 }
-function MakeInvisible(element: HTMLElement): void {
-    element.classList.add("hide");
+function MakeInvisible(element: HTMLElement|undefined|null): void {
+    if(element)element.classList.add("hide");
 }
 
 function ChangeMessageBox(new_message: string): void {
