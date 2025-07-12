@@ -39,7 +39,7 @@ const toggleSpeedButton = document.querySelector<HTMLButtonElement>("#toggle-spe
 const openSpeedRangeInputButton = document.querySelector<HTMLButtonElement>("#open-speed");
 const hideSpeedRangeInputButton = document.querySelector<HTMLButtonElement>("#hide-speed");
 const speedRangeInput = document.querySelector<HTMLInputElement>("#speed-input");
-
+const speedInfo = document.querySelector<HTMLDivElement>("#speed-info")!;
 
 
 //types
@@ -185,14 +185,19 @@ toggleSpeedButton?.addEventListener("mouseleave", () => {
   MakeInvisible(tooltip)
 });
 
+speedRangeInput?.addEventListener("input", () => {
+    speedInfo.textContent = `speed: ${speedRangeInput.value}`;
+})
 openSpeedRangeInputButton?.addEventListener("click", () => {
   MakeVisible(speedRangeInput);
+  MakeVisible(speedInfo);
   MakeVisible(hideSpeedRangeInputButton);
   MakeInvisible(openSpeedRangeInputButton);
 });
 
 hideSpeedRangeInputButton?.addEventListener("click", () => {
   MakeInvisible(speedRangeInput);
+  MakeInvisible(speedInfo);
   MakeVisible(openSpeedRangeInputButton);
   MakeInvisible(hideSpeedRangeInputButton);
 });

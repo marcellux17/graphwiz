@@ -71,12 +71,16 @@
                 <div id="container"></div>
                 <div id="speed-box-wrapper">
                     <div id="speed-box" class="hide">
+                        <div id="speed-info">
+                            speed: 1
+                        </div>
                         <input
                             class="hide"
                             id="speed-input"
                             type="range"
-                            min="0"
+                            min="1"
                             max="100"
+                            value="1"
                         />
                         <button id="toggle-speed">
                             <p class="tooltip hide">
@@ -85,9 +89,9 @@
                             <svg
                                 id="open-speed"
                                 xmlns="http://www.w3.org/2000/svg"
-                                height="24px"
+                                height="35px"
                                 viewBox="0 -960 960 960"
-                                width="24px"
+                                width="35px"
                                 fill="#1f1f1f"
                             >
                                 <path
@@ -98,9 +102,9 @@
                                 id="hide-speed"
                                 class="hide"
                                 xmlns="http://www.w3.org/2000/svg"
-                                height="24px"
+                                height="35px"
                                 viewBox="0 -960 960 960"
-                                width="24px"
+                                width="35px"
                                 fill="#1f1f1f"
                             >
                                 <path

@@ -121,8 +121,8 @@ html {
     top: 50%;
     transform: translateY(-43%);
     padding: 0;
-    height: 25px;
-    width: 25px;
+    height: 35px;
+    width: 35px;
 }
 #hide-speed.hide{
   display: none;
@@ -167,10 +167,21 @@ html {
     height: 30px;
     position: relative;
 }
-
+#speed-info{
+  font-size: 0.9rem;
+  position: absolute;
+  white-space: nowrap;
+  width: 120px;
+  left: -120px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+#speed-info.hide{
+  display: none;
+}
 #speed-box-wrapper{
   position: absolute;
-  bottom: 5px;
+  bottom: 10px;
   right: 5px;
   z-index: 5;
 }
