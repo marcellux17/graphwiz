@@ -163,6 +163,7 @@ network.on("selectNode", (e) => {
     //if a node was selected in run-animation state we run the algorithm and then return
     if (canvas_state == "run-animation") {
         states = selectedAlgorithm === "dfs" ? graph.DFS(selectedNode):graph.BFS(selectedNode);
+        console.log("selected algorithm", selectedAlgorithm)
         //changing canvas_state to animation-running happens only here
         MakeInvisible(selectAlgorithm);
         changeAnimationState("running");
@@ -270,6 +271,7 @@ playButton?.addEventListener("click", () => {
 });
 selectAlgorithm?.addEventListener("input", () => {
     selectedAlgorithm = selectAlgorithm.value;
+    console.log(selectedAlgorithm)
 })
 function changeAnimationState(state: animationState): void {
     currentAnimationState = state;
