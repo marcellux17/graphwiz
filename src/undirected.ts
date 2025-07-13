@@ -179,15 +179,17 @@ toggleSpeedButton?.addEventListener("mouseover", () => {
   const tooltip = toggleSpeedButton.parentElement?.querySelector<HTMLElement>(".tooltip");
   MakeVisible(tooltip)
 });
-
 toggleSpeedButton?.addEventListener("mouseleave", () => {
   const tooltip = toggleSpeedButton.parentElement?.querySelector<HTMLElement>(".tooltip");
   MakeInvisible(tooltip)
 });
-
 speedRangeInput?.addEventListener("input", () => {
-    speedInfo.textContent = `speed: ${speedRangeInput.value}`;
+    let newspeed = Number.parseInt(speedRangeInput.value);
+    speedInfo.textContent = `speed: ${newspeed}x`;
+    animationSpeedChange = 1000/newspeed;
 })
+//
+
 openSpeedRangeInputButton?.addEventListener("click", () => {
   MakeVisible(speedRangeInput);
   MakeVisible(speedInfo);
