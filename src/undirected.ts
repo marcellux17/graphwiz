@@ -15,11 +15,12 @@ const escapeModeButton =
     document.querySelector<HTMLButtonElement>("#escape-mode");
 
 //animation related elements
-const animationBox = document.querySelector<HTMLDivElement>("#animation-box")!;
+const animationBox = document.querySelector<HTMLDivElement>("#animation-box");
 const backButton = document.querySelector<HTMLButtonElement>("#back");
 const forwardButton = document.querySelector<HTMLButtonElement>("#forward");
-const pauseButton = document.querySelector<HTMLButtonElement>("#pause")!;
-const playButton = document.querySelector<HTMLButtonElement>("#play")!;
+const pauseButton = document.querySelector<HTMLButtonElement>("#pause");
+const playButton = document.querySelector<HTMLButtonElement>("#play");
+const resetButton = document.querySelector<HTMLButtonElement>("#reset");
 const runAnimationButton =
     document.querySelector<HTMLButtonElement>("#run-animation");
 const selectAlgorithm = document.querySelector<HTMLSelectElement>("#algorithms")!;
@@ -68,7 +69,7 @@ let currentAnimationStateNumber = -1;//in the animation function it first increm
 let visitedNodeColor = "#5b63b7";
 let nodeColor = "#acaeff";
 let currentAnimationState: animationState = "running";
-let selectedAlgorithm : string;// "dfs" or "bfs"
+let selectedAlgorithm : string = "dfs";// "dfs" or "bfs"
 
 const graph_nodes = new DataSet<Node>([]);
 const graph_edges = new DataSet<Edge>([]);
@@ -91,7 +92,7 @@ const options = {
         shape: "circle",
         color: nodeColor,
         widthConstraint: {
-            minimum: 75,
+            minimum: 60,
         },
         font: "15px arial white",
     },
@@ -148,7 +149,7 @@ const options = {
 };
 const network = new Network(container, data, options);
 const graph = new undirectedGraph();
-let states: Map<string, boolean>[] | undefined;
+let states: string[][] | undefined;
 
 //events on the network
 network.on("selectNode", (e) => {
@@ -243,6 +244,14 @@ labelInput.addEventListener("input", () => {
     });
 });
 //animation box state changes
+resetButton?.addEventListener("click", () => {
+    changeAnimationState("paused");
+    clearInterval(interval);
+    MakeInvisible(pauseButton);
+    MakeVisible(playButton);
+    ResetNodes();
+
+})
 pauseButton?.addEventListener("click", () => {
     changeAnimationState("paused");
     clearInterval(interval);
@@ -363,16 +372,19 @@ function runAnimation(): void {
 //IT MAY LOOK INEFFICIENT TO ITERATE OVER A MAP BUT IT DOES NOT REQUIRE US TO ITERATE OVER EACH BUCKET
 //SINCE V8 MAINTAINS AN INTERNAL LIST OF KEYS
 //colores nodes based on state
-function ColorNodes(state: Map<string, boolean>): void {
-    for (const [nodeId, visited] of state) {
+function ColorNodes(state: string[]): void {
+    let currentAnimationStateNumberCopy = currentAnimationStateNumber;
+    ResetNodes();
+    currentAnimationStateNumber = currentAnimationStateNumberCopy;
+    if(!state)return;
+    for (const nodeId of state) {
         graph_nodes.update({
             id: nodeId,
-            color: visited ? visitedNodeColor : nodeColor,
+            color: visitedNodeColor,
         });
     }
 }
 function ResetNodes(): void {
-    states = undefined;
     currentAnimationStateNumber = -1;
     graph_nodes.forEach((node, id) => {
         graph_nodes.update({
@@ -403,7 +415,7 @@ function changeCurrentAnimationStateNumber(
             currentAnimationStateNumber++;
             break;
         case "backward":
-            if (currentAnimationStateNumber === 0) {
+            if (currentAnimationStateNumber <= 0) {
                 return;
             }
             currentAnimationStateNumber--;
