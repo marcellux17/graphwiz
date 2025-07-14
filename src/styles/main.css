@@ -1,5 +1,7 @@
 :root{
-    --image-width: 350px;
+    --image-width: 400px;
+    --image-height: 260px;
+    --main-color: rgb(255, 202, 55);
 }
 html, body{
     min-height: 100vh;
@@ -11,14 +13,14 @@ body {
     background: #acaeff;
     background: linear-gradient(
         17deg,
-        rgba(172, 174, 255, 1) 0%,
-        rgba(91, 99, 183, 1) 0%,
-        rgba(203, 204, 255, 1) 100%
+        rgb(202, 172, 165) 0%,
+        #ffc527 0%,
+        rgb(252, 246, 192) 100%
     );
 }
 #links{
     margin: auto;
-    margin-top: 80px;
+    margin-top: 50px;
     display: flex;
     justify-content:space-around;
     flex-direction: row;
@@ -26,35 +28,22 @@ body {
 }
 .card{
     position: relative;
-    width: var(--image-width);
+    text-decoration: none;
 }
-.card .title{
-    padding: 0;
-    margin: 0;
-    font-weight: bold;
-    color: white;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+.card:hover{
+    transform: scale(1.05);
+    cursor: pointer;
+}
+.card-title{
     font-size: 30px;
     white-space: nowrap;
     text-decoration: none;
-}
-.card .title:hover{
-    cursor: pointer;
-}
-.card .card-effect{
-    position: absolute;
-    border-radius: 5px;
-    width: var(--image-width);
-    height: calc((var(--image-width)/1200)*740);
-}
-.card .card-effect:hover{
-    background-color: rgba(131, 138, 214, 0.466);
+    text-align: center;
+    color: white;
 }
 .card img{
     width: var(--image-width);
+    height: var(--image-height);
     border-radius: 5px;
 }
 header{

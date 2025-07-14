@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from "uuid";
 import Queue from "./queue";
-
+export type stepType = "nodeLabelUpdate" | "edgeSelected" | "nodeVisited" | "finalPath";//for dijkstra animations 
 export class undirectedGraph {
     private Nodes: Map<string, Node>;//nodeId is the key
     private Labels: Map<string, boolean>;
@@ -8,6 +8,7 @@ export class undirectedGraph {
     private numberOfNodes: number = 0;
     //for keeping track of animation states in depth first search
     private prevStateForDepthFirstSearch:string[];
+    private EdgeList: Map<string, Edge> = new Map<string, Edge>();
     constructor() {
         this.Nodes = new Map<string, Node>();
         this.Labels = new Map<string, boolean>();
@@ -44,24 +45,29 @@ export class undirectedGraph {
         node.label = new_label;
         this.Labels.set(new_label, true);
     }
-    AddEdge(from: string, to: string) {
+    AddEdge(from: string, to: string):string {
+        const id = uuidv4();
         const firstNode = this.Nodes.get(from)!;
         const secondNode = this.Nodes.get(to)!;
-        firstNode.AddNeighbour(to);
-        secondNode.AddNeighbour(from);
+        firstNode.AddNeighbour(to, id);
+        secondNode.AddNeighbour(from, id);
+        this.EdgeList.set(id, new Edge(id, to, from));
+        return id;
     }
     RemoveEdge(from: string, to: string) {
         const firstNode = this.Nodes.get(from)!;
         const secondNode = this.Nodes.get(to)!;
-        firstNode.RemoveNeighbour(to);
+        const edgeId = firstNode.RemoveNeighbour(to);
         secondNode.RemoveNeighbour(from);
+        this.EdgeList.delete(edgeId);
     }
     DeleteNode(id: string): void {
         const neighbours = this.Nodes.get(id)!.AdjacencyList;
         this.Nodes.delete(id);
         for (const neighbourId of neighbours.keys()) {
             const node = this.Nodes.get(neighbourId)!;
-            node.RemoveNeighbour(id);
+            const edgeId = node.RemoveNeighbour(id);
+            this.EdgeList.delete(edgeId)
         }
     }
     BFS(startingNodeId: string): string[][]{
@@ -107,25 +113,38 @@ export class undirectedGraph {
         return;
     }
 }
+class Edge{
+    id: string;
+    weight: number = 0;
+    to: string;
+    from: string;
+    constructor(id: string, to: string, from: string){
+        this.id = id;
+        this.to = to;
+        this.from = from;
+    }
+}
 class Node {
     label: string;
     id: string;
-    AdjacencyList: Map<string, boolean>;
+    AdjacencyList: Map<string, string>;//key: neighbourId, value: edgeId
 
     constructor(label: string, id: string) {
         this.label = label;
         this.id = id;
-        this.AdjacencyList = new Map<string, boolean>();
+        this.AdjacencyList = new Map<string, string>();
     }
 
     HasNeighbour(id: string): boolean {
         const isNeighbour = this.AdjacencyList.get(id);
-        return isNeighbour || false;
+        return isNeighbour !==undefined || false;
     }
-    RemoveNeighbour(id: string): void {
+    RemoveNeighbour(id: string): string {
+        let edgeId = this.AdjacencyList.get(id);
         this.AdjacencyList.delete(id);
+        return edgeId!;
     }
-    AddNeighbour(id: string): void {
-        this.AdjacencyList.set(id, true);
+    AddNeighbour(id: string, edgeId: string): void {
+        this.AdjacencyList.set(id, edgeId);
     }
 }

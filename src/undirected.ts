@@ -23,7 +23,8 @@ const playButton = document.querySelector<HTMLButtonElement>("#play");
 const resetButton = document.querySelector<HTMLButtonElement>("#reset");
 const runAnimationButton =
     document.querySelector<HTMLButtonElement>("#run-animation");
-const selectAlgorithm = document.querySelector<HTMLSelectElement>("#algorithms")!;
+const selectAlgorithm =
+    document.querySelector<HTMLSelectElement>("#algorithms")!;
 
 //displaying feedback for the user
 const messageBox = document.querySelector<HTMLDivElement>("#message-box")!;
@@ -36,12 +37,15 @@ const inputGroup = document.querySelector<HTMLDivElement>("#change-data")!;
 //const messageForLabel = document.querySelector<HTMLParagraphElement>("#change-data .message-box")!;
 
 //speed changing elements selected from speed-box
-const toggleSpeedButton = document.querySelector<HTMLButtonElement>("#toggle-speed");
-const openSpeedRangeInputButton = document.querySelector<HTMLButtonElement>("#open-speed");
-const hideSpeedRangeInputButton = document.querySelector<HTMLButtonElement>("#hide-speed");
-const speedRangeInput = document.querySelector<HTMLInputElement>("#speed-input");
+const toggleSpeedButton =
+    document.querySelector<HTMLButtonElement>("#toggle-speed");
+const openSpeedRangeInputButton =
+    document.querySelector<HTMLButtonElement>("#open-speed");
+const hideSpeedRangeInputButton =
+    document.querySelector<HTMLButtonElement>("#hide-speed");
+const speedRangeInput =
+    document.querySelector<HTMLInputElement>("#speed-input");
 const speedInfo = document.querySelector<HTMLDivElement>("#speed-info")!;
-
 
 //types
 type animationMoveDirection = "forward" | "backward";
@@ -65,11 +69,11 @@ let canvas_state: canvasState = "none";
 let interval: number;
 let animationSpeed = 1000; //in ms
 let animationSpeedChange = 1000; //in case the user wants to change the speed of the animation
-let currentAnimationStateNumber = -1;//in the animation function it first increments so it does not point to a negative index of the states
-let visitedNodeColor = "#5b63b7";
-let nodeColor = "#acaeff";
+let currentAnimationStateNumber = -1; //in the animation function it first increments so it does not point to a negative index of the states
+let visitedNodeColor = "#2ade51";
+let nodeColor = "white";
 let currentAnimationState: animationState = "running";
-let selectedAlgorithm : string = "dfs";// "dfs" or "bfs"
+let selectedAlgorithm: string = "dfs"; // "dfs" or "bfs"
 
 const graph_nodes = new DataSet<Node>([]);
 const graph_edges = new DataSet<Edge>([]);
@@ -88,27 +92,39 @@ const options = {
         dragView: true,
     },
     nodes: {
-        borderWidth: 2,
+        borderColor: "black",
+        borderWidth: 3,
         shape: "circle",
-        color: nodeColor,
-        widthConstraint: {
-            minimum: 60,
+        color: {
+            border: "black",
+            background: nodeColor,
+            highlight: {
+                border: "black",
+                background: nodeColor,
+            },
         },
-        font: "15px arial white",
+        widthConstraint: {
+            minimum: 50,
+        },
+        font: "20px arial black",
     },
     edges: {
         smooth: false,
         width: 2,
+        selectionWidth: 0,
+    },
+    interactions: {
+        selectConnectedEdges: false,
     },
     manipulation: {
         enabled: false,
         addEdge: function (edgeData: Edge, callback: Function) {
-            const from = edgeData.from;
-            const to = edgeData.to!;
+            const from = edgeData.from as string;
+            const to = edgeData.to as string;
             if (from !== to) {
-                if (typeof from === "string" && typeof to == "string") {
-                    graph.AddEdge(from, to);
-                }
+                let id: string;
+                id = graph.AddEdge(from, to);
+                edgeData.id = id;
                 callback(edgeData);
             }
             changeCanvasState("add-edge-mode");
@@ -163,8 +179,11 @@ network.on("selectNode", (e) => {
     selectedNode = e.nodes[0];
     //if a node was selected in run-animation state we run the algorithm and then return
     if (canvas_state == "run-animation") {
-        states = selectedAlgorithm === "dfs" ? graph.DFS(selectedNode):graph.BFS(selectedNode);
-        console.log("selected algorithm", selectedAlgorithm)
+        states =
+            selectedAlgorithm === "dfs"
+                ? graph.DFS(selectedNode)
+                : graph.BFS(selectedNode);
+        console.log("selected algorithm", selectedAlgorithm);
         //changing canvas_state to animation-running happens only here
         MakeInvisible(selectAlgorithm);
         changeAnimationState("running");
@@ -178,32 +197,34 @@ network.on("selectNode", (e) => {
 });
 //speed changing related events
 toggleSpeedButton?.addEventListener("mouseover", () => {
-  const tooltip = toggleSpeedButton.parentElement?.querySelector<HTMLElement>(".tooltip");
-  MakeVisible(tooltip)
+    const tooltip =
+        toggleSpeedButton.parentElement?.querySelector<HTMLElement>(".tooltip");
+    MakeVisible(tooltip);
 });
 toggleSpeedButton?.addEventListener("mouseleave", () => {
-  const tooltip = toggleSpeedButton.parentElement?.querySelector<HTMLElement>(".tooltip");
-  MakeInvisible(tooltip)
+    const tooltip =
+        toggleSpeedButton.parentElement?.querySelector<HTMLElement>(".tooltip");
+    MakeInvisible(tooltip);
 });
 speedRangeInput?.addEventListener("input", () => {
     let newspeed = Number.parseInt(speedRangeInput.value);
     speedInfo.textContent = `speed: ${newspeed}x`;
-    animationSpeedChange = 1000/newspeed;
-})
+    animationSpeedChange = 1000 / newspeed;
+});
 //
 
 openSpeedRangeInputButton?.addEventListener("click", () => {
-  MakeVisible(speedRangeInput);
-  MakeVisible(speedInfo);
-  MakeVisible(hideSpeedRangeInputButton);
-  MakeInvisible(openSpeedRangeInputButton);
+    MakeVisible(speedRangeInput);
+    MakeVisible(speedInfo);
+    MakeVisible(hideSpeedRangeInputButton);
+    MakeInvisible(openSpeedRangeInputButton);
 });
 
 hideSpeedRangeInputButton?.addEventListener("click", () => {
-  MakeInvisible(speedRangeInput);
-  MakeInvisible(speedInfo);
-  MakeVisible(openSpeedRangeInputButton);
-  MakeInvisible(hideSpeedRangeInputButton);
+    MakeInvisible(speedRangeInput);
+    MakeInvisible(speedInfo);
+    MakeVisible(openSpeedRangeInputButton);
+    MakeInvisible(hideSpeedRangeInputButton);
 });
 
 //
@@ -250,8 +271,7 @@ resetButton?.addEventListener("click", () => {
     MakeInvisible(pauseButton);
     MakeVisible(playButton);
     ResetNodes();
-
-})
+});
 pauseButton?.addEventListener("click", () => {
     changeAnimationState("paused");
     clearInterval(interval);
@@ -280,15 +300,16 @@ playButton?.addEventListener("click", () => {
 });
 selectAlgorithm?.addEventListener("input", () => {
     selectedAlgorithm = selectAlgorithm.value;
-    console.log(selectedAlgorithm)
-})
+    console.log(selectedAlgorithm);
+});
 function changeAnimationState(state: animationState): void {
     currentAnimationState = state;
     ChangeMessageBox(currentAnimationState);
 }
 function changeCanvasState(mode: canvasState): void {
-    if ((canvas_state === "run-animation" ||canvas_state === "animation-running") 
-        &&
+    if (
+        (canvas_state === "run-animation" ||
+            canvas_state === "animation-running") &&
         mode !== "none" &&
         mode !== "animation-running"
     ) {
@@ -313,9 +334,12 @@ function changeCanvasState(mode: canvasState): void {
             network.deleteSelected();
             break;
         case "none":
-            if (prev_canvas_state === "run-animation" || prev_canvas_state === "animation-running")
+            if (
+                prev_canvas_state === "run-animation" ||
+                prev_canvas_state === "animation-running"
+            )
                 ResetNodes();
-                MakeVisible(selectAlgorithm);
+            MakeVisible(selectAlgorithm);
             ChangeMessageBox("select mode on the toolbar");
             network.disableEditMode();
             MakeInvisible(animationBox);
@@ -376,28 +400,43 @@ function ColorNodes(state: string[]): void {
     let currentAnimationStateNumberCopy = currentAnimationStateNumber;
     ResetNodes();
     currentAnimationStateNumber = currentAnimationStateNumberCopy;
-    if(!state)return;
+    if (!state) return;
     for (const nodeId of state) {
         graph_nodes.update({
             id: nodeId,
-            color: visitedNodeColor,
+            color: {
+                border: "black",
+                background: visitedNodeColor,
+                highlight: {
+                    border: "black",
+                    background: visitedNodeColor,
+                },
+            },
         });
     }
 }
 function ResetNodes(): void {
     currentAnimationStateNumber = -1;
+    currentAnimationStateNumber = -1;
     graph_nodes.forEach((node, id) => {
         graph_nodes.update({
             id,
-            color: nodeColor,
+            color: {
+                border: "black",
+                background: nodeColor,
+                highlight: {
+                    border: "black",
+                    background: nodeColor,
+                },
+            },
         });
     });
 }
-function MakeVisible(element: HTMLElement|undefined|null): void {
-    if(element)element.classList.remove("hide");
+function MakeVisible(element: HTMLElement | undefined | null): void {
+    if (element) element.classList.remove("hide");
 }
-function MakeInvisible(element: HTMLElement|undefined|null): void {
-    if(element)element.classList.add("hide");
+function MakeInvisible(element: HTMLElement | undefined | null): void {
+    if (element) element.classList.add("hide");
 }
 
 function ChangeMessageBox(new_message: string): void {

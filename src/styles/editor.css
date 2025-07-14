@@ -1,10 +1,14 @@
+:root{
+    --main-color: rgb(255, 202, 55);
+    --transition-color: rgb(255, 187, 0);
+}
 body,
 html {
     height: 100vh;
     margin: 0;
     font-size: 23px;
     font-family: Arial, Helvetica, sans-serif;
-    color: #5b63b7;
+    color: #000000;
 }
 #playground #message-box {
     position: absolute;
@@ -14,7 +18,7 @@ html {
 }
 #playground .vis-network {
     margin-bottom: 10px;
-    background-color: #fff3fa;
+    background-color: white;
 }
 #playground {
     position: relative;
@@ -22,7 +26,7 @@ html {
     flex-direction: row;
     align-items: flex-start;
     width: 100%;
-    background-color: #fff3fa;
+    background-color: white;
 }
 #container-wrapper{
   position: relative;
@@ -52,13 +56,12 @@ html {
     font-size: 1rem;
     border-radius: 5px;
     border: transparent;
-    background-color: #cbccff;
-    color: #5b63b7;
-    font-weight: bold;
+    background-color: var(--main-color);
+    color: #000000;
 }
 #modify-graph button:hover{
-    background-color: #acaeff;
-    transition: all 0.3s linear;
+    background-color: var(--transition-color);
+    transition: all 0.1s linear;
 }
 #modify-graph select.hide{
   display:none;
@@ -77,13 +80,13 @@ html {
 }
 #change-data input{
   font-size: 0.9em;
-  border: solid 2px #6c74d3;
+  border: solid 2px #000000;
   border-radius: 3px;
-  color: #5b63b7;
+  color: #000000;
   box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
 }
 #change-data input:focus{
-  border: solid 3px #6c74d3;
+  border: solid 3px #000000;
   outline: none;
 }
 #animation-box.hide{
@@ -102,19 +105,22 @@ html {
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: #5b63b7;
-  border: none;
+  background-color: white;
+  border: solid 1px black;
   border-radius: 5px;
 }
+#animation-box button svg{
+  fill: black;
+}
 #animation-box button:hover{
-  background-color: #6c74d3;
-  transition: all 0.4s linear;
+  background-color: rgb(245, 245, 245);
+  transition: all 0.1s linear;
 }
 #animation-box button.hide{
   display:none;
 }
 #toggle-speed{
-    background-color: #cbccff;
+    background-color: var(--main-color);
     border: none;
     position: absolute;
     right: 0px;
@@ -131,7 +137,7 @@ html {
   display: none;
 }
 #toggle-speed svg{
-    fill: #5b63b7;
+    fill: black;
 }
 #toggle-speed:hover svg{
     cursor: pointer;
@@ -151,12 +157,12 @@ html {
     right: 0;
     position: absolute;
     transition: all 0.5s linear;
-    background-color: #cbccff;
+    background-color: var(--main-color);
     white-space: nowrap;
     padding: 1px 5px;
     border: none;
     border-radius: 3px;
-    color: #5b63b7;
+    color: black;
     font-weight: bold;
 }
 .tooltip.hide{
