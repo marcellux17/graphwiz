@@ -90,6 +90,7 @@ const options = {
     },
     interaction: {
         dragView: true,
+        selectConnectedEdges: false,
     },
     nodes: {
         borderColor: "black",
@@ -111,10 +112,7 @@ const options = {
     edges: {
         smooth: false,
         width: 2,
-        selectionWidth: 0,
-    },
-    interactions: {
-        selectConnectedEdges: false,
+        selectionWidth: 3,
     },
     manipulation: {
         enabled: false,
