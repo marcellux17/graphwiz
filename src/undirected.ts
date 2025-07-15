@@ -90,9 +90,9 @@ const options = {
     },
     interaction: {
         dragView: true,
+        selectConnectedEdges: false,
     },
     nodes: {
-        borderColor: "black",
         borderWidth: 3,
         shape: "circle",
         color: {
@@ -111,10 +111,7 @@ const options = {
     edges: {
         smooth: false,
         width: 2,
-        selectionWidth: 0,
-    },
-    interactions: {
-        selectConnectedEdges: false,
+        selectionWidth: 3,
     },
     manipulation: {
         enabled: false,
@@ -165,7 +162,7 @@ const options = {
 };
 const network = new Network(container, data, options);
 const graph = new undirectedGraph();
-let states: string[][] | undefined;
+let states: Map<string, boolean>[] | undefined;
 
 //events on the network
 network.on("selectNode", (e) => {
@@ -179,11 +176,11 @@ network.on("selectNode", (e) => {
     selectedNode = e.nodes[0];
     //if a node was selected in run-animation state we run the algorithm and then return
     if (canvas_state == "run-animation") {
+        console.log(currentAnimationStateNumber);
         states =
             selectedAlgorithm === "dfs"
                 ? graph.DFS(selectedNode)
                 : graph.BFS(selectedNode);
-        console.log("selected algorithm", selectedAlgorithm);
         //changing canvas_state to animation-running happens only here
         MakeInvisible(selectAlgorithm);
         changeAnimationState("running");
@@ -293,6 +290,8 @@ backButton?.addEventListener("click", () => {
     }
 });
 playButton?.addEventListener("click", () => {
+    console.log(currentAnimationStateNumber);
+    console.log(states?.length);
     changeAnimationState("running");
     runAnimation();
     MakeInvisible(playButton);
@@ -337,8 +336,9 @@ function changeCanvasState(mode: canvasState): void {
             if (
                 prev_canvas_state === "run-animation" ||
                 prev_canvas_state === "animation-running"
-            )
+            ) {
                 ResetNodes();
+            }
             MakeVisible(selectAlgorithm);
             ChangeMessageBox("select mode on the toolbar");
             network.disableEditMode();
@@ -379,8 +379,10 @@ function runAnimation(): void {
                 runAnimation();
             } else {
                 changeCurrentAnimationStateNumber("forward");
+                console.log(currentAnimationStateNumber);
                 const currentState = states![currentAnimationStateNumber];
                 ColorNodes(currentState);
+                console.log(currentState);
                 //if animation finished running
                 if (currentAnimationStateNumber === states!.length - 1) {
                     clearInterval(interval);
@@ -396,27 +398,23 @@ function runAnimation(): void {
 //IT MAY LOOK INEFFICIENT TO ITERATE OVER A MAP BUT IT DOES NOT REQUIRE US TO ITERATE OVER EACH BUCKET
 //SINCE V8 MAINTAINS AN INTERNAL LIST OF KEYS
 //colores nodes based on state
-function ColorNodes(state: string[]): void {
-    let currentAnimationStateNumberCopy = currentAnimationStateNumber;
-    ResetNodes();
-    currentAnimationStateNumber = currentAnimationStateNumberCopy;
+function ColorNodes(state: Map<string, boolean>): void {
     if (!state) return;
-    for (const nodeId of state) {
+    for (const [nodeId, visited] of state) {
         graph_nodes.update({
             id: nodeId,
             color: {
                 border: "black",
-                background: visitedNodeColor,
+                background: visited ? visitedNodeColor : nodeColor,
                 highlight: {
                     border: "black",
-                    background: visitedNodeColor,
+                    background: visited ? visitedNodeColor : nodeColor,
                 },
             },
         });
     }
 }
 function ResetNodes(): void {
-    currentAnimationStateNumber = -1;
     currentAnimationStateNumber = -1;
     graph_nodes.forEach((node, id) => {
         graph_nodes.update({
