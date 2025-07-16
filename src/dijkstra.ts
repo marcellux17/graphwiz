@@ -193,13 +193,17 @@ network.on("selectNode", (e) => {
         if (!startingNode) {
             startingNode = selectedElementId;
             ChangeMessageBox("choose destination node");
-            startingNodeInfo!.textContent = `start: ${graph.GetLabelOfNode(startingNode)}`
+            startingNodeInfo!.textContent = `start: ${graph.GetLabelOfNode(
+                startingNode
+            )}`;
             network.unselectAll();
         } else {
             destinationNode = selectedElementId;
             const connected = graph.areConnected(startingNode, destinationNode);
             if (connected) {
-                destinationNodeInfo!.textContent = `dest: ${graph.GetLabelOfNode(destinationNode)}`
+                destinationNodeInfo!.textContent = `dest: ${graph.GetLabelOfNode(
+                    destinationNode
+                )}`;
                 changeCanvasState("animation-running");
             } else {
                 ChangeMessageBox(
@@ -326,14 +330,12 @@ forwardButton?.addEventListener("click", () => {
     if (currentAnimationState === "paused") {
         clearInterval(interval);
         changeCurrentAnimationStateNumber("forward");
-        ColorNodes(states![currentAnimationStateNumber]);
     }
 });
 backButton?.addEventListener("click", () => {
     if (currentAnimationState === "paused") {
         clearInterval(interval);
         changeCurrentAnimationStateNumber("backward");
-        ColorNodes(states![currentAnimationStateNumber]);
     }
 });
 playButton?.addEventListener("click", () => {
@@ -396,13 +398,14 @@ function changeCanvasState(mode: canvasState): void {
                 startingNode = undefined;
                 destinationNode = undefined;
                 ResetNodes();
+                changeLabelsBack();
             }
             ChangeMessageBox("select mode on the toolbar");
             network.disableEditMode();
             MakeInvisible(animationBox);
             MakeInvisible(pathInfoBox);
-            startingNodeInfo!.textContent = "start: "
-            destinationNodeInfo!.textContent = "dest: "
+            startingNodeInfo!.textContent = "start: ";
+            destinationNodeInfo!.textContent = "dest: ";
             break;
         case "run-animation":
             network.unselectAll();
@@ -412,6 +415,7 @@ function changeCanvasState(mode: canvasState): void {
             network.disableEditMode();
             break;
         case "animation-running":
+            changeLabels();
             changeAnimationState("running");
             network.unselectAll();
             MakeVisible(animationBox);
@@ -441,10 +445,7 @@ function runAnimation(): void {
                 runAnimation();
             } else {
                 changeCurrentAnimationStateNumber("forward");
-                console.log(currentAnimationStateNumber);
                 const currentState = states![currentAnimationStateNumber];
-                ColorNodes(currentState);
-                console.log(currentState);
                 //if animation finished running
                 if (currentAnimationStateNumber === states!.length - 1) {
                     clearInterval(interval);
@@ -457,23 +458,29 @@ function runAnimation(): void {
         }, animationSpeed);
     }
 }
-
-function ColorNodes(state: Map<string, boolean>): void {
-    if (!state) return;
-    for (const [nodeId, visited] of state) {
-        graph_nodes.update({
-            id: nodeId,
-            color: {
-                border: "black",
-                background: visited ? visitedNodeColor : nodeColor,
-                highlight: {
-                    border: "black",
-                    background: visited ? visitedNodeColor : nodeColor,
-                },
-            },
-        });
-    }
+function changeLabelsBack(): void {
+    graph_nodes.forEach((node, id) => {
+        if (id !== startingNode) {
+            const label = graph.GetLabelOfNode(id as string);
+            graph_nodes.update({
+                id,
+                label: label,
+            });
+        }
+    });
 }
+function changeLabels(): void {
+    graph_nodes.forEach((node, id) => {
+        if (id !== startingNode) {
+            const label = graph.GetLabelOfNode(id as string);
+            graph_nodes.update({
+                id,
+                label: label + " " + "(∞)",
+            });
+        }
+    });
+}
+//for reverting back to state 0 of animation states
 function ResetNodes(): void {
     currentAnimationStateNumber = -1;
     graph_nodes.forEach((node, id) => {
