@@ -1,3 +1,4 @@
+import { WithIdAndDistance } from "./graphs";
 export default class Queue<T> {
     //circular queue implmentation
     private capacity: number;
@@ -69,3 +70,80 @@ export default class Queue<T> {
         return this.toArray().toString();
     }
 }
+export class MinPriorityQueue<T extends WithIdAndDistance> {
+    private heap: T[] = [];
+    private idToIndex: Map<string, number> = new Map();//making sure updating is fast so in the worst case we won't have o(n) runtime
+
+    constructor(private compare: (a: T, b: T) => number) {}
+
+    private parent(i: number): number { return Math.floor((i - 1) / 2); }
+    private left(i: number): number { return 2 * i + 1; }
+    private right(i: number): number { return 2 * i + 2; }
+
+    private swap(i: number, j: number): void {
+        [this.heap[i], this.heap[j]] = [this.heap[j], this.heap[i]];
+        this.idToIndex.set(this.heap[i].id, i);
+        this.idToIndex.set(this.heap[j].id, j);
+    }
+
+    private heapifyUp(i: number): void {
+        while (i > 0 && this.compare(this.heap[i], this.heap[this.parent(i)]) < 0) {
+            this.swap(i, this.parent(i));
+            i = this.parent(i);
+        }
+    }
+
+    private heapifyDown(i: number): void {
+        let smallest = i;
+        const left = this.left(i);
+        const right = this.right(i);
+
+        if (left < this.heap.length && this.compare(this.heap[left], this.heap[smallest]) < 0) {
+            smallest = left;
+        }
+
+        if (right < this.heap.length && this.compare(this.heap[right], this.heap[smallest]) < 0) {
+            smallest = right;
+        }
+
+        if (smallest !== i) {
+            this.swap(i, smallest);
+            this.heapifyDown(smallest);
+        }
+    }
+
+    insert(item: T): void {
+        this.heap.push(item);
+        const index = this.heap.length - 1;
+        this.idToIndex.set(item.id, index);
+        this.heapifyUp(index);
+    }
+
+    extractMin(): T {
+        const min = this.heap[0];
+        const last = this.heap.pop()!;
+        this.idToIndex.delete(min.id);
+        if (this.heap.length > 0) {
+            this.heap[0] = last;
+            this.idToIndex.set(last.id, 0);
+            this.heapifyDown(0);
+        }
+        return min;
+    }
+    update(id: string, newDistance: number): void {
+        const index = this.idToIndex.get(id);
+        if (index === undefined) return; // node not in queue
+        const oldDistance = this.heap[index].estimated_distance;
+        this.heap[index].estimated_distance = newDistance;
+
+        if (newDistance < oldDistance) {
+            this.heapifyUp(index);
+        } else {
+            this.heapifyDown(index);
+        }
+    }
+    isEmpty(): boolean {
+        return this.heap.length === 0;
+    }
+}
+

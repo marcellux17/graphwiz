@@ -23,9 +23,6 @@ const playButton = document.querySelector<HTMLButtonElement>("#play");
 const resetButton = document.querySelector<HTMLButtonElement>("#reset");
 const runAnimationButton =
     document.querySelector<HTMLButtonElement>("#run-animation");
-const selectAlgorithm =
-    document.querySelector<HTMLSelectElement>("#algorithms")!;
-
 //displaying feedback for the user
 const messageBox = document.querySelector<HTMLDivElement>("#message-box")!;
 
@@ -58,12 +55,14 @@ type canvasState =
     | "run-animation"
     | "step-by-step"
     | "animation-running";
+type selectionTye = "node" | "edge";
 // run-animation: to start animation vs. animation-running: animation is currently running
 // none is set when we click the escape button
 
 //GLOBAL VARIABLES
-let selectedNode: string;
+let selectedElementId:string;
 let canvas_state: canvasState = "none";
+let selectedElement: selectionTye;
 
 //animation
 let interval: number;
@@ -73,7 +72,6 @@ let currentAnimationStateNumber = -1; //in the animation function it first incre
 let visitedNodeColor = "#2ade51";
 let nodeColor = "white";
 let currentAnimationState: animationState = "running";
-let selectedAlgorithm: string = "dfs"; // "dfs" or "bfs"
 
 const graph_nodes = new DataSet<Node>([]);
 const graph_edges = new DataSet<Edge>([]);
@@ -93,7 +91,6 @@ const options = {
         selectConnectedEdges: false,
     },
     nodes: {
-        borderColor: "black",
         borderWidth: 3,
         shape: "circle",
         color: {
@@ -113,6 +110,11 @@ const options = {
         smooth: false,
         width: 2,
         selectionWidth: 3,
+        font: {
+            size: 20,
+            color: "#000",
+            align: "top",
+        },
     },
     manipulation: {
         enabled: false,
@@ -121,8 +123,10 @@ const options = {
             const to = edgeData.to as string;
             if (from !== to) {
                 let id: string;
-                id = graph.AddEdge(from, to);
+                let weight = Math.floor(Math.random() * 10) + 1;
+                id = graph.AddEdge(from, to, weight);
                 edgeData.id = id;
+                edgeData.label = `${weight}`;
                 callback(edgeData);
             }
             changeCanvasState("add-edge-mode");
@@ -163,7 +167,7 @@ const options = {
 };
 const network = new Network(container, data, options);
 const graph = new undirectedGraph();
-let states: string[][] | undefined;
+let states: Map<string, boolean>[] | undefined;
 
 //events on the network
 network.on("selectNode", (e) => {
@@ -174,24 +178,33 @@ network.on("selectNode", (e) => {
     if (!(canvas_state === "none" || canvas_state === "run-animation")) {
         return;
     }
-    selectedNode = e.nodes[0];
+    selectedElement = "node";
+    selectedElementId = e.nodes[0];
     //if a node was selected in run-animation state we run the algorithm and then return
     if (canvas_state == "run-animation") {
-        states =
-            selectedAlgorithm === "dfs"
-                ? graph.DFS(selectedNode)
-                : graph.BFS(selectedNode);
-        console.log("selected algorithm", selectedAlgorithm);
         //changing canvas_state to animation-running happens only here
-        MakeInvisible(selectAlgorithm);
         changeAnimationState("running");
         changeCanvasState("animation-running");
         return;
     }
-    const node = graph_nodes.get(selectedNode);
+    const node = graph_nodes.get(selectedElementId);
     MakeVisible(inputGroup);
     label.textContent = `Change label of the selected node`;
     labelInput.value = node?.label == undefined ? "" : node.label;
+});
+network.on("selectEdge", (e) => {
+    //so that we don't do anything while animation is running
+    if (canvas_state === "animation-running") {
+        return;
+    }
+    if (!(canvas_state === "none" || canvas_state === "run-animation")) {
+        return;
+    }
+    selectedElement = "edge";
+    selectedElementId = e.edges[0];
+    MakeVisible(inputGroup);
+    label.textContent = `Change weight of the selected edge`;
+    labelInput.value = `${graph.GetEdgeWeight(selectedElementId)}`;
 });
 //speed changing related events
 toggleSpeedButton?.addEventListener("mouseover", () => {
@@ -229,6 +242,9 @@ hideSpeedRangeInputButton?.addEventListener("click", () => {
 network.on("deselectNode", () => {
     resetInput();
 });
+network.on("deselectEdge", () => {
+    resetInput();
+})
 
 addEdgeButton?.addEventListener("click", () => {
     changeCanvasState("add-edge-mode");
@@ -256,11 +272,19 @@ runAnimationButton?.addEventListener("click", () => {
 
 labelInput.addEventListener("input", () => {
     const new_label = labelInput.value;
-    graph.ModifyLabel(selectedNode, new_label);
-    graph_nodes.update({
-        id: selectedNode,
-        label: new_label,
-    });
+    if(selectedElement == "node"){
+        graph.ModifyLabelOfNode(selectedElementId, new_label);
+        graph_nodes.update({
+            id: selectedElementId,
+            label: new_label,
+        });
+    }else{
+        graph.ModifyWeight(selectedElementId,Number.parseInt(new_label))
+        graph_edges.update({
+            id: selectedElementId,
+            label: new_label
+        })
+    }
 });
 //animation box state changes
 resetButton?.addEventListener("click", () => {
@@ -291,14 +315,12 @@ backButton?.addEventListener("click", () => {
     }
 });
 playButton?.addEventListener("click", () => {
+    console.log(currentAnimationStateNumber);
+    console.log(states?.length);
     changeAnimationState("running");
     runAnimation();
     MakeInvisible(playButton);
     MakeVisible(pauseButton);
-});
-selectAlgorithm?.addEventListener("input", () => {
-    selectedAlgorithm = selectAlgorithm.value;
-    console.log(selectedAlgorithm);
 });
 function changeAnimationState(state: animationState): void {
     currentAnimationState = state;
@@ -335,9 +357,9 @@ function changeCanvasState(mode: canvasState): void {
             if (
                 prev_canvas_state === "run-animation" ||
                 prev_canvas_state === "animation-running"
-            )
+            ) {
                 ResetNodes();
-            MakeVisible(selectAlgorithm);
+            }
             ChangeMessageBox("select mode on the toolbar");
             network.disableEditMode();
             MakeInvisible(animationBox);
@@ -359,7 +381,7 @@ function changeCanvasState(mode: canvasState): void {
     }
 }
 function resetInput(): void {
-    selectedNode = "";
+    selectedElementId = "";
     label.textContent = "";
     labelInput.value = "";
     MakeInvisible(inputGroup);
@@ -377,8 +399,10 @@ function runAnimation(): void {
                 runAnimation();
             } else {
                 changeCurrentAnimationStateNumber("forward");
+                console.log(currentAnimationStateNumber);
                 const currentState = states![currentAnimationStateNumber];
                 ColorNodes(currentState);
+                console.log(currentState);
                 //if animation finished running
                 if (currentAnimationStateNumber === states!.length - 1) {
                     clearInterval(interval);
@@ -394,27 +418,23 @@ function runAnimation(): void {
 //IT MAY LOOK INEFFICIENT TO ITERATE OVER A MAP BUT IT DOES NOT REQUIRE US TO ITERATE OVER EACH BUCKET
 //SINCE V8 MAINTAINS AN INTERNAL LIST OF KEYS
 //colores nodes based on state
-function ColorNodes(state: string[]): void {
-    let currentAnimationStateNumberCopy = currentAnimationStateNumber;
-    ResetNodes();
-    currentAnimationStateNumber = currentAnimationStateNumberCopy;
+function ColorNodes(state: Map<string, boolean>): void {
     if (!state) return;
-    for (const nodeId of state) {
+    for (const [nodeId, visited] of state) {
         graph_nodes.update({
             id: nodeId,
             color: {
                 border: "black",
-                background: visitedNodeColor,
+                background: visited ? visitedNodeColor : nodeColor,
                 highlight: {
                     border: "black",
-                    background: visitedNodeColor,
+                    background: visited ? visitedNodeColor : nodeColor,
                 },
             },
         });
     }
 }
 function ResetNodes(): void {
-    currentAnimationStateNumber = -1;
     currentAnimationStateNumber = -1;
     graph_nodes.forEach((node, id) => {
         graph_nodes.update({

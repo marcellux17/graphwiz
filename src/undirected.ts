@@ -120,7 +120,7 @@ const options = {
             const to = edgeData.to as string;
             if (from !== to) {
                 let id: string;
-                id = graph.AddEdge(from, to);
+                id = graph.AddEdge(from, to, undefined);
                 edgeData.id = id;
                 callback(edgeData);
             }
@@ -162,7 +162,7 @@ const options = {
 };
 const network = new Network(container, data, options);
 const graph = new undirectedGraph();
-let states: Map<string, boolean>[] | undefined;
+let states: string[] | undefined;
 
 //events on the network
 network.on("selectNode", (e) => {
@@ -255,7 +255,7 @@ runAnimationButton?.addEventListener("click", () => {
 
 labelInput.addEventListener("input", () => {
     const new_label = labelInput.value;
-    graph.ModifyLabel(selectedNode, new_label);
+    graph.ModifyLabelOfNode(selectedNode, new_label);
     graph_nodes.update({
         id: selectedNode,
         label: new_label,
@@ -279,19 +279,18 @@ forwardButton?.addEventListener("click", () => {
     if (currentAnimationState === "paused") {
         clearInterval(interval);
         changeCurrentAnimationStateNumber("forward");
-        ColorNodes(states![currentAnimationStateNumber]);
+        ColorNode(states![currentAnimationStateNumber]);
     }
 });
 backButton?.addEventListener("click", () => {
     if (currentAnimationState === "paused") {
         clearInterval(interval);
+        ResetNodeColor(states![currentAnimationStateNumber])
         changeCurrentAnimationStateNumber("backward");
-        ColorNodes(states![currentAnimationStateNumber]);
+        ColorNode(states![currentAnimationStateNumber]);
     }
 });
 playButton?.addEventListener("click", () => {
-    console.log(currentAnimationStateNumber);
-    console.log(states?.length);
     changeAnimationState("running");
     runAnimation();
     MakeInvisible(playButton);
@@ -299,7 +298,6 @@ playButton?.addEventListener("click", () => {
 });
 selectAlgorithm?.addEventListener("input", () => {
     selectedAlgorithm = selectAlgorithm.value;
-    console.log(selectedAlgorithm);
 });
 function changeAnimationState(state: animationState): void {
     currentAnimationState = state;
@@ -379,10 +377,8 @@ function runAnimation(): void {
                 runAnimation();
             } else {
                 changeCurrentAnimationStateNumber("forward");
-                console.log(currentAnimationStateNumber);
                 const currentState = states![currentAnimationStateNumber];
-                ColorNodes(currentState);
-                console.log(currentState);
+                ColorNode(currentState);
                 //if animation finished running
                 if (currentAnimationStateNumber === states!.length - 1) {
                     clearInterval(interval);
@@ -398,21 +394,33 @@ function runAnimation(): void {
 //IT MAY LOOK INEFFICIENT TO ITERATE OVER A MAP BUT IT DOES NOT REQUIRE US TO ITERATE OVER EACH BUCKET
 //SINCE V8 MAINTAINS AN INTERNAL LIST OF KEYS
 //colores nodes based on state
-function ColorNodes(state: Map<string, boolean>): void {
-    if (!state) return;
-    for (const [nodeId, visited] of state) {
-        graph_nodes.update({
-            id: nodeId,
-            color: {
+function ColorNode(nodeId:string): void {
+    if (!nodeId) return;
+    graph_nodes.update({
+        id: nodeId,
+        color: {
+            border: "black",
+            background: visitedNodeColor,
+            highlight: {
                 border: "black",
-                background: visited ? visitedNodeColor : nodeColor,
-                highlight: {
-                    border: "black",
-                    background: visited ? visitedNodeColor : nodeColor,
-                },
+                background: visitedNodeColor
             },
-        });
-    }
+        },
+    });
+}
+function ResetNodeColor(nodeId:string):void{
+    if (!nodeId) return;
+    graph_nodes.update({
+        id: nodeId,
+        color: {
+            border: "black",
+            background: nodeColor,
+            highlight: {
+                border: "black",
+                background: nodeColor
+            },
+        },
+    });
 }
 function ResetNodes(): void {
     currentAnimationStateNumber = -1;

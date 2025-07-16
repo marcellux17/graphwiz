@@ -1,5 +1,10 @@
 import { v4 as uuidv4 } from "uuid";
 import Queue from "./queue";
+import { MinPriorityQueue } from "./queue";
+export type WithIdAndDistance = {
+    id: string;
+    estimated_distance: number;
+};
 export type stepType =
     | "nodeLabelUpdate"
     | "edgeSelected"
@@ -11,12 +16,10 @@ export class undirectedGraph {
     private i: number = 1; //just so nodes have different labels, though user can change them (its just for visuals)
     private numberOfNodes: number = 0;
     //for keeping track of animation states in depth first search
-    private prevStateForDepthFirstSearch: Map<string, boolean>;
     private EdgeList: Map<string, Edge> = new Map<string, Edge>();
     constructor() {
         this.Nodes = new Map<string, Node>();
         this.Labels = new Map<string, boolean>();
-        this.prevStateForDepthFirstSearch = new Map<string, boolean>();
     }
     AddNode(): { id: string; label: string } {
         const id = uuidv4();
@@ -42,21 +45,28 @@ export class undirectedGraph {
     //     const l = this.Labels.get(label);
     //     return l || false;
     // }
-    ModifyLabel(id: string, new_label: string) {
+    ModifyLabelOfNode(id: string, new_label: string):void {
         const node = this.Nodes.get(id)!;
         let prevLabel = node.label;
         this.Labels.delete(prevLabel);
         node.label = new_label;
         this.Labels.set(new_label, true);
     }
-    AddEdge(from: string, to: string): string {
+    ModifyWeight(id:string, new_weight: number):void{
+        const edge = this.EdgeList.get(id);
+        edge!.weight = new_weight;
+    }
+    AddEdge(from: string, to: string, weight: number | undefined): string {
         const id = uuidv4();
         const firstNode = this.Nodes.get(from)!;
         const secondNode = this.Nodes.get(to)!;
         firstNode.AddNeighbour(to, id);
         secondNode.AddNeighbour(from, id);
-        this.EdgeList.set(id, new Edge(id, to, from));
+        this.EdgeList.set(id, new Edge(id, to, from, weight));
         return id;
+    }
+    GetEdgeWeight(id: string):number{
+        return this.EdgeList.get(id)!.weight!;
     }
     RemoveEdge(from: string, to: string) {
         const firstNode = this.Nodes.get(from)!;
@@ -74,9 +84,9 @@ export class undirectedGraph {
             this.EdgeList.delete(edgeId);
         }
     }
-    BFS(startingNodeId: string): Map<string, boolean>[] {
+    BFS(startingNodeId: string): string[] {
         const queue = new Queue<string>(this.numberOfNodes);
-        const states: Map<string, boolean>[] = [];
+        const states: string[] = [];
         const visited = new Map<string, boolean>();
         let prevState = new Map<string, boolean>();
         //setting each node to false in prevState is only necessary because of the playbackbutton: we need to know which nodes not to color
@@ -87,10 +97,7 @@ export class undirectedGraph {
         visited.set(startingNodeId, true);
         while (!queue.isEmpty()) {
             const currentElementId = queue.Dequeue()!;
-            const newstate = new Map<string, boolean>(prevState);
-            newstate.set(currentElementId, true);
-            prevState = newstate;
-            states.push(newstate);
+            states.push(currentElementId);
             const currentElement = this.Nodes.get(currentElementId)!;
             for (const neighbourId of currentElement.AdjacencyList.keys()) {
                 if (!visited.get(neighbourId)) {
@@ -101,29 +108,20 @@ export class undirectedGraph {
         }
         return states;
     }
-    DFS(startingNodeId: string): Map<string, boolean>[] {
-        const states: Map<string, boolean>[] = [];
+    DFS(startingNodeId: string): string[] {
+        const states:string[] = [];
         const visited = new Map<string, boolean>();
-        //setting each node to false in prevState is only necessary because of the playbackbutton: we need to know which nodes not to color
-        this.Nodes.forEach((node, nodeId) => {
-            this.prevStateForDepthFirstSearch.set(nodeId, false);
-        });
         this.DFS_recursion(startingNodeId, visited, states);
         return states;
     }
     private DFS_recursion(
         nodeId: string,
         visited: Map<string, boolean>,
-        states: Map<string, boolean>[]
+        states: string[]
     ): void {
         const currentElement = this.Nodes.get(nodeId);
-        const newState = new Map<string, boolean>(
-            this.prevStateForDepthFirstSearch
-        );
         visited.set(nodeId, true);
-        newState.set(nodeId, true);
-        states.push(newState);
-        this.prevStateForDepthFirstSearch = newState;
+        states.push(nodeId);
         for (const neighbourId of currentElement!.AdjacencyList.keys()) {
             if (!visited.get(neighbourId)) {
                 this.DFS_recursion(neighbourId, visited, states);
@@ -131,16 +129,42 @@ export class undirectedGraph {
         }
         return;
     }
+    Dijkstra(from: string, to: string):boolean{//returns a boolean indicating whether there is a path from to to from
+        const connected:boolean = this.areConnected(from, to);
+        return connected;
+
+    }
+    private areConnected( startId: string, targetId: string): boolean {
+        if (startId === targetId) return true;
+        const visited = new Map<string, boolean>();
+        const queue = new Queue<string>(this.numberOfNodes);
+        queue.Enqueue(startId);
+        visited.set(startId, true);
+        while (!queue.isEmpty()) {
+            const currentId = queue.Dequeue()!;
+            const currentNode = this.Nodes.get(currentId)!;
+            for (const neighborId of currentNode.AdjacencyList.keys()) {
+                if (neighborId === targetId) return true;
+                if (!visited.has(neighborId)) {
+                    visited.set(neighborId, true);
+                    queue.Enqueue(neighborId);
+                }
+            }
+        }
+        return false;
+    }
+
 }
 class Edge {
     id: string;
-    weight: number = 0;
+    weight: number | undefined;
     to: string;
     from: string;
-    constructor(id: string, to: string, from: string) {
+    constructor(id: string, to: string, from: string, weight: number | undefined) {
         this.id = id;
         this.to = to;
         this.from = from;
+        this.weight = weight;
     }
 }
 class Node {
