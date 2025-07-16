@@ -111,7 +111,9 @@ export class MinPriorityQueue<T extends WithIdAndDistance> {
             this.heapifyDown(smallest);
         }
     }
-
+    getValue(id:string):number{
+        return this.idToIndex.get(id)!;
+    }
     insert(item: T): void {
         this.heap.push(item);
         const index = this.heap.length - 1;

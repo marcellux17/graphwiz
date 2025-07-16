@@ -5,11 +5,31 @@ export type WithIdAndDistance = {
     id: string;
     estimated_distance: number;
 };
-export type stepType =
-    | "nodeLabelUpdate"
-    | "edgeSelected"
-    | "nodeVisited"
-    | "finalPath"; //for dijkstra animations
+export type stateType =
+    | EdgeSelectState
+    | EstimatedDistanceUpdateState
+    | VisitNodeState
+    | PathHighlightState;
+type EdgeSelectState = {
+    id: string;
+};
+type EstimatedDistanceUpdateState = {
+    nodeId: string;
+    prevDistance: number;
+    newDistance: number;
+};
+type VisitNodeState = {
+    id: string;
+};
+type PathHighlightState = {
+    nodesInPath: string[];
+    edgesInPath: directedEdge[];
+};
+type directedEdge = {
+    id: string;
+    from: string;
+    to: string;
+};
 export class undirectedGraph {
     private Nodes: Map<string, Node>; //nodeId is the key
     private Labels: Map<string, boolean>;
@@ -45,14 +65,14 @@ export class undirectedGraph {
     //     const l = this.Labels.get(label);
     //     return l || false;
     // }
-    ModifyLabelOfNode(id: string, new_label: string):void {
+    ModifyLabelOfNode(id: string, new_label: string): void {
         const node = this.Nodes.get(id)!;
         let prevLabel = node.label;
         this.Labels.delete(prevLabel);
         node.label = new_label;
         this.Labels.set(new_label, true);
     }
-    ModifyWeight(id:string, new_weight: number):void{
+    ModifyWeight(id: string, new_weight: number): void {
         const edge = this.EdgeList.get(id);
         edge!.weight = new_weight;
     }
@@ -65,7 +85,7 @@ export class undirectedGraph {
         this.EdgeList.set(id, new Edge(id, to, from, weight));
         return id;
     }
-    GetEdgeWeight(id: string):number{
+    GetEdgeWeight(id: string): number {
         return this.EdgeList.get(id)!.weight!;
     }
     RemoveEdge(from: string, to: string) {
@@ -109,7 +129,7 @@ export class undirectedGraph {
         return states;
     }
     DFS(startingNodeId: string): string[] {
-        const states:string[] = [];
+        const states: string[] = [];
         const visited = new Map<string, boolean>();
         this.DFS_recursion(startingNodeId, visited, states);
         return states;
@@ -129,14 +149,57 @@ export class undirectedGraph {
         }
         return;
     }
-    GetLabelOfNode(id: string){
+    GetLabelOfNode(id: string) {
         return this.Nodes.get(id)?.label;
     }
-    Dijkstra(from: string, to: string){
-        
-
+    Dijkstra(from: string, to: string): stateType[] {
+        const estimatedDistances = new MinPriorityQueue<WithIdAndDistance>(
+            (a, b) => a.estimated_distance - b.estimated_distance
+        ); //estimated distances
+        const states: stateType[] = [];
+        const visited = new Map<string, boolean>();
+        this.Nodes.forEach((node) => {
+            if (node.id !== from) {
+                estimatedDistances.insert({
+                    id: node.id,
+                    estimated_distance: Number.MAX_VALUE,
+                });
+            } else {
+                estimatedDistances.insert({ id: node.id, estimated_distance: 0 });
+            }
+        });
+        let currentNode:WithIdAndDistance = estimatedDistances.extractMin();
+        visited.set(currentNode.id, true);
+        let visitedNode: VisitNodeState = { id: currentNode.id };
+        states.push(visitedNode);
+        while (currentNode?.id !== to) {
+            const node = this.Nodes.get(currentNode.id);
+            node?.AdjacencyList.forEach((neighbourId, edgeId) => {
+                const currentEdge:EdgeSelectState = {id:edgeId};
+                states.push(currentEdge);
+                if(!visited.has(neighbourId)){
+                    const weightOfEdge = this.EdgeList.get(edgeId)!.weight!
+                    const estimatedDistance = estimatedDistances.getValue(neighbourId)
+                    const distanceThroughCurrentNode = currentNode.estimated_distance + weightOfEdge;
+                    if( distanceThroughCurrentNode< estimatedDistance){
+                        const updateDistance: EstimatedDistanceUpdateState = 
+                            { nodeId: neighbourId, 
+                              prevDistance: estimatedDistance,
+                              newDistance: distanceThroughCurrentNode
+                            }
+                        states.push(updateDistance)
+                        estimatedDistances.update(neighbourId, distanceThroughCurrentNode);
+                    }
+                }
+            })
+            currentNode = estimatedDistances.extractMin();
+            visited.set(currentNode.id, true);
+            let visitedNode: VisitNodeState = { id: currentNode.id };
+            states.push(visitedNode);
+        }
+        return states;
     }
-    areConnected( startId: string, targetId: string): boolean {
+    areConnected(startId: string, targetId: string): boolean {
         if (startId === targetId) return true;
         const visited = new Map<string, boolean>();
         const queue = new Queue<string>(this.numberOfNodes);
@@ -155,14 +218,18 @@ export class undirectedGraph {
         }
         return false;
     }
-
 }
 class Edge {
     id: string;
     weight: number | undefined;
     to: string;
     from: string;
-    constructor(id: string, to: string, from: string, weight: number | undefined) {
+    constructor(
+        id: string,
+        to: string,
+        from: string,
+        weight: number | undefined
+    ) {
         this.id = id;
         this.to = to;
         this.from = from;

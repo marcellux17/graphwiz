@@ -199,6 +199,10 @@ network.on("selectNode", (e) => {
             network.unselectAll();
         } else {
             destinationNode = selectedElementId;
+            if(destinationNode == startingNode){
+                ChangeMessageBox("choose destination node");
+                return;
+            }
             const connected = graph.areConnected(startingNode, destinationNode);
             if (connected) {
                 destinationNodeInfo!.textContent = `dest: ${graph.GetLabelOfNode(
