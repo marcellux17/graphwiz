@@ -183,7 +183,6 @@ network.on("selectNode", (e) => {
                 : graph.BFS(selectedNode);
         //changing canvas_state to animation-running happens only here
         MakeInvisible(selectAlgorithm);
-        changeAnimationState("running");
         changeCanvasState("animation-running");
         return;
     }
@@ -391,9 +390,8 @@ function runAnimation(): void {
         }, animationSpeed);
     }
 }
-//IT MAY LOOK INEFFICIENT TO ITERATE OVER A MAP BUT IT DOES NOT REQUIRE US TO ITERATE OVER EACH BUCKET
-//SINCE V8 MAINTAINS AN INTERNAL LIST OF KEYS
-//colores nodes based on state
+
+
 function ColorNode(nodeId:string): void {
     if (!nodeId) return;
     graph_nodes.update({

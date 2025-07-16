@@ -194,4 +194,18 @@ html {
 button{
   box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
 }
-
+#path-info{
+  position: absolute;
+  bottom: 5px;
+  left: 5px;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+#path-info p{
+  margin: 0;
+}
+#path-info.hide{
+  display: none;
+}

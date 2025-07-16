@@ -44,6 +44,11 @@ const speedRangeInput =
     document.querySelector<HTMLInputElement>("#speed-input");
 const speedInfo = document.querySelector<HTMLDivElement>("#speed-info")!;
 
+//source destination box for displaying starting node and destination node
+const pathInfoBox = document.querySelector<HTMLDivElement>("#path-info");
+const destinationNodeInfo = document.querySelector<HTMLDivElement>("#dest");
+const startingNodeInfo = document.querySelector<HTMLDivElement>("#start");
+
 //types
 type animationMoveDirection = "forward" | "backward";
 type animationState = "running" | "paused";
@@ -60,9 +65,11 @@ type selectionTye = "node" | "edge";
 // none is set when we click the escape button
 
 //GLOBAL VARIABLES
-let selectedElementId:string;
+let selectedElementId: string;
 let canvas_state: canvasState = "none";
 let selectedElement: selectionTye;
+let startingNode: string | undefined;
+let destinationNode: string | undefined;
 
 //animation
 let interval: number;
@@ -171,7 +178,7 @@ let states: Map<string, boolean>[] | undefined;
 
 //events on the network
 network.on("selectNode", (e) => {
-    //so that we don't do anything while animation is running
+    //we don't do anything while animation is running
     if (canvas_state === "animation-running") {
         return;
     }
@@ -183,8 +190,23 @@ network.on("selectNode", (e) => {
     //if a node was selected in run-animation state we run the algorithm and then return
     if (canvas_state == "run-animation") {
         //changing canvas_state to animation-running happens only here
-        changeAnimationState("running");
-        changeCanvasState("animation-running");
+        if (!startingNode) {
+            startingNode = selectedElementId;
+            ChangeMessageBox("choose destination node");
+            startingNodeInfo!.textContent = `start: ${graph.GetLabelOfNode(startingNode)}`
+            network.unselectAll();
+        } else {
+            destinationNode = selectedElementId;
+            const connected = graph.areConnected(startingNode, destinationNode);
+            if (connected) {
+                destinationNodeInfo!.textContent = `dest: ${graph.GetLabelOfNode(destinationNode)}`
+                changeCanvasState("animation-running");
+            } else {
+                ChangeMessageBox(
+                    "no path from starting node to destination node, choose another destination node"
+                );
+            }
+        }
         return;
     }
     const node = graph_nodes.get(selectedElementId);
@@ -244,7 +266,7 @@ network.on("deselectNode", () => {
 });
 network.on("deselectEdge", () => {
     resetInput();
-})
+});
 
 addEdgeButton?.addEventListener("click", () => {
     changeCanvasState("add-edge-mode");
@@ -272,18 +294,18 @@ runAnimationButton?.addEventListener("click", () => {
 
 labelInput.addEventListener("input", () => {
     const new_label = labelInput.value;
-    if(selectedElement == "node"){
+    if (selectedElement == "node") {
         graph.ModifyLabelOfNode(selectedElementId, new_label);
         graph_nodes.update({
             id: selectedElementId,
             label: new_label,
         });
-    }else{
-        graph.ModifyWeight(selectedElementId,Number.parseInt(new_label))
+    } else {
+        graph.ModifyWeight(selectedElementId, Number.parseInt(new_label));
         graph_edges.update({
             id: selectedElementId,
-            label: new_label
-        })
+            label: new_label,
+        });
     }
 });
 //animation box state changes
@@ -322,6 +344,19 @@ playButton?.addEventListener("click", () => {
     MakeInvisible(playButton);
     MakeVisible(pauseButton);
 });
+function ColorNode(id: string, color: string) {
+    graph_nodes.update({
+        id: id,
+        color: {
+            border: "black",
+            background: color,
+            highlight: {
+                border: "black",
+                background: color,
+            },
+        },
+    });
+}
 function changeAnimationState(state: animationState): void {
     currentAnimationState = state;
     ChangeMessageBox(currentAnimationState);
@@ -358,20 +393,27 @@ function changeCanvasState(mode: canvasState): void {
                 prev_canvas_state === "run-animation" ||
                 prev_canvas_state === "animation-running"
             ) {
+                startingNode = undefined;
+                destinationNode = undefined;
                 ResetNodes();
             }
             ChangeMessageBox("select mode on the toolbar");
             network.disableEditMode();
             MakeInvisible(animationBox);
+            MakeInvisible(pathInfoBox);
+            startingNodeInfo!.textContent = "start: "
+            destinationNodeInfo!.textContent = "dest: "
             break;
         case "run-animation":
             network.unselectAll();
-            ChangeMessageBox("select a node to run animation");
+            ChangeMessageBox("select a starting node");
+            MakeVisible(pathInfoBox);
             resetInput();
             network.disableEditMode();
             break;
         case "animation-running":
             changeAnimationState("running");
+            network.unselectAll();
             MakeVisible(animationBox);
             MakeInvisible(playButton);
             MakeVisible(pauseButton);
@@ -415,9 +457,7 @@ function runAnimation(): void {
         }, animationSpeed);
     }
 }
-//IT MAY LOOK INEFFICIENT TO ITERATE OVER A MAP BUT IT DOES NOT REQUIRE US TO ITERATE OVER EACH BUCKET
-//SINCE V8 MAINTAINS AN INTERNAL LIST OF KEYS
-//colores nodes based on state
+
 function ColorNodes(state: Map<string, boolean>): void {
     if (!state) return;
     for (const [nodeId, visited] of state) {

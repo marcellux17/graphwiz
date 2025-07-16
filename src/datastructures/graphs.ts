@@ -129,12 +129,14 @@ export class undirectedGraph {
         }
         return;
     }
-    Dijkstra(from: string, to: string):boolean{//returns a boolean indicating whether there is a path from to to from
-        const connected:boolean = this.areConnected(from, to);
-        return connected;
+    GetLabelOfNode(id: string){
+        return this.Nodes.get(id)?.label;
+    }
+    Dijkstra(from: string, to: string){
+        
 
     }
-    private areConnected( startId: string, targetId: string): boolean {
+    areConnected( startId: string, targetId: string): boolean {
         if (startId === targetId) return true;
         const visited = new Map<string, boolean>();
         const queue = new Queue<string>(this.numberOfNodes);
