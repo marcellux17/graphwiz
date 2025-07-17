@@ -1,6 +1,7 @@
 import { v4 as uuidv4 } from "uuid";
 import Queue from "./queue";
 import { MinPriorityQueue } from "./queue";
+
 export type WithIdAndDistance = {
     id: string;
     estimated_distance: number;
@@ -10,26 +11,56 @@ export type stateType =
     | EstimatedDistanceUpdateState
     | VisitNodeState
     | PathHighlightState;
-type EdgeSelectState = {
+export interface EdgeSelectState{
+    type: "EdgeSelect",
     id: string;
 };
-type EstimatedDistanceUpdateState = {
+export interface EstimatedDistanceUpdateState{
+    type: "EstimatedDistanceUpdate",
     nodeId: string;
     prevDistance: number;
     newDistance: number;
 };
-type VisitNodeState = {
+export interface VisitNodeState{
+    type: "VisitNode",
     id: string;
 };
-type PathHighlightState = {
+export interface PathHighlightState {
+    type: "PathHighlight"
     nodesInPath: string[];
-    edgesInPath: directedEdge[];
+    edgesInPath: Edge[];
 };
-type directedEdge = {
-    id: string;
-    from: string;
-    to: string;
+const StateFactory = {
+    createEdgeSelectState(id: string): EdgeSelectState {
+        return {
+            type: "EdgeSelect",
+            id: id,
+        };
+    },
+    createEstimatedDistanceUpdateState(nodeId: string, prevDistance: number, newDistance: number): EstimatedDistanceUpdateState {
+        return {
+            type: "EstimatedDistanceUpdate",
+            nodeId: nodeId,
+            prevDistance: prevDistance,
+            newDistance: newDistance,
+        };
+    },
+    createVisitNodeState(id: string): VisitNodeState {
+        return {
+            type: "VisitNode",
+            id: id,
+        };
+    },
+    createPathHighlightState(nodesInPath: string[], edgesInPath: Edge[]): PathHighlightState {
+        return {
+            type: "PathHighlight",
+            nodesInPath: nodesInPath,
+            edgesInPath: edgesInPath,
+        };
+    },
 };
+
+
 export class undirectedGraph {
     private Nodes: Map<string, Node>; //nodeId is the key
     private Labels: Map<string, boolean>;
@@ -158,6 +189,7 @@ export class undirectedGraph {
         ); //estimated distances
         const states: stateType[] = [];
         const visited = new Map<string, boolean>();
+        const previousNode = new Map<string, string>();//key being nodeId of a node, value being the node through which we reach it
         this.Nodes.forEach((node) => {
             if (node.id !== from) {
                 estimatedDistances.insert({
@@ -170,23 +202,19 @@ export class undirectedGraph {
         });
         let currentNode:WithIdAndDistance = estimatedDistances.extractMin();
         visited.set(currentNode.id, true);
-        let visitedNode: VisitNodeState = { id: currentNode.id };
+        let visitedNode = StateFactory.createVisitNodeState(currentNode.id);
         states.push(visitedNode);
         while (currentNode?.id !== to) {
             const node = this.Nodes.get(currentNode.id);
-            node?.AdjacencyList.forEach((neighbourId, edgeId) => {
-                const currentEdge:EdgeSelectState = {id:edgeId};
-                states.push(currentEdge);
+            node?.AdjacencyList.forEach((edgeId, neighbourId) => {
                 if(!visited.has(neighbourId)){
+                    const currentEdge = StateFactory.createEdgeSelectState(edgeId);
+                    states.push(currentEdge);
                     const weightOfEdge = this.EdgeList.get(edgeId)!.weight!
                     const estimatedDistance = estimatedDistances.getValue(neighbourId)
                     const distanceThroughCurrentNode = currentNode.estimated_distance + weightOfEdge;
                     if( distanceThroughCurrentNode< estimatedDistance){
-                        const updateDistance: EstimatedDistanceUpdateState = 
-                            { nodeId: neighbourId, 
-                              prevDistance: estimatedDistance,
-                              newDistance: distanceThroughCurrentNode
-                            }
+                        const updateDistance = StateFactory.createEstimatedDistanceUpdateState(neighbourId,estimatedDistance, distanceThroughCurrentNode)
                         states.push(updateDistance)
                         estimatedDistances.update(neighbourId, distanceThroughCurrentNode);
                     }
@@ -194,12 +222,12 @@ export class undirectedGraph {
             })
             currentNode = estimatedDistances.extractMin();
             visited.set(currentNode.id, true);
-            let visitedNode: VisitNodeState = { id: currentNode.id };
+            let visitedNode = StateFactory.createVisitNodeState(currentNode.id);
             states.push(visitedNode);
         }
         return states;
     }
-    areConnected(startId: string, targetId: string): boolean {
+    AreConnected(startId: string, targetId: string): boolean {
         if (startId === targetId) return true;
         const visited = new Map<string, boolean>();
         const queue = new Queue<string>(this.numberOfNodes);

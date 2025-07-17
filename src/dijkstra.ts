@@ -1,6 +1,6 @@
 import { Node, Edge } from "vis-network";
 import { DataSet, Network } from "vis-network/standalone";
-import { undirectedGraph } from "./datastructures/graphs";
+import { undirectedGraph, stateType, EdgeSelectState } from "./datastructures/graphs";
 
 //for vis js to inject canvas into
 const container = document.querySelector<HTMLElement>("#container")!;
@@ -21,7 +21,7 @@ const forwardButton = document.querySelector<HTMLButtonElement>("#forward");
 const pauseButton = document.querySelector<HTMLButtonElement>("#pause");
 const playButton = document.querySelector<HTMLButtonElement>("#play");
 const resetButton = document.querySelector<HTMLButtonElement>("#reset");
-const runAnimationButton =
+const RunAnimationButton =
     document.querySelector<HTMLButtonElement>("#run-animation");
 //displaying feedback for the user
 const messageBox = document.querySelector<HTMLDivElement>("#message-box")!;
@@ -79,6 +79,7 @@ let currentAnimationStateNumber = -1; //in the animation function it first incre
 let visitedNodeColor = "#2ade51";
 let nodeColor = "white";
 let currentAnimationState: animationState = "running";
+let prevState:stateType;
 
 const graph_nodes = new DataSet<Node>([]);
 const graph_edges = new DataSet<Edge>([]);
@@ -130,20 +131,20 @@ const options = {
             const to = edgeData.to as string;
             if (from !== to) {
                 let id: string;
-                let weight = Math.floor(Math.random() * 10) + 1;
+                let weight = Math.floor(Math.random() * 5) + 1;
                 id = graph.AddEdge(from, to, weight);
                 edgeData.id = id;
                 edgeData.label = `${weight}`;
                 callback(edgeData);
             }
-            changeCanvasState("add-edge-mode");
+            ChangeCanvasState("add-edge-mode");
         },
         addNode: function (nodeData: Node, callback: Function) {
             const { id, label } = graph.AddNode();
             nodeData.id = id;
             nodeData.label = label;
             callback(nodeData);
-            changeCanvasState("add-node-mode");
+            ChangeCanvasState("add-node-mode");
         },
         deleteNode: function (
             { edges, nodes }: { edges: string[]; nodes: string[] },
@@ -155,7 +156,7 @@ const options = {
             }
             const data = { edges, nodes };
             callback(data);
-            resetInput();
+            ResetInput();
         },
         deleteEdge: function (
             { edges, nodes }: { edges: string[]; nodes: string[] },
@@ -174,7 +175,7 @@ const options = {
 };
 const network = new Network(container, data, options);
 const graph = new undirectedGraph();
-let states: Map<string, boolean>[] | undefined;
+let states: stateType[] | undefined;
 
 //events on the network
 network.on("selectNode", (e) => {
@@ -203,12 +204,13 @@ network.on("selectNode", (e) => {
                 ChangeMessageBox("choose destination node");
                 return;
             }
-            const connected = graph.areConnected(startingNode, destinationNode);
+            const connected = graph.AreConnected(startingNode, destinationNode);
             if (connected) {
                 destinationNodeInfo!.textContent = `dest: ${graph.GetLabelOfNode(
                     destinationNode
                 )}`;
-                changeCanvasState("animation-running");
+                states = graph.Dijkstra(startingNode, destinationNode);
+                ChangeCanvasState("animation-running");
             } else {
                 ChangeMessageBox(
                     "no path from starting node to destination node, choose another destination node"
@@ -270,18 +272,18 @@ hideSpeedRangeInputButton?.addEventListener("click", () => {
 
 //
 network.on("deselectNode", () => {
-    resetInput();
+    ResetInput();
 });
 network.on("deselectEdge", () => {
-    resetInput();
+    ResetInput();
 });
 
 addEdgeButton?.addEventListener("click", () => {
-    changeCanvasState("add-edge-mode");
+    ChangeCanvasState("add-edge-mode");
 });
 
 addNodeButton?.addEventListener("click", () => {
-    changeCanvasState("add-node-mode");
+    ChangeCanvasState("add-node-mode");
 });
 
 focusButton?.addEventListener("click", () => {
@@ -289,15 +291,15 @@ focusButton?.addEventListener("click", () => {
 });
 
 deleteModeButton?.addEventListener("click", () => {
-    changeCanvasState("delete");
+    ChangeCanvasState("delete");
 });
 
 escapeModeButton?.addEventListener("click", () => {
-    changeCanvasState("none");
+    ChangeCanvasState("none");
 });
 
-runAnimationButton?.addEventListener("click", () => {
-    changeCanvasState("run-animation");
+RunAnimationButton?.addEventListener("click", () => {
+    ChangeCanvasState("run-animation");
 });
 
 labelInput.addEventListener("input", () => {
@@ -318,14 +320,14 @@ labelInput.addEventListener("input", () => {
 });
 //animation box state changes
 resetButton?.addEventListener("click", () => {
-    changeAnimationState("paused");
+    ChangeAnimationState("paused");
     clearInterval(interval);
     MakeInvisible(pauseButton);
     MakeVisible(playButton);
     ResetNodes();
 });
 pauseButton?.addEventListener("click", () => {
-    changeAnimationState("paused");
+    ChangeAnimationState("paused");
     clearInterval(interval);
     MakeInvisible(pauseButton);
     MakeVisible(playButton);
@@ -333,24 +335,22 @@ pauseButton?.addEventListener("click", () => {
 forwardButton?.addEventListener("click", () => {
     if (currentAnimationState === "paused") {
         clearInterval(interval);
-        changeCurrentAnimationStateNumber("forward");
+        ChangeCurrentAnimationStateNumber("forward");
     }
 });
 backButton?.addEventListener("click", () => {
     if (currentAnimationState === "paused") {
         clearInterval(interval);
-        changeCurrentAnimationStateNumber("backward");
+        ChangeCurrentAnimationStateNumber("backward");
     }
 });
 playButton?.addEventListener("click", () => {
-    console.log(currentAnimationStateNumber);
-    console.log(states?.length);
-    changeAnimationState("running");
-    runAnimation();
+    ChangeAnimationState("running");
+    RunAnimation();
     MakeInvisible(playButton);
     MakeVisible(pauseButton);
 });
-function ColorNode(id: string, color: string) {
+function ColorNode(id: string, color: string):void {
     graph_nodes.update({
         id: id,
         color: {
@@ -363,11 +363,21 @@ function ColorNode(id: string, color: string) {
         },
     });
 }
-function changeAnimationState(state: animationState): void {
+function ColorEdge(edgeId: string, color: string, width: number|undefined):void{
+    graph_edges.update({
+        id: edgeId,
+        color: {
+            color: color,
+            highlight: "black"
+        },
+        width: width ? width : 1
+    })
+}
+function ChangeAnimationState(state: animationState): void {
     currentAnimationState = state;
     ChangeMessageBox(currentAnimationState);
 }
-function changeCanvasState(mode: canvasState): void {
+function ChangeCanvasState(mode: canvasState): void {
     if (
         (canvas_state === "run-animation" ||
             canvas_state === "animation-running") &&
@@ -402,7 +412,7 @@ function changeCanvasState(mode: canvasState): void {
                 startingNode = undefined;
                 destinationNode = undefined;
                 ResetNodes();
-                changeLabelsBack();
+                ChangeLabelsBack();
             }
             ChangeMessageBox("select mode on the toolbar");
             network.disableEditMode();
@@ -415,22 +425,22 @@ function changeCanvasState(mode: canvasState): void {
             network.unselectAll();
             ChangeMessageBox("select a starting node");
             MakeVisible(pathInfoBox);
-            resetInput();
+            ResetInput();
             network.disableEditMode();
             break;
         case "animation-running":
-            changeLabels();
-            changeAnimationState("running");
+            ChangeLabels();
+            ChangeAnimationState("running");
             network.unselectAll();
             MakeVisible(animationBox);
             MakeInvisible(playButton);
             MakeVisible(pauseButton);
-            runAnimation();
+            RunAnimation();
             network.disableEditMode();
             break;
     }
 }
-function resetInput(): void {
+function ResetInput(): void {
     selectedElementId = "";
     label.textContent = "";
     labelInput.value = "";
@@ -439,21 +449,22 @@ function resetInput(): void {
 }
 //runs animation on the return value of the selected graph algorithm
 //checks for userinput changes to change speed (have not yet been added)
-function runAnimation(): void {
+function RunAnimation(): void {
     if (states) {
         interval = setInterval(() => {
             //if animation speed has been altered by the user
             if (animationSpeed !== animationSpeedChange) {
                 animationSpeed = animationSpeedChange;
                 clearInterval(interval);
-                runAnimation();
+                RunAnimation();
             } else {
-                changeCurrentAnimationStateNumber("forward");
+                ChangeCurrentAnimationStateNumber("forward");
                 const currentState = states![currentAnimationStateNumber];
+                AnimateState(currentState);
                 //if animation finished running
                 if (currentAnimationStateNumber === states!.length - 1) {
                     clearInterval(interval);
-                    changeAnimationState("paused");
+                    ChangeAnimationState("paused");
                     MakeInvisible(pauseButton);
                     MakeVisible(playButton);
                     return;
@@ -462,7 +473,7 @@ function runAnimation(): void {
         }, animationSpeed);
     }
 }
-function changeLabelsBack(): void {
+function ChangeLabelsBack(): void {
     graph_nodes.forEach((node, id) => {
         if (id !== startingNode) {
             const label = graph.GetLabelOfNode(id as string);
@@ -473,33 +484,27 @@ function changeLabelsBack(): void {
         }
     });
 }
-function changeLabels(): void {
+function ChangeLabels(): void {
     graph_nodes.forEach((node, id) => {
         if (id !== startingNode) {
             const label = graph.GetLabelOfNode(id as string);
-            graph_nodes.update({
-                id,
-                label: label + " " + "(∞)",
-            });
+            ChangeLabel(id as string, label + " " + "(∞)")
         }
+    });
+}
+function ChangeLabel(id: string, label: string):void{
+    graph_nodes.update({
+        id,
+        label: label,
     });
 }
 //for reverting back to state 0 of animation states
 function ResetNodes(): void {
     currentAnimationStateNumber = -1;
     graph_nodes.forEach((node, id) => {
-        graph_nodes.update({
-            id,
-            color: {
-                border: "black",
-                background: nodeColor,
-                highlight: {
-                    border: "black",
-                    background: nodeColor,
-                },
-            },
-        });
+        ColorNode(id as string, nodeColor);
     });
+    ChangeLabels();
 }
 function MakeVisible(element: HTMLElement | undefined | null): void {
     if (element) element.classList.remove("hide");
@@ -511,9 +516,7 @@ function MakeInvisible(element: HTMLElement | undefined | null): void {
 function ChangeMessageBox(new_message: string): void {
     messageBox.textContent = new_message;
 }
-function changeCurrentAnimationStateNumber(
-    direction: animationMoveDirection
-): void {
+function ChangeCurrentAnimationStateNumber(direction: animationMoveDirection): void {
     switch (direction) {
         case "forward":
             //ha az utolso state-ben vagyunk nem megyünk már előre
@@ -530,3 +533,30 @@ function changeCurrentAnimationStateNumber(
             break;
     }
 }
+function AnimateState(currentState: stateType):void {
+    if(prevState && prevState.type === "EdgeSelect"){
+        //setting previously visited edge color back
+        ColorEdge((prevState as EdgeSelectState).id, "black", 2)
+    }
+    switch(currentState.type){
+        case "EdgeSelect":
+            ColorEdge(currentState.id, "blue", 3)
+            break;
+        case "EstimatedDistanceUpdate":
+            UpdateDistance(currentState.nodeId, currentState.newDistance)
+            break;
+        case "VisitNode":
+            ColorNode(currentState.id, "orange");
+            break;
+        case "PathHighlight":
+            break;
+    }
+    prevState = states![currentAnimationStateNumber];
+}
+
+function UpdateDistance(nodeId: string, distance: number):void {
+    let labelOfNode = graph.GetLabelOfNode(nodeId);
+    let newLabel = `${labelOfNode} (${distance})`
+    ChangeLabel(nodeId, newLabel)
+}
+

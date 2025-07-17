@@ -112,7 +112,7 @@ export class MinPriorityQueue<T extends WithIdAndDistance> {
         }
     }
     getValue(id:string):number{
-        return this.idToIndex.get(id)!;
+        return this.heap[this.idToIndex.get(id)!].estimated_distance;
     }
     insert(item: T): void {
         this.heap.push(item);
