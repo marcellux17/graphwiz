@@ -28,7 +28,7 @@ export interface VisitNodeState{
 export interface PathHighlightState {
     type: "PathHighlight"
     nodesInPath: string[];
-    edgesInPath: Edge[];
+    edgesInPath: string[];
 };
 const StateFactory = {
     createEdgeSelectState(id: string): EdgeSelectState {
@@ -51,7 +51,7 @@ const StateFactory = {
             id: id,
         };
     },
-    createPathHighlightState(nodesInPath: string[], edgesInPath: Edge[]): PathHighlightState {
+    createPathHighlightState(nodesInPath: string[], edgesInPath: string[]): PathHighlightState {
         return {
             type: "PathHighlight",
             nodesInPath: nodesInPath,
@@ -214,6 +214,7 @@ export class undirectedGraph {
                     const estimatedDistance = estimatedDistances.getValue(neighbourId)
                     const distanceThroughCurrentNode = currentNode.estimated_distance + weightOfEdge;
                     if( distanceThroughCurrentNode< estimatedDistance){
+                        previousNode.set(neighbourId, currentNode.id);
                         const updateDistance = StateFactory.createEstimatedDistanceUpdateState(neighbourId,estimatedDistance, distanceThroughCurrentNode)
                         states.push(updateDistance)
                         estimatedDistances.update(neighbourId, distanceThroughCurrentNode);
@@ -225,7 +226,25 @@ export class undirectedGraph {
             let visitedNode = StateFactory.createVisitNodeState(currentNode.id);
             states.push(visitedNode);
         }
+        states.push(this.CreatePathHighlightState(from, to, previousNode));
         return states;
+    }
+    CreatePathHighlightState(from: string, to: string, previous: Map<string, string>):PathHighlightState{
+        let currentNode  = this.Nodes.get(to);
+        const nodes:string[] = [];
+        const edges:string[] = [];
+        while(currentNode){
+            const next = previous.get(currentNode.id);
+            nodes.push(currentNode.id);
+            if(next){
+                const edge = currentNode.AdjacencyList.get(next)!;
+                edges.push(edge);
+                currentNode = this.Nodes.get(next);
+            }else{
+                currentNode = undefined;
+            }
+        }
+        return StateFactory.createPathHighlightState(nodes, edges);
     }
     AreConnected(startId: string, targetId: string): boolean {
         if (startId === targetId) return true;

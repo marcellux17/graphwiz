@@ -76,8 +76,8 @@ let interval: number;
 let animationSpeed = 1000; //in ms
 let animationSpeedChange = 1000; //in case the user wants to change the speed of the animation
 let currentAnimationStateNumber = -1; //in the animation function it first increments so it does not point to a negative index of the states
-let visitedNodeColor = "#2ade51";
 let nodeColor = "white";
+let pathColor = "#2ade51";
 let currentAnimationState: animationState = "running";
 let prevState:stateType;
 
@@ -504,6 +504,9 @@ function ResetNodes(): void {
     graph_nodes.forEach((node, id) => {
         ColorNode(id as string, nodeColor);
     });
+    graph_edges.forEach((edge, id) => {
+        ColorEdge(id as string, "black", 2);
+    })
     ChangeLabels();
 }
 function MakeVisible(element: HTMLElement | undefined | null): void {
@@ -549,6 +552,12 @@ function AnimateState(currentState: stateType):void {
             ColorNode(currentState.id, "orange");
             break;
         case "PathHighlight":
+            currentState.nodesInPath.forEach((nodeId) => {
+                ColorNode(nodeId, pathColor);
+            })
+            currentState.edgesInPath.forEach((edgeId) => {
+                ColorEdge(edgeId, pathColor, 3);
+            })
             break;
     }
     prevState = states![currentAnimationStateNumber];
