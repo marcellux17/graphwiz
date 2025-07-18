@@ -79,7 +79,8 @@ let currentAnimationStateNumber = -1; //in the animation function it first incre
 let nodeColor = "white";
 let pathColor = "#2ade51";
 let currentAnimationState: animationState = "running";
-let prevState:stateType;
+let prevState: stateType | undefined;
+let backward: boolean = false;
 
 const graph_nodes = new DataSet<Node>([]);
 const graph_edges = new DataSet<Edge>([]);
@@ -200,7 +201,7 @@ network.on("selectNode", (e) => {
             network.unselectAll();
         } else {
             destinationNode = selectedElementId;
-            if(destinationNode == startingNode){
+            if (destinationNode == startingNode) {
                 ChangeMessageBox("choose destination node");
                 return;
             }
@@ -334,23 +335,28 @@ pauseButton?.addEventListener("click", () => {
 });
 forwardButton?.addEventListener("click", () => {
     if (currentAnimationState === "paused") {
+        backward = false;
         clearInterval(interval);
         ChangeCurrentAnimationStateNumber("forward");
+        AnimateState(states![currentAnimationStateNumber]);
     }
 });
 backButton?.addEventListener("click", () => {
     if (currentAnimationState === "paused") {
+        backward = true;
         clearInterval(interval);
         ChangeCurrentAnimationStateNumber("backward");
+        AnimateState(states![currentAnimationStateNumber]);
     }
 });
 playButton?.addEventListener("click", () => {
+    backward = false;
     ChangeAnimationState("running");
     RunAnimation();
     MakeInvisible(playButton);
     MakeVisible(pauseButton);
 });
-function ColorNode(id: string, color: string):void {
+function ColorNode(id: string, color: string): void {
     graph_nodes.update({
         id: id,
         color: {
@@ -363,15 +369,19 @@ function ColorNode(id: string, color: string):void {
         },
     });
 }
-function ColorEdge(edgeId: string, color: string, width: number|undefined):void{
+function ColorEdge(
+    edgeId: string,
+    color: string,
+    width: number | undefined
+): void {
     graph_edges.update({
         id: edgeId,
         color: {
             color: color,
-            highlight: "black"
+            highlight: "black",
         },
-        width: width ? width : 1
-    })
+        width: width ? width : 1,
+    });
 }
 function ChangeAnimationState(state: animationState): void {
     currentAnimationState = state;
@@ -488,11 +498,11 @@ function ChangeLabels(): void {
     graph_nodes.forEach((node, id) => {
         if (id !== startingNode) {
             const label = graph.GetLabelOfNode(id as string);
-            ChangeLabel(id as string, label + " " + "(∞)")
+            ChangeLabel(id as string, label + " " + "(∞)");
         }
     });
 }
-function ChangeLabel(id: string, label: string):void{
+function ChangeLabel(id: string, label: string): void {
     graph_nodes.update({
         id,
         label: label,
@@ -501,12 +511,13 @@ function ChangeLabel(id: string, label: string):void{
 //for reverting back to state 0 of animation states
 function ResetNodes(): void {
     currentAnimationStateNumber = -1;
+    prevState = undefined;
     graph_nodes.forEach((node, id) => {
         ColorNode(id as string, nodeColor);
     });
     graph_edges.forEach((edge, id) => {
         ColorEdge(id as string, "black", 2);
-    })
+    });
     ChangeLabels();
 }
 function MakeVisible(element: HTMLElement | undefined | null): void {
@@ -519,7 +530,9 @@ function MakeInvisible(element: HTMLElement | undefined | null): void {
 function ChangeMessageBox(new_message: string): void {
     messageBox.textContent = new_message;
 }
-function ChangeCurrentAnimationStateNumber(direction: animationMoveDirection): void {
+function ChangeCurrentAnimationStateNumber(
+    direction: animationMoveDirection
+): void {
     switch (direction) {
         case "forward":
             //ha az utolso state-ben vagyunk nem megyünk már előre
@@ -536,17 +549,31 @@ function ChangeCurrentAnimationStateNumber(direction: animationMoveDirection): v
             break;
     }
 }
-function AnimateState(currentState: stateType):void {
-    if(prevState && prevState.type === "EdgeSelect"){
+function AnimateState(currentState: stateType): void {
+    if (prevState && prevState.type === "EdgeSelect") {
         //setting previously visited edge color back
-        ColorEdge((prevState as EdgeSelectState).id, "black", 2)
+        ColorEdge((prevState as EdgeSelectState).id, "black", 2);
     }
-    switch(currentState.type){
+    if (backward) {
+        if (prevState && prevState.type === "PathHighlight") {
+            prevState.nodesInPath.forEach((nodeId) => {
+                ColorNode(nodeId, "orange");
+            });
+            prevState.edgesInPath.forEach((edgeId) => {
+                ColorEdge(edgeId, "black", 2);
+            });
+        } else if (prevState && prevState.type === "VisitNode") {
+            ColorNode(prevState.id, "white");
+        } else if (prevState && prevState.type === "EstimatedDistanceUpdate") {
+            UpdateDistance(prevState.nodeId, prevState.prevDistance);
+        } 
+    }
+    switch (currentState.type) {
         case "EdgeSelect":
-            ColorEdge(currentState.id, "blue", 3)
+            ColorEdge(currentState.id, "blue", 3);
             break;
         case "EstimatedDistanceUpdate":
-            UpdateDistance(currentState.nodeId, currentState.newDistance)
+            UpdateDistance(currentState.nodeId, currentState.newDistance);
             break;
         case "VisitNode":
             ColorNode(currentState.id, "orange");
@@ -554,18 +581,19 @@ function AnimateState(currentState: stateType):void {
         case "PathHighlight":
             currentState.nodesInPath.forEach((nodeId) => {
                 ColorNode(nodeId, pathColor);
-            })
+            });
             currentState.edgesInPath.forEach((edgeId) => {
                 ColorEdge(edgeId, pathColor, 3);
-            })
+            });
             break;
     }
     prevState = states![currentAnimationStateNumber];
 }
 
-function UpdateDistance(nodeId: string, distance: number):void {
+function UpdateDistance(nodeId: string, distance: number): void {
     let labelOfNode = graph.GetLabelOfNode(nodeId);
-    let newLabel = `${labelOfNode} (${distance})`
-    ChangeLabel(nodeId, newLabel)
+    let newLabel = `${labelOfNode} (${
+        distance === Number.MAX_VALUE ? "∞" : distance
+    })`;
+    ChangeLabel(nodeId, newLabel);
 }
-

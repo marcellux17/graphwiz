@@ -69,7 +69,7 @@ let canvas_state: canvasState = "none";
 let interval: number;
 let animationSpeed = 1000; //in ms
 let animationSpeedChange = 1000; //in case the user wants to change the speed of the animation
-let currentAnimationStateNumber = -1; //in the animation function it first increments so it does not point to a negative index of the states
+let currentAnimationStateNumber = -1;
 let visitedNodeColor = "#2ade51";
 let nodeColor = "white";
 let currentAnimationState: animationState = "running";
