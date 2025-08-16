@@ -118,55 +118,42 @@ select {
 }
 #toggle-speed {
     border: none;
-    position: absolute;
-    right: 0px;
-    top: 50%;
-    transform: translateY(-43%);
     padding: 0;
     height: 35px;
     width: 35px;
+    margin-left: 10px;
 }
 #speed-input {
     width: 200px;
-    position: absolute;
-    left: 0px;
-    top: 50%;
-    transform: translateY(-50%);
 }
 #toggle-speed .tooltip {
     top: -40px;
     right: 0;
 }
-.tooltip {
-    position: absolute;
-    transition: all 0.5s linear;
-    background-color: var(--main-color);
-    white-space: nowrap;
-    padding: 1px 5px;
-    border: none;
-    border-radius: 3px;
-    color: black;
-    font-weight: bold;
-}
-.tooltip.hide {
-    display: none;
-}
 #speed-box {
-    width: 250px;
-    height: 30px;
+    width: 430px;
+    height: 50px;
     position: absolute;
     bottom: 10px;
     right: 5px;
     z-index: 5;
+    display: flex;
+    flex-direction: row;
+    justify-content: end;
+    align-items: center;
 }
-#speed-info {
-    font-size: 0.9rem;
-    position: absolute;
-    white-space: nowrap;
-    width: 120px;
-    left: -120px;
-    top: 50%;
-    transform: translateY(-50%);
+#speed-box .box-information{
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-evenly;
+    background-color: white;
+    border-radius: 5px;
+}
+#speed-box .box-information.hide{
+    display: none;
 }
 button {
     box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
@@ -231,7 +218,20 @@ button {
 .box-information.hide {
     display: none;
 }
-
+.tooltip {
+    position: absolute;
+    transition: all 0.5s linear;
+    background-color: var(--main-color);
+    white-space: nowrap;
+    padding: 1px 5px;
+    border: none;
+    border-radius: 3px;
+    color: black;
+    font-weight: bold;
+}
+.tooltip.hide {
+    display: none;
+}
 #ds-container {
     margin-top: 20px;
     display: flex;
