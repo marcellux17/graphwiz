@@ -1,0 +1,573 @@
+import { Graph, WeightedGraph, Node, Edge } from "../datastructures/graph";
+import { canvas } from "../dom/elements";
+
+type Preset = {
+    nodes: presetNode[];
+    edges: presetEdge[];
+};
+type presetNode = {
+    id: number;
+    x: number;
+    y: number;
+    color: string;
+};
+type presetEdge = {
+    from: number;
+    to: number;
+    weight?: number;
+}
+type networkMode = "addEdgeMode" | "addNodeMode" | "idle" | "delete" | "disabled";
+export type canvasEvent = "selectEdge" | "selectNode";
+export class Network{
+    private ctx:CanvasRenderingContext2D = canvas.getContext("2d")!;;
+    private isDown:boolean = false;
+    private dragging:boolean = false;
+    private isPanning:boolean = false;
+    private offsetX:number = 0;
+    private offsetY:number = 0;
+    private scale:number = 1;
+    private scaleFactor:number = 0.05;
+    private mousePositionX:number = 0;
+    private mousePositionY:number = 0;
+    private nodeSize:number = 30;
+    private nodeIds:number[] = [];
+    private mouseNodecenterVectorX:number = 0;
+    private mouseNodecenterVectorY:number = 0;
+    private nodeDragging:boolean = false;
+    private draggedNode:Node|null = null;
+    private dpr:number = 1;
+    private euclideanWeights:boolean = false;
+    private pendingEdge:boolean = false;
+    private firstNode:Node|null = null;
+    private canvasWidth: number = 0;
+    private canvasHeight: number = 0;
+    private selectNodeCallback: ((nodeId:number) => void) | null = null;
+    private selectEdgeCallback: ((edgeId:number) => void) | null = null;
+    private canvasBlankClick: (() => void) | null = null;
+    private mode: networkMode = "idle";
+    private graph: Graph;
+
+    constructor(graph: Graph, euclideanWeights: boolean) {
+        this.graph = graph;
+        this.euclideanWeights = euclideanWeights;
+        canvas.addEventListener("mousedown", this.mouseDownEventHandler);
+        canvas.addEventListener("wheel", this.wheelEventHandler);
+        canvas.addEventListener("mousemove", this.mouseMoveEventHandler);
+        window.addEventListener("mouseup", this.mouseUpEventHandler);
+        window.addEventListener("load", () => {
+            this.initCanvasSize();
+            this.drawCanvas();
+        });
+    }
+    private initCanvasSize(): void {
+        const rect = canvas.getBoundingClientRect();
+        this.dpr = window.devicePixelRatio || 1;
+        canvas.width = Math.round(rect.width * this.dpr);
+        canvas.height = Math.round(rect.height * this.dpr);
+        this.canvasWidth = Math.round(rect.width);
+        this.canvasHeight = Math.round(rect.height);
+        canvas.style.width = `${Math.round(rect.width)}px`;
+        canvas.style.height = `${Math.round(rect.height)}px`;
+        this.ctx.scale(this.dpr, this.dpr);
+    }
+    loadPreset(folder: string, presetName: string): void {
+        const request = new Request(`./graph_presets/${folder}/${presetName}.json`);
+        fetch(request)
+            .then((res) => {
+                return res.json();
+            })
+            .then((preset) => {
+                this.drawPreset(preset);
+            });
+    }
+    deleteElementModeOn(): void {
+        this.resetToIdle();
+        this.mode = "delete";
+    }
+    addNodeModeOn(): void {
+        this.resetToIdle();
+        this.mode = "addNodeMode";
+    }
+    disableEverything(): void {
+        this.resetToIdle();
+        this.mode = "disabled";
+    }
+    addEdgeModeOn(): void {
+        this.resetToIdle();
+        this.mode = "addEdgeMode";
+    }
+    resetToIdle(): void {
+        this.mode = "idle";
+        this.firstNode = null;
+        this.drawCanvas();
+    }
+    onSelectNode(callback: (nodeId: number) => void): void {
+        this.selectNodeCallback = callback;
+    }
+    onSelectEdge(callback: (edgeId: number) => void): void {
+        this.selectEdgeCallback = callback;
+    }
+    onCanvasBlankClick(callback: () => void): void {
+        this.canvasBlankClick = callback;
+    }
+    areConnected(aNodeId: number, bNodeId: number): boolean {
+        return this.graph.areConnected(aNodeId, bNodeId);
+    }
+    getLabelOfNode(nodeId: number): string {
+        return this.graph.getLabelOfNode(nodeId);
+    }
+    getEdgeWeight(edgeId: number): number {
+        if (this.graph instanceof WeightedGraph)return this.graph.getEdgeWeight(edgeId);
+        return 0;
+    }
+    fitGraphIntoAnimationSpace(algorithmInfoBoxOffsetX:number):void{
+        let {topLeftX, topLeftY, width, height} = this.measureGraphRectangle();
+        const animationSpaceWidth = this.canvasWidth-algorithmInfoBoxOffsetX-70;
+        const animationSpaceHeight = this.canvasHeight-50;
+        if(width/animationSpaceWidth > 1){
+            let newScale = animationSpaceWidth/width;
+            topLeftX *= newScale
+            topLeftY *= newScale
+            height *= newScale
+            width *=newScale
+            if(height/animationSpaceHeight > 1){
+                newScale *= animationSpaceHeight/height
+                topLeftX *= animationSpaceHeight/height
+                topLeftY *= animationSpaceHeight/height
+                width *= animationSpaceHeight/height
+                height *= animationSpaceHeight/height
+            }
+            this.setCanvasScale(this.scale*newScale);
+        }else if(height/animationSpaceHeight > 1){
+            this.setCanvasScale(this.scale*(animationSpaceHeight/height))
+            topLeftX *= animationSpaceHeight/height
+            topLeftY *= animationSpaceHeight/height
+            width *=animationSpaceHeight/height
+            height *= animationSpaceHeight/height
+        }
+        
+        const fittedTopX = algorithmInfoBoxOffsetX+50;
+        const fittedTopY = (this.canvasHeight-height)/2;
+        this.offsetX = fittedTopX-topLeftX;
+        this.offsetY = fittedTopY-topLeftY;
+        this.drawCanvas();
+    }
+    updateEdge(edge :{id: number, color?: string, weight?: number, width?: number}):void{
+        const edgeToModified = this.graph.getEdge(edge.id);
+        if(edge.color){
+            edgeToModified.color = edge.color;
+        }
+        if(edge.weight){
+            edgeToModified.weight = edge.weight;
+        }
+        if(edge.width){
+            edgeToModified.width = edge.width;
+        }
+        this.drawCanvas();
+    }
+    updateEdges(edges: {id: number, color?: string, weight?: number, width?: number}[]): void {
+        edges.forEach(edge => {
+            const edgeToModify = this.graph.getEdge(edge.id);
+            if (!edgeToModify) return;
+            if (edge.color !== undefined) {
+                edgeToModify.color = edge.color;
+            }
+            if (edge.weight !== undefined) {
+                edgeToModify.weight = edge.weight;
+            }
+            if(edge.width){
+                edgeToModify.width = edge.width;
+            }
+        });
+        this.drawCanvas();
+    }
+    updateNodes(nodes: { id: number; color?: string; label?: string }[]): void {
+        nodes.forEach(node => {
+            const nodeToModify = this.graph.getNode(node.id);
+            if (!nodeToModify) return;
+
+            if (node.color !== undefined) {
+                nodeToModify.color = node.color;
+            }
+            if (node.label !== undefined) {
+                nodeToModify.label = node.label;
+            }
+        });
+        this.drawCanvas();
+    }
+    updateNode(node: { id: number; color?: string; label?: string }): void {
+        const nodeToModify = this.graph.getNode(node.id);
+        if (!nodeToModify) return;
+
+        if (node.color !== undefined) {
+            nodeToModify.color = node.color;
+        }
+        if (node.label !== undefined) {
+            nodeToModify.label = node.label;
+        }
+        this.drawCanvas();
+    }
+    resetGraphToOriginal(): void {
+        this.graph.resetGraphToOriginalVisual();
+    }
+    private drawPreset(preset: Preset): void {
+        this.scale = 1;
+        this.nodeSize = 30;
+        this.graph.clearGraph();
+        this.nodeIds = [];
+        for (const node of preset.nodes) {
+            this.graph.addNodeFromPreset(node.id, node.x, node.y, node.color);
+            this.nodeIds.push(node.id);
+        }
+        for (const edge of preset.edges) {
+            if (this.graph instanceof WeightedGraph) {
+                this.graph.addEdge(edge.from, edge.to, edge.weight);
+            } else {
+                this.graph.addEdge(edge.from, edge.to);
+            }
+        }
+        this.fitGraphIntoAnimationSpace(350);
+    }
+    private canvasScaleDown(): void {
+        if (this.scale < 0.5) return;
+        this.scale *= 1 - this.scaleFactor;
+        for (const nodeId of this.nodeIds) {
+            const node = this.graph.getNode(nodeId);
+            node.x! = node.x! * (1 - this.scaleFactor);
+            node.y! = node.y! * (1 - this.scaleFactor);
+        }
+        this.nodeSize *= 1 - this.scaleFactor;
+    }
+    private setCanvasScale(newScale: number): void {
+        for (const nodeId of this.nodeIds) {
+            const node = this.graph.getNode(nodeId);
+            node.x! = (node.x! * newScale) / this.scale;
+            node.y! = (node.y! * newScale) / this.scale;
+        }
+        this.nodeSize = (this.nodeSize * newScale) / this.scale;
+        this.scale = newScale;
+    }
+    private canvasScaleUp(): void {
+        this.scale *= 1 + this.scaleFactor;
+        for (const nodeId of this.nodeIds) {
+            const node = this.graph.getNode(nodeId);
+            node.x! = node.x! * (1 + this.scaleFactor);
+            node.y! = node.y! * (1 + this.scaleFactor);
+        }
+        this.nodeSize *= 1 + this.scaleFactor;
+    }
+    private hitNode( x: number, y: number ): { node: Node | null; index: number } {
+        for (let j = this.nodeIds.length - 1; j >= 0; j--) {
+            let node: Node = this.graph.getNode(this.nodeIds[j]);
+            if ((node.x! - x) ** 2 + (node.y! - y) ** 2 < this.nodeSize ** 2) {
+                return { node, index: j };
+            }
+        }
+        return { node: null, index: 0 };
+    }
+    private measureDistance( x1: number, y1: number, x2: number, y2: number ): number {
+        return Math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2);
+    }
+    private drawCanvas = (): void => {
+        this.ctx.clearRect(0, 0, canvas.width, canvas.height);
+        this.drawEdges();
+        this.drawNodes();
+        if (this.pendingEdge) {
+            this.drawPendingEdge();
+            this.drawNode(this.firstNode!);
+        }
+    };
+    private drawPendingEdge(): void {
+        const x1 = this.firstNode!.x!;
+        const y1 = this.firstNode!.y!;
+        const x2 = this.screenToCanvasX(this.mousePositionX);
+        const y2 = this.screenToCanvasY(this.mousePositionY);
+        const length = this.measureDistance(x1, y1, x2, y2);
+        const normalizedMouseNodeVectorX = (x2 - x1) / length;
+        const normalizedMouseNodeVectorY = (y2 - y1) / length;
+        const startingX = x1 + normalizedMouseNodeVectorX * this.nodeSize + normalizedMouseNodeVectorX * 2;
+        const startingY = y1 + normalizedMouseNodeVectorY * this.nodeSize + normalizedMouseNodeVectorY * 2;
+        this.ctx.beginPath();
+        this.ctx.lineWidth = 2;
+        this.ctx.moveTo(this.offsetX + startingX, this.offsetY + startingY);
+        this.ctx.lineTo(this.offsetX + x2, this.offsetY + y2);
+        this.ctx.stroke();
+        this.ctx.closePath();
+        this.ctx.beginPath();
+        this.ctx.arc(this.offsetX + x2, this.offsetY + y2, 3, 0, Math.PI * 2);
+        this.ctx.stroke();
+        this.ctx.fillStyle = "red";
+        this.ctx.fill();
+        this.ctx.closePath();
+    }
+    private drawEdges(): void {
+        for (const edge of this.graph.getEdgeList()) {
+            if (edge) {
+                this.drawEdge(edge);
+            }
+        }
+    }
+    private drawNodes(): void {
+        for (const id of this.nodeIds) {
+            if(id !== this.firstNode?.getId()){
+                this.drawNode(this.graph.getNode(id));
+            }
+        }
+    }
+    private screenToCanvasX(screenX: number): number {
+        return screenX - this.offsetX;
+    }
+    private screenToCanvasY(screenY: number): number {
+        return screenY - this.offsetY;
+    }
+    private canvasToScreenX(canvasX: number): number {
+        return canvasX + this.offsetX;
+    }
+    private canvasToScreenY(canvasY: number): number {
+        return canvasY + this.offsetY;
+    }
+    private drawNode(node: Node): void {
+        const x = this.offsetX + node.x!;
+        const y = this.offsetY + node.y!;
+        this.ctx.lineWidth = 4;
+        this.ctx.beginPath();
+        this.ctx.strokeStyle = "black";
+        this.ctx.arc(x, y, this.nodeSize, 0, Math.PI * 2);
+        this.ctx.closePath();
+        this.ctx.stroke();
+        this.ctx.fillStyle = node.color ? node.color : "white";
+        this.ctx.fill();
+        this.ctx.font = `${17 * this.scale}px arial`;
+        this.ctx.textAlign = "center";
+        this.ctx.textBaseline = "middle";
+        this.ctx.fillStyle = "black";
+        this.ctx.fillText(`${node.label}`, x, y);
+    }
+    private drawEdge(edge: Edge): void {
+        const fromNode = this.graph.getNode(edge.from);
+        const toNode = this.graph.getNode(edge.to);
+        const fromX = fromNode.x!;
+        const fromY = fromNode.y!;
+        const toX = toNode.x!;
+        const toY = toNode.y!;
+        const x1 = this.offsetX + fromX;
+        const y1 = this.offsetY + fromY;
+        const x2 = this.offsetX + toX;
+        const y2 = this.offsetY + toY;
+        this.ctx.beginPath();
+        this.ctx.lineWidth = edge.width;
+        this.ctx.strokeStyle = edge.color;
+        this.ctx.moveTo(x1, y1);
+        this.ctx.lineTo(x2, y2);
+        this.ctx.stroke();
+        if (this.graph instanceof WeightedGraph) {
+            this.drawWeight(x1, y1, x2, y2, edge.weight!);
+        }
+    }
+    private hitEdge(x: number, y: number): Edge | null {
+        for (const edge of this.graph.getEdgeList()) {
+            if (edge) {
+                const fromNode = this.graph.getNode(edge.from);
+                const fromX = fromNode.x!;
+                const fromY = fromNode.y!;
+                const toNode = this.graph.getNode(edge.to);
+                const toX = toNode.x!;
+                const toY = toNode.y!;
+                if (this.checkIfOnLine(x, y, fromX, fromY, toX, toY)) {
+                    return edge;
+                }
+            }
+        }
+        return null;
+    }
+    private checkIfOnLine( x: number, y: number, x1: number, y1: number, x2: number, y2: number ): boolean {
+        let threshold = 4;
+        threshold = threshold / this.dpr;
+        const xDiff = x2 - x1;
+        const yDiff = y2 - y1;
+        const lenSq = xDiff * xDiff + yDiff * yDiff;
+        if (lenSq === 0) {
+            const distSq = (x - x1) ** 2 + (y - y1) ** 2;
+            return distSq <= threshold ** 2;
+        }
+        let t = ((x - x1) * xDiff + (y - y1) * yDiff) / lenSq;
+        t = Math.max(0, Math.min(1, t));
+        const closestX = x1 + t * xDiff;
+        const closestY = y1 + t * yDiff;
+        const distSq = (x - closestX) ** 2 + (y - closestY) ** 2;
+        return distSq <= threshold ** 2;
+    }
+    private drawWeight( x1: number, y1: number, x2: number, y2: number, weight: number ): void {
+        const halfLineX = (x1 + x2) / 2;
+        const halfLineY = (y1 + y2) / 2;
+        let lineVectorX = x1 - x2;
+        let lineVectorY = y1 - y2;
+        let length = this.measureDistance(x1, y1, x2, y2);
+        lineVectorX = lineVectorX / length;
+        lineVectorY = lineVectorY / length;
+        let normalVectorX = -lineVectorY;
+        let normalVectorY = lineVectorX;
+        if (normalVectorY > 0) {
+            normalVectorX *= -1;
+            normalVectorY *= -1;
+        }
+        const x = halfLineX + normalVectorX * 15;
+        const y = halfLineY + normalVectorY * 15;
+        this.ctx.font = `${17 * this.scale}px arial`;
+        this.ctx.textAlign = "center";
+        this.ctx.textBaseline = "middle";
+        this.ctx.fillStyle = "black";
+        this.ctx.fillText(`${weight}`, x, y);
+    }
+    private updateEuclideanDistancesOfDraggedNode(): void {
+        for (const edgeId of this.graph.getEdgeListOfNode( this.draggedNode!.getId() )) {
+            const edge = this.graph.getEdge(edgeId);
+            const fromNode = this.graph.getNode(edge.from);
+            const toNode = this.graph.getNode(edge.to);
+            edge.weight = Math.floor( this.measureDistance( fromNode.x!, fromNode.y!, toNode.x!, toNode.y! ) / 10 );
+        }
+    }
+    private measureGraphRectangle(): { topLeftX: number; topLeftY: number; width: number; height: number; } {
+        let minX = Number.MAX_VALUE;
+        let maxX = -Number.MAX_VALUE;
+        let minY = Number.MAX_VALUE;
+        let maxY = -Number.MAX_VALUE;
+        for (const nodeId of this.nodeIds) {
+            const node = this.graph.getNode(nodeId);
+            if (node.x! < minX) {
+                minX = node.x!;
+            } else if (node.x! > maxX) {
+                maxX = node.x!;
+            }
+            if (node.y! < minY) {
+                minY = node.y!;
+            } else if (node.y! > maxY) {
+                maxY = node.y!;
+            }
+        }
+        return { topLeftX: minX - this.nodeSize, topLeftY: minY - this.nodeSize, width: maxX - minX + this.nodeSize * 2, height: maxY - minY + this.nodeSize * 2, };
+    }
+    private wheelEventHandler = (e: WheelEvent): void => {
+        e.preventDefault();
+        if (this.mode == "disabled") return;
+        this.mousePositionX = e.x;
+        this.mousePositionY = e.y;
+        let canvasMouseX = this.screenToCanvasX(this.mousePositionX);
+        let canvasMouseY = this.screenToCanvasY(this.mousePositionY);
+        if (0 < e.deltaY) {
+            this.canvasScaleDown();
+            this.offsetY += this.canvasToScreenY(canvasMouseY * this.scaleFactor) - this.offsetY;
+            this.offsetX += this.canvasToScreenX(canvasMouseX * this.scaleFactor) - this.offsetX;
+        } else {
+            this.canvasScaleUp();
+            this.offsetY += this.offsetY - this.canvasToScreenY(canvasMouseY * this.scaleFactor);
+            this.offsetX += this.offsetX - this.canvasToScreenX(canvasMouseX * this.scaleFactor);
+        }
+        this.drawCanvas();
+    };
+    private mouseDownEventHandler = (e: MouseEvent): void => {
+        e.preventDefault();
+        if (this.mode === "disabled") return;
+        this.mousePositionX = e.x;
+        this.mousePositionY = e.y;
+        this.isDown = true;
+    };
+    private mouseMoveEventHandler = (e: MouseEvent): void => {
+        e.preventDefault();
+        if (this.mode === "disabled") return;
+        if (!this.isDown) return;
+        this.dragging = true;
+        const deltaX = this.mousePositionX - e.x;
+        const deltaY = this.mousePositionY - e.y;
+        const canvasMouseX = this.screenToCanvasX(e.x);
+        const canvasMouseY = this.screenToCanvasY(e.y);
+        this.mousePositionX = e.x;
+        this.mousePositionY = e.y;
+        if (!this.nodeDragging) {
+            const { node, index } = this.hitNode(canvasMouseX, canvasMouseY);
+            if ( this.mode === "addEdgeMode" && !this.firstNode && node && !this.isPanning ) {
+                this.firstNode = node;
+                this.pendingEdge = true;
+                this.drawCanvas();
+                return;
+            } else if ( this.mode === "addEdgeMode" && this.firstNode && !this.isPanning ) {
+                this.drawCanvas();
+                return;
+            }
+            if (node && !this.isPanning) {
+                this.draggedNode = node;
+                this.mouseNodecenterVectorX = node.x! - canvasMouseX;
+                this.mouseNodecenterVectorY = node.y! - canvasMouseY;
+                this.nodeDragging = true;
+                this.nodeIds.splice(index, 1);
+                this.nodeIds.push(node.getId());
+            } else {
+                this.offsetX -= deltaX;
+                this.offsetY -= deltaY;
+                this.isPanning = true;
+            }
+        } else {
+            this.draggedNode!.x = canvasMouseX + this.mouseNodecenterVectorX;
+            this.draggedNode!.y = canvasMouseY + this.mouseNodecenterVectorY;
+            if (this.euclideanWeights)
+                this.updateEuclideanDistancesOfDraggedNode();
+        }
+        this.drawCanvas();
+    };
+    private mouseUpEventHandler = (e: MouseEvent): void => {
+        if (this.mode === "disabled") return;
+        const canvasMouseX = this.screenToCanvasX(e.x);
+        const canvasMouseY = this.screenToCanvasY(e.y);
+        if (!this.dragging && e.target == canvas) {
+            const { node, index } = this.hitNode(canvasMouseX, canvasMouseY);
+            const edge = this.hitEdge(canvasMouseX, canvasMouseY);
+            if (this.mode === "addNodeMode") {
+                const id = this.graph.addNode();
+                this.graph.setNodeCoordinates(id, canvasMouseX, canvasMouseY);
+                this.nodeIds.push(id);
+            } else if (this.mode === "delete") {
+                if (node) {
+                    this.nodeIds.splice(index, 1);
+                    this.graph.deleteNode(node.getId());
+                } else if (edge) {
+                    this.graph.removeEdge(edge.to, edge.from);
+                }
+            } else if (this.mode === "idle") {
+                if (node) {
+                    if (this.selectNodeCallback)
+                        this.selectNodeCallback(node.getId());
+                } else if (edge) {
+                    if (this.selectEdgeCallback)
+                        this.selectEdgeCallback(edge.getId());
+                } else {
+                    if (this.canvasBlankClick) this.canvasBlankClick();
+                }
+            }
+        } else if (this.dragging) {
+            if (this.mode === "addEdgeMode") {
+                const { node, index } = this.hitNode( canvasMouseX, canvasMouseY );
+                if (node && this.firstNode) {
+                    if (this.graph instanceof WeightedGraph) {
+                        const weight = this.euclideanWeights ? Math.floor( this.measureDistance( this.firstNode!.x!, this.firstNode!.y!, node.x!, node.y! ) / 10 ) : Math.floor(Math.random() * 4) + 1; this.graph.addEdge( this.firstNode!.getId(), node.getId(), weight );
+                    } else {
+                        this.graph.addEdge(
+                            this.firstNode!.getId(),
+                            node.getId()
+                        );
+                    }
+                    this.firstNode = null;
+                    this.pendingEdge = false;
+                } else {
+                    this.firstNode = null;
+                    this.pendingEdge = false;
+                }
+            }
+        }
+        this.draggedNode = null;
+        this.nodeDragging = false;
+        this.dragging = false;
+        this.isDown = false;
+        this.isPanning = false;
+        this.drawCanvas();
+    };
+}

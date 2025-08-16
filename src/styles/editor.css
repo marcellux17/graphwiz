@@ -1,0 +1,280 @@
+:root {
+    --main-color: rgb(255, 202, 55);
+    --transition-color: rgb(255, 187, 0);
+}
+body,
+html {
+    margin: 0;
+    font-size: 23px;
+    font-family: Arial, Helvetica, sans-serif;
+    color: #000000;
+    height: 100%;
+}
+#message-box {
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    z-index: 5;
+    font-size: 0.9rem;
+}
+body {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    background-color: white;
+}
+#container-wrapper {
+    position: relative;
+    height: 100%;
+    flex-grow: 1;
+}
+#canvas{
+    display: block; 
+    background: white;
+    height: 100%; 
+    width: 100%; 
+}
+#modify-graph {
+    display: flex;
+    flex-direction: column;
+    margin-left: 10px;
+    height: 100%;
+    margin-right: 10px;
+    margin-top: 10px;
+    min-width: 200px;
+}
+#modify-graph > * {
+    margin-bottom: 0.2em;
+}
+#modify-graph button,
+select {
+    padding: 0.5em 1.5em;
+    box-sizing: border-box;
+    font-size: 0.85rem;
+    border-radius: 5px;
+    border: transparent;
+    background-color: var(--main-color);
+    color: #000000;
+}
+#modify-graph button:hover {
+    background-color: var(--transition-color);
+    transition: all 0.1s linear;
+}
+#modify-graph select.hide {
+    display: none;
+}
+#algorithms:focus {
+    outline: none;
+}
+
+#change-data.hide {
+    display: none;
+}
+#change-data {
+    display: flex;
+    flex-direction: column;
+    font-size: 0.7rem;
+}
+#change-data input {
+    font-size: 0.85rem;
+    border: solid 2px #000000;
+    border-radius: 3px;
+    color: #000000;
+    box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
+}
+#change-data input:focus {
+    border: solid 3px #000000;
+    outline: none;
+}
+#play-box.hide {
+    display: none;
+}
+#play-box {
+    min-width: 220px;
+    display: flex;
+    justify-content: space-around;
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    z-index: 5;
+}
+#play-box button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: white;
+    border: solid 1px black;
+    border-radius: 5px;
+}
+#play-box button svg {
+    fill: black;
+}
+#play-box button:hover {
+    background-color: rgb(245, 245, 245);
+    transition: all 0.1s linear;
+}
+#play-box button.hide {
+    display: none;
+}
+#toggle-speed {
+    border: none;
+    position: absolute;
+    right: 0px;
+    top: 50%;
+    transform: translateY(-43%);
+    padding: 0;
+    height: 35px;
+    width: 35px;
+}
+#speed-input {
+    width: 200px;
+    position: absolute;
+    left: 0px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+#toggle-speed .tooltip {
+    top: -40px;
+    right: 0;
+}
+.tooltip {
+    position: absolute;
+    transition: all 0.5s linear;
+    background-color: var(--main-color);
+    white-space: nowrap;
+    padding: 1px 5px;
+    border: none;
+    border-radius: 3px;
+    color: black;
+    font-weight: bold;
+}
+.tooltip.hide {
+    display: none;
+}
+#speed-box {
+    width: 250px;
+    height: 30px;
+    position: absolute;
+    bottom: 10px;
+    right: 5px;
+    z-index: 5;
+}
+#speed-info {
+    font-size: 0.9rem;
+    position: absolute;
+    white-space: nowrap;
+    width: 120px;
+    left: -120px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+button {
+    box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
+    background-color: var(--main-color);
+    cursor: pointer;
+}
+#path-info {
+    position: absolute;
+    bottom: 5px;
+    left: 5px;
+    z-index: 5;
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+}
+#path-info p {
+    margin: 0;
+}
+#path-info.hide {
+    display: none;
+}
+
+#algorithm-information-box {
+    position: absolute;
+    top: 40px;
+    left: 5px;
+    z-index: 5;
+    width: 350px;
+}
+#algorithm-info {
+    font-size: 0.6rem;
+    width: 100%;
+    height: 70vh;
+    border-radius: 3px;
+    border: 1px solid black;
+    box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
+    padding: 10px;
+    background-color: rgb(255, 255, 255);
+    text-overflow: auto;
+    overflow: scroll;
+    box-sizing: border-box;
+}
+#toggle-info {
+    border: none;
+    padding: 0;
+    height: 35px;
+    width: 35px;
+    position: relative;
+}
+#toggle-info .tooltip {
+    position: absolute;
+    left: 40px;
+    top: 0px;
+    transform: translateY(-50%);
+}
+#toggle-info svg {
+    fill: black;
+}
+.toggle svg.hide {
+    display: none;
+}
+.box-information.hide {
+    display: none;
+}
+
+#ds-container {
+    margin-top: 20px;
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+#algorithm-info .ds-name{
+    text-transform: capitalize;
+    text-align: center;
+}
+#info-text{
+    font-size: 0.65rem;
+    min-height: 30%;
+    text-wrap: wrap;
+}
+.ds-box {
+    height: 25px;
+    background-color: #f0f0f0;
+    border: 2px solid #000000;
+    border-radius: 5px;
+    font-weight: bold;
+    width: 25px;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+#ds-labels {
+    font-size: 0.65rem;
+    margin-top: 5px;
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+.stack #ds-labels {
+    justify-content: center;
+}
+.stack {
+    flex-direction: column-reverse;
+    align-items: center;
+}
+.queue,
+.priority-queue {
+    flex-direction: row;
+}
