@@ -31,7 +31,7 @@ export class Graph {
     getEdgeList(): (Edge | null)[] {
         return this.edges;
     }
-    addEdge(from: number, to: number): number | undefined {
+    addEdge(from: number, to: number, twoWay: boolean = true): number | undefined {
         if (from === to) return;
         if (this.nodes[from]!.hasNeighbour(to)) return;
 
@@ -40,16 +40,20 @@ export class Graph {
             idx = this.edges.length;
         }
         this.nodes[from]!.addNeighbour(to, idx);
-        this.nodes[to]!.addNeighbour(from, idx);
+        if(twoWay){
+            this.nodes[to]!.addNeighbour(from, idx);
+        }
         this.edges[idx] = new Edge(idx, to, from);
         return idx;
     }
 
-    removeEdge(from: number, to: number) {
+    removeEdge(from: number, to: number, twoWay: boolean = true) {
         const edgeId = this.nodes[from]!.getAdjacencyList()[to];
         if (edgeId === -1) return;
         this.nodes[from]!.removeNeighbour(to);
-        this.nodes[to]!.removeNeighbour(from);
+        if(twoWay){
+            this.nodes[to]!.removeNeighbour(from);
+        }
         this.edges[edgeId] = null;
     }
     deleteNode(id: number): void {
@@ -57,12 +61,16 @@ export class Graph {
         if (!node) return;
         const adjacencyList = node.getAdjacencyList();
         for (let i = 0; i < adjacencyList.length; i++) {
-            if (adjacencyList[i] !== -1) {
+            if(this.nodes[i] !== null && this.nodes[i]?.hasNeighbour(id)){
+                const edgeId = this.nodes[i]!.getAdjacencyList()[id];
+                this.edges[edgeId] = null;
                 this.nodes[i]!.removeNeighbour(id);
+            }
+            if(adjacencyList[i] !== -1){
                 this.edges[adjacencyList[i]] = null;
             }
         }
-
+        
         this.nodes[id] = null;
         this.numberOfNodes--;
     }
@@ -77,6 +85,12 @@ export class Graph {
             const edgeId = adjacencyList[i];
             if (edgeId !== -1) {
                 edges.push(edgeId);
+            }else if(this.nodes[i] !== null){
+                const adjacencyListOfNeighbour = this.nodes[i]!.getAdjacencyList();
+                const edgeIdOfNeighbour = adjacencyListOfNeighbour[nodeId]
+                if(edgeIdOfNeighbour !== -1){
+                    edges.push(edgeIdOfNeighbour)
+                }
             }
         }
 
@@ -155,11 +169,7 @@ export class WeightedGraph extends Graph {
         if (edge) edge.weight = newWeight;
     }
 
-    override addEdge(
-        from: number,
-        to: number,
-        weight: number = 1
-    ): number | undefined {
+    override addEdge( from: number, to: number,twoWay: boolean = true , weight: number = 1): number | undefined {
         if (from === to) return;
         if (this.nodes[from]!.hasNeighbour(to)) return;
 
@@ -168,7 +178,9 @@ export class WeightedGraph extends Graph {
             idx = this.edges.length;
         }
         this.nodes[from]!.addNeighbour(to, idx);
-        this.nodes[to]!.addNeighbour(from, idx);
+        if(twoWay){
+            this.nodes[to]!.addNeighbour(from, idx);
+        }
         this.edges[idx] = new Edge(idx, to, from, weight);
         return idx;
     }
@@ -198,7 +210,7 @@ export class Edge {
 
 export class Node {
     private id: number;
-    private adjacencyList: number[]; //index: neighbourId, element -> edgeId, -1 -> no connection
+    private adjacencyList: number[]; //index: neighbourId, element -> edgeId, -1 -> no edge from node to neighbour (directed)
     private originalLabel: string; //for resetting if animation changes labels
     label: string;
     x?: number;
