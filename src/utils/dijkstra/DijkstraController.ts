@@ -1,6 +1,6 @@
 import { Animation } from "../animation/animation";
 import { WeightedGraph } from "../datastructures/graph";
-import { playBox, pauseButton, playButton, startingNodeInfo, destinationNodeInfo, pathInfoBox, inputGroup, label, weightInput, speedRangeInput, speedInfo, backButton, forwardButton, resetButton, runAnimationButton, escapeModeButton, deleteModeButton, addNodeButton, addEdgeButton, } from "../dom/elements";
+import { playBox, pauseButton, playButton, startingNodeInfo, destinationNodeInfo, pathInfoBox, inputGroup, label, weightInput, speedRangeInput, speedInfo, backButton, forwardButton, resetButton, runAnimationButton, escapeModeButton, deleteModeButton, addNodeButton, addEdgeButton, presetInput, } from "../dom/elements";
 import { changeMessageBox, makeInvisible, makeVisible, resetInput, } from "../dom/helpers";
 import { Network } from "../network/network";
 import Dijkstra from "./DijkstraAlgorithm";
@@ -169,5 +169,10 @@ export class DijkstraController {
             speedInfo.textContent = `speed: ${newspeed}x`;
             this.animation.setAnimationSpeedChange(1000 / newspeed);
         });
+        presetInput?.addEventListener("input", () => {
+            if(presetInput!.value !== "load a graph" && this.canvasState !== "run-animation" && this.canvasState !== "animation-running"){
+                this.network.loadPreset("dijkstra", presetInput!.value);
+            }
+        })
     }
 }
