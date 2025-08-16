@@ -156,7 +156,7 @@ export class AStarController {
             this.animation.setAnimationSpeedChange(1000 / newspeed);
         });
         presetInput?.addEventListener("input", () => {
-            if(presetInput!.value !== "load a graph"){
+            if(presetInput!.value !== "load a graph" && this.canvasState !== "run-animation" && this.canvasState !== "animation-running"){
                 this.network.loadPreset("a_star", presetInput!.value);
             }
         })
