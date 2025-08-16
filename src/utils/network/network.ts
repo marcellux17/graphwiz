@@ -46,10 +46,12 @@ export class Network{
     private canvasBlankClick: (() => void) | null = null;
     private mode: networkMode = "idle";
     private graph: Graph;
+    private directed:boolean;
 
-    constructor(graph: Graph, euclideanWeights: boolean) {
+    constructor(graph: Graph, euclideanWeights: boolean, directed: boolean = false) {
         this.graph = graph;
         this.euclideanWeights = euclideanWeights;
+        this.directed = directed;
         canvas.addEventListener("mousedown", this.mouseDownEventHandler);
         canvas.addEventListener("wheel", this.wheelEventHandler);
         canvas.addEventListener("mousemove", this.mouseMoveEventHandler);
@@ -221,7 +223,7 @@ export class Network{
         }
         for (const edge of preset.edges) {
             if (this.graph instanceof WeightedGraph) {
-                this.graph.addEdge(edge.from, edge.to, edge.weight);
+                this.graph.addEdge(edge.from, edge.to,true, edge.weight);
             } else {
                 this.graph.addEdge(edge.from, edge.to);
             }
@@ -293,6 +295,10 @@ export class Network{
         this.ctx.lineTo(this.offsetX + x2, this.offsetY + y2);
         this.ctx.stroke();
         this.ctx.closePath();
+        if(this.directed){
+            this.drawTriangleTo(x2+normalizedMouseNodeVectorX*2, y2+normalizedMouseNodeVectorY*2, normalizedMouseNodeVectorX, normalizedMouseNodeVectorY, "black", false);
+            return;
+        }
         this.ctx.beginPath();
         this.ctx.arc(this.offsetX + x2, this.offsetY + y2, 3, 0, Math.PI * 2);
         this.ctx.stroke();
@@ -363,6 +369,22 @@ export class Network{
         if (this.graph instanceof WeightedGraph) {
             this.drawWeight(x1, y1, x2, y2, edge.weight!);
         }
+    }
+    private drawTriangleTo(x:number, y:number, directionVectorX:number, directionVectorY:number, color: string, normalize: boolean):void{
+        const lenghthOfV = Math.sqrt(directionVectorX**2 + directionVectorY**2);
+        if(normalize){
+            directionVectorX = directionVectorX/lenghthOfV;
+            directionVectorY = directionVectorY/lenghthOfV;
+        }
+        const normalVX = directionVectorY;
+        const noramlVY = -directionVectorX;
+        this.ctx.beginPath();
+        this.ctx.moveTo(this.offsetX+(x-directionVectorX*15)+normalVX*8,this.offsetY+(y-directionVectorY*15)+noramlVY*8);
+        this.ctx.lineTo(this.offsetX+(x-directionVectorX*15)-normalVX*8,this.offsetY+(y-directionVectorY*15)-noramlVY*8)
+        this.ctx.lineTo(this.offsetX+x, this.offsetY+y)
+        this.ctx.closePath();
+        this.ctx.fillStyle = color;
+        this.ctx.fill();
     }
     private hitEdge(x: number, y: number): Edge | null {
         for (const edge of this.graph.getEdgeList()) {
@@ -548,7 +570,7 @@ export class Network{
                 const { node, index } = this.hitNode( canvasMouseX, canvasMouseY );
                 if (node && this.firstNode) {
                     if (this.graph instanceof WeightedGraph) {
-                        const weight = this.euclideanWeights ? Math.floor( this.measureDistance( this.firstNode!.x!, this.firstNode!.y!, node.x!, node.y! ) / 10 ) : Math.floor(Math.random() * 4) + 1; this.graph.addEdge( this.firstNode!.getId(), node.getId(), weight );
+                        const weight = this.euclideanWeights ? Math.floor( this.measureDistance( this.firstNode!.x!, this.firstNode!.y!, node.x!, node.y! ) / 10 ) : Math.floor(Math.random() * 4) + 1; this.graph.addEdge( this.firstNode!.getId(), node.getId(),true, weight );
                     } else {
                         this.graph.addEdge(
                             this.firstNode!.getId(),
