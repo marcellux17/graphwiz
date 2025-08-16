@@ -36,3 +36,7 @@ export const pathInfoBox = document.querySelector<HTMLDivElement>("#path-info");
 export const destinationNodeInfo = document.querySelector<HTMLDivElement>("#dest");
 export const startingNodeInfo = document.querySelector<HTMLDivElement>("#start");
 export const algorithmInfoBox = document.querySelector<HTMLDivElement>("#algorithm-info")!;
+
+//boxes 
+export const speedBox = document.querySelector<HTMLDivElement>("#speed-box");
+export const algorithmInformationBox = document.querySelector<HTMLDivElement>("#algorithm-information-box");

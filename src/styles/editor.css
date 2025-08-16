@@ -142,6 +142,9 @@ select {
     justify-content: end;
     align-items: center;
 }
+#speed-box.hide{
+    display: none;
+}
 #speed-box .box-information{
     height: 100%;
     width: 100%;
@@ -182,6 +185,9 @@ button {
     left: 5px;
     z-index: 5;
     width: 350px;
+}
+#algorithm-information-box.hide{
+    display: none;
 }
 #algorithm-info {
     font-size: 0.6rem;

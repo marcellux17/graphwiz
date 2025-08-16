@@ -1,6 +1,6 @@
 import { Animation } from "../animation/animation";
 import { WeightedGraph } from "../datastructures/graph";
-import { playBox, pauseButton, playButton, startingNodeInfo, destinationNodeInfo, pathInfoBox, weightInput, speedRangeInput, speedInfo, backButton, forwardButton, resetButton, runAnimationButton, escapeModeButton, deleteModeButton, addNodeButton, addEdgeButton, presetInput, } from "../dom/elements";
+import { playBox, pauseButton, playButton, startingNodeInfo, destinationNodeInfo, pathInfoBox, weightInput, speedRangeInput, speedInfo, backButton, forwardButton, resetButton, runAnimationButton, escapeModeButton, deleteModeButton, addNodeButton, addEdgeButton, presetInput, speedBox, algorithmInformationBox, } from "../dom/elements";
 import { changeMessageBox, makeInvisible, makeVisible, resetInput, } from "../dom/helpers";
 import { Network } from "../network/network";
 import AStar from "./AStarAlgorithm";
@@ -48,6 +48,8 @@ export class AStarController {
             case "idle":
                 if ( prevCanvasState === "run-animation" || prevCanvasState === "animation-running" ) {
                     this.animation.escapeAnimation();
+                    makeInvisible(algorithmInformationBox);
+                    makeInvisible(speedBox);
                 }
                 this.startingNodeId = null;
                 this.destinationNodeId = null;
@@ -68,6 +70,8 @@ export class AStarController {
             case "animation-running":
                 makeVisible(playBox);
                 makeVisible(pauseButton);
+                makeVisible(speedBox);
+                makeVisible(algorithmInformationBox);
                 makeInvisible(playButton);
                 this.network.fitGraphIntoAnimationSpace(350)
                 this.network.disableEverything();

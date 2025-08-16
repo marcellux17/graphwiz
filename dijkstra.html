@@ -17,12 +17,12 @@
                 <div id="start">start:</div>
                 <div id="dest">dest:</div>
             </div>
-            <div id="algorithm-information-box">
+            <div id="algorithm-information-box" class="hide">
                 <button id="toggle-info" class="toggle">
                     <p class="tooltip hide">algorithm information</p>
                     <svg
                         id="open-info"
-                        class="toggle-open"
+                        class="toggle-open hide"
                         xmlns="http://www.w3.org/2000/svg"
                         height="35px"
                         viewBox="0 -960 960 960"
@@ -35,7 +35,7 @@
                     </svg>
                     <svg
                         id="hide-info"
-                        class="hide toggle-close"
+                        class="toggle-close"
                         xmlns="http://www.w3.org/2000/svg"
                         height="35px"
                         viewBox="0 -960 960 960"
@@ -47,7 +47,7 @@
                         />
                     </svg>
                 </button>
-                <div id="algorithm-info" class="box-information hide">
+                <div id="algorithm-info" class="box-information">
                 </div>
             </div>
 
@@ -114,7 +114,7 @@
                     </svg>
                 </button>
             </div>
-            <div id="speed-box">
+            <div id="speed-box" class="hide">
                 <div class="box-information hide">
                     <div id="speed-info">speed: 1x</div>
                     <input

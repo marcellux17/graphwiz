@@ -1,6 +1,6 @@
 import { Animation } from "../animation/animation";
 import { WeightedGraph } from "../datastructures/graph";
-import { playBox, pauseButton, playButton, startingNodeInfo, destinationNodeInfo, pathInfoBox, inputGroup, label, weightInput, speedRangeInput, speedInfo, backButton, forwardButton, resetButton, runAnimationButton, escapeModeButton, deleteModeButton, addNodeButton, addEdgeButton, presetInput, } from "../dom/elements";
+import { playBox, pauseButton, playButton, startingNodeInfo, destinationNodeInfo, pathInfoBox, inputGroup, label, weightInput, speedRangeInput, speedInfo, backButton, forwardButton, resetButton, runAnimationButton, escapeModeButton, deleteModeButton, addNodeButton, addEdgeButton, presetInput, algorithmInformationBox, speedBox, } from "../dom/elements";
 import { changeMessageBox, makeInvisible, makeVisible, resetInput, } from "../dom/helpers";
 import { Network } from "../network/network";
 import Dijkstra from "./DijkstraAlgorithm";
@@ -47,6 +47,8 @@ export class DijkstraController {
             case "idle":
                 if ( prevCanvasState === "run-animation" || prevCanvasState === "animation-running" ) {
                     this.animation.escapeAnimation();
+                    makeInvisible(algorithmInformationBox);
+                    makeInvisible(speedBox);
                 }
                 this.startingNodeId = null;
                 this.destinationNodeId = null;
@@ -68,6 +70,8 @@ export class DijkstraController {
                 makeVisible(playBox);
                 makeVisible(pauseButton);
                 makeInvisible(playButton);
+                makeVisible(algorithmInformationBox);
+                makeVisible(speedBox);
                 this.network.fitGraphIntoAnimationSpace(350)
                 this.network.disableEverything();
                 this.animation.start();
