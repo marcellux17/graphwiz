@@ -356,18 +356,31 @@ export class Network{
         const fromY = fromNode.y!;
         const toX = toNode.x!;
         const toY = toNode.y!;
-        const x1 = this.offsetX + fromX;
-        const y1 = this.offsetY + fromY;
-        const x2 = this.offsetX + toX;
-        const y2 = this.offsetY + toY;
-        this.ctx.beginPath();
-        this.ctx.lineWidth = edge.width;
-        this.ctx.strokeStyle = edge.color;
-        this.ctx.moveTo(x1, y1);
-        this.ctx.lineTo(x2, y2);
-        this.ctx.stroke();
+        if(this.directed){
+            //needs an additional if check if there are 2 edges between the nodes (will check it later)
+            const lengthOfEdge = Math.sqrt((fromX-toX)**2 + (fromY-toY)**2);
+            let edgeVectorNormalizedX = (toX-fromX)/lengthOfEdge;
+            let edgeVectorNormalizedY = (toY-fromY)/lengthOfEdge;
+            edgeVectorNormalizedX *=(lengthOfEdge-this.nodeSize-2)//-2 is for the node outline
+            edgeVectorNormalizedY *=(lengthOfEdge-this.nodeSize-2)//-2 is for the node outline
+
+            this.ctx.beginPath();
+            this.ctx.lineWidth = edge.width;
+            this.ctx.strokeStyle = edge.color;
+            this.ctx.moveTo(this.offsetX + fromX,this.offsetY + fromY);
+            this.ctx.lineTo(this.offsetX + toX, this.offsetY + toY);
+            this.ctx.stroke();
+            this.drawTriangleTo(fromX+edgeVectorNormalizedX, fromY+edgeVectorNormalizedY, edgeVectorNormalizedX, edgeVectorNormalizedY, edge.color, true);
+        }else{
+            this.ctx.beginPath();
+            this.ctx.lineWidth = edge.width;
+            this.ctx.strokeStyle = edge.color;
+            this.ctx.moveTo(this.offsetX + fromX,this.offsetY + fromY);
+            this.ctx.lineTo(this.offsetX + toX, this.offsetY + toY);
+            this.ctx.stroke();
+        }
         if (this.graph instanceof WeightedGraph) {
-            this.drawWeight(x1, y1, x2, y2, edge.weight!);
+            this.drawWeight(this.offsetX + fromX,this.offsetY + fromY, this.offsetX + toX, this.offsetY + toY, edge.weight!);
         }
     }
     private drawTriangleTo(x:number, y:number, directionVectorX:number, directionVectorY:number, color: string, normalize: boolean):void{
