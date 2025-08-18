@@ -16,7 +16,7 @@ export class DijkstraController {
     private animation: Animation;
     constructor() {
         const graph = new WeightedGraph();
-        this.network = new Network(graph, false);
+        this.network = new Network(graph, false, true);
         this.algorithm = new Dijkstra(graph);
         this.animation = new Animation(this.network);
         this.setUpNetworkEventListeners();

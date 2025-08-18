@@ -116,6 +116,10 @@ export class Graph {
         node.x = x;
         node.y = y;
     }
+    edgeHasAPair(edge: Edge){
+        const toNode = this.nodes[edge.to]!;
+        return toNode.getAdjacencyList()[edge.from] !== -1;
+    }
     areConnected(startId: number, targetId: number): boolean {
         if (startId === targetId) return true;
 

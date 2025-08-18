@@ -46,12 +46,12 @@ export class Network{
     private canvasBlankClick: (() => void) | null = null;
     private mode: networkMode = "idle";
     private graph: Graph;
-    private directed:boolean;
+    private edgesTwoWay:boolean;
 
-    constructor(graph: Graph, euclideanWeights: boolean, directed: boolean = false) {
+    constructor(graph: Graph, euclideanWeights: boolean, edgesTwoWay: boolean = false) {
         this.graph = graph;
         this.euclideanWeights = euclideanWeights;
-        this.directed = directed;
+        this.edgesTwoWay = edgesTwoWay;
         canvas.addEventListener("mousedown", this.mouseDownEventHandler);
         canvas.addEventListener("wheel", this.wheelEventHandler);
         canvas.addEventListener("mousemove", this.mouseMoveEventHandler);
@@ -223,9 +223,9 @@ export class Network{
         }
         for (const edge of preset.edges) {
             if (this.graph instanceof WeightedGraph) {
-                this.graph.addEdge(edge.from, edge.to,true, edge.weight);
+                this.graph.addEdge(edge.from, edge.to,this.edgesTwoWay, edge.weight);
             } else {
-                this.graph.addEdge(edge.from, edge.to);
+                this.graph.addEdge(edge.from, edge.to, this.edgesTwoWay);
             }
         }
         this.fitGraphIntoAnimationSpace(350);
@@ -295,7 +295,7 @@ export class Network{
         this.ctx.lineTo(this.offsetX + x2, this.offsetY + y2);
         this.ctx.stroke();
         this.ctx.closePath();
-        if(this.directed){
+        if(!this.edgesTwoWay){
             this.drawTriangleTo(x2+normalizedMouseNodeVectorX*2, y2+normalizedMouseNodeVectorY*2, normalizedMouseNodeVectorX, normalizedMouseNodeVectorY, "black", false);
             return;
         }
@@ -356,21 +356,61 @@ export class Network{
         const fromY = fromNode.y!;
         const toX = toNode.x!;
         const toY = toNode.y!;
-        if(this.directed){
-            //needs an additional if check if there are 2 edges between the nodes (will check it later)
-            const lengthOfEdge = Math.sqrt((fromX-toX)**2 + (fromY-toY)**2);
+        if(!this.edgesTwoWay){
+            const lengthOfEdge = this.measureDistance(fromX, fromY, toX, toY);
             let edgeVectorNormalizedX = (toX-fromX)/lengthOfEdge;
             let edgeVectorNormalizedY = (toY-fromY)/lengthOfEdge;
+            if(this.graph.edgeHasAPair(edge)){
+                let edgeVectorNormalVX = -edgeVectorNormalizedY;
+                let edgeVectorNormalVY = edgeVectorNormalizedX;
+                const edgeCenterX = (fromX+toX)/2;
+                const edgeCenterY = (fromY+toY)/2;
+
+                const circleCenterX = edgeCenterX + edgeVectorNormalVX*lengthOfEdge;
+                const circleCenterY = edgeCenterY + edgeVectorNormalVY*lengthOfEdge;
+
+                const circleCenterToNodeVectorX = toX-circleCenterX;
+                const circleCenterToNodeVectorY = toY-circleCenterY;
+                const circleCenterFromNodeVectorX = fromX-circleCenterX;
+                const circleCenterFromNodeVectorY = fromY-circleCenterY;
+
+                const angleA = this.getAngleNormalized(circleCenterFromNodeVectorX, -circleCenterFromNodeVectorY);
+                const angleB = this.getAngleNormalized(circleCenterToNodeVectorX, -circleCenterToNodeVectorY);
+                let startAngle = Math.min(angleA, angleB);
+                let endAngle = Math.max(angleA, angleB);
+                const radius = this.measureDistance(circleCenterX, circleCenterY, toX, toY);
+                if(endAngle-startAngle > Math.PI){
+                    const temp = endAngle;
+                    endAngle = startAngle;
+                    startAngle = temp;
+                }
+                this.ctx.beginPath();
+                this.ctx.lineWidth = edge.width;
+                this.ctx.strokeStyle = "black";
+                this.ctx.arc(this.offsetX+circleCenterX, this.offsetY+circleCenterY, radius, startAngle,endAngle , false);
+                this.ctx.stroke();
+                this.ctx.closePath();
+                if(this.graph instanceof WeightedGraph){
+                    this.drawWeightToArcMiddle(circleCenterX, circleCenterY, radius, edgeCenterX-circleCenterX, edgeCenterY-circleCenterY, edge.weight!);
+                }
+                edgeVectorNormalVX *= -1;
+                edgeVectorNormalVY *= -1;
+                this.drawTriangleTo(circleCenterX+edgeVectorNormalVX*radius, circleCenterY+edgeVectorNormalVY*radius, edgeVectorNormalizedX, edgeVectorNormalizedY, edge.color, false);
+                return;
+            }
             edgeVectorNormalizedX *=(lengthOfEdge-this.nodeSize-2)//-2 is for the node outline
             edgeVectorNormalizedY *=(lengthOfEdge-this.nodeSize-2)//-2 is for the node outline
-
             this.ctx.beginPath();
             this.ctx.lineWidth = edge.width;
             this.ctx.strokeStyle = edge.color;
             this.ctx.moveTo(this.offsetX + fromX,this.offsetY + fromY);
             this.ctx.lineTo(this.offsetX + toX, this.offsetY + toY);
             this.ctx.stroke();
+            this.ctx.closePath();
             this.drawTriangleTo(fromX+edgeVectorNormalizedX, fromY+edgeVectorNormalizedY, edgeVectorNormalizedX, edgeVectorNormalizedY, edge.color, true);
+            if (this.graph instanceof WeightedGraph) {
+                this.drawWeightToHalfLine(this.offsetX + fromX,this.offsetY + fromY, this.offsetX + toX, this.offsetY + toY, edge.weight!);
+            }
         }else{
             this.ctx.beginPath();
             this.ctx.lineWidth = edge.width;
@@ -378,10 +418,25 @@ export class Network{
             this.ctx.moveTo(this.offsetX + fromX,this.offsetY + fromY);
             this.ctx.lineTo(this.offsetX + toX, this.offsetY + toY);
             this.ctx.stroke();
+            if (this.graph instanceof WeightedGraph) {
+                this.drawWeightToHalfLine(this.offsetX + fromX,this.offsetY + fromY, this.offsetX + toX, this.offsetY + toY, edge.weight!);
+            }
         }
-        if (this.graph instanceof WeightedGraph) {
-            this.drawWeight(this.offsetX + fromX,this.offsetY + fromY, this.offsetX + toX, this.offsetY + toY, edge.weight!);
+    }
+    private getAngleNormalized(vectorX:number, vectorY:number):number{
+        if(vectorX === 0){
+            return vectorY < 0 ? Math.PI/2 : Math.PI*3/2;
         }
+        if(vectorY === 0){
+            return vectorX < 0 ? Math.PI: 0;
+        }
+        if(vectorX > 0){
+            const angle = Math.atan(Math.abs(vectorY/vectorX));
+            return vectorY < 0 ? angle: Math.PI*2-angle;
+        }
+        //vectorX < 0
+        const angle = Math.atan(Math.abs(vectorY/vectorX));
+        return vectorY < 0 ? Math.PI-angle: Math.PI+angle;
     }
     private drawTriangleTo(x:number, y:number, directionVectorX:number, directionVectorY:number, color: string, normalize: boolean):void{
         const lenghthOfV = Math.sqrt(directionVectorX**2 + directionVectorY**2);
@@ -408,16 +463,51 @@ export class Network{
                 const toNode = this.graph.getNode(edge.to);
                 const toX = toNode.x!;
                 const toY = toNode.y!;
-                if (this.checkIfOnLine(x, y, fromX, fromY, toX, toY)) {
+                const hasAPair = this.graph.edgeHasAPair(edge)
+                if(hasAPair && this.checkIfOnArc(x, y, fromX, fromY, toX, toY)){
+                    return edge;
+                }
+                if (!hasAPair && this.checkIfOnLine(x, y, fromX, fromY, toX, toY)) {
+                    console.log("it never runs")
                     return edge;
                 }
             }
         }
         return null;
     }
+    private checkIfOnArc(x: number, y: number, fromX: number, fromY: number, toX: number, toY: number):boolean{
+        let treshold = 4;
+        const lengthOfEdge = this.measureDistance(fromX, fromY, toX, toY);
+        let edgeVectorNormalizedX = (toX-fromX)/lengthOfEdge;
+        let edgeVectorNormalizedY = (toY-fromY)/lengthOfEdge;
+
+        let edgeVectorNormalVX = -edgeVectorNormalizedY;
+        let edgeVectorNormalVY = edgeVectorNormalizedX;
+
+        const edgeCenterX = (fromX+toX)/2;
+        const edgeCenterY = (fromY+toY)/2;
+
+        const circleCenterX = edgeCenterX + edgeVectorNormalVX*lengthOfEdge;
+        const circleCenterY = edgeCenterY + edgeVectorNormalVY*lengthOfEdge;
+
+        const circleCenterMouseVX = x-circleCenterX;
+        const circleCenterMouseVY = y-circleCenterY;
+        const mouseAngle = this.getAngleNormalized(circleCenterMouseVX, -circleCenterMouseVY);
+        const angleA = this.getAngleNormalized(fromX-circleCenterX, -(fromY-circleCenterY));
+        const angleB = this.getAngleNormalized(toX-circleCenterX, -(toY-circleCenterY));
+
+        const lengthOfVector = Math.sqrt(circleCenterMouseVX**2+circleCenterMouseVY**2);
+        const circleCenterMouseVnormalizedX = circleCenterMouseVX/lengthOfVector
+        const circleCenterMouseVnormalizedY = circleCenterMouseVY/lengthOfVector
+        const radius = this.measureDistance(circleCenterX, circleCenterY, toX, toY);
+
+        const referencePointX = circleCenterX + circleCenterMouseVnormalizedX*radius;
+        const referencePointY = circleCenterY + circleCenterMouseVnormalizedY*radius;
+
+        return this.measureDistance(referencePointX, referencePointY, x, y) < treshold && (Math.min(angleA, angleB) < mouseAngle && mouseAngle < Math.max(angleA, angleB));       
+    }
     private checkIfOnLine( x: number, y: number, x1: number, y1: number, x2: number, y2: number ): boolean {
         let threshold = 4;
-        threshold = threshold / this.dpr;
         const xDiff = x2 - x1;
         const yDiff = y2 - y1;
         const lenSq = xDiff * xDiff + yDiff * yDiff;
@@ -432,7 +522,19 @@ export class Network{
         const distSq = (x - closestX) ** 2 + (y - closestY) ** 2;
         return distSq <= threshold ** 2;
     }
-    private drawWeight( x1: number, y1: number, x2: number, y2: number, weight: number ): void {
+    private drawWeightToArcMiddle(circleCenterX: number, circleCenterY: number,radius:number, directionVectorX: number, directionVectorY: number, weight: number):void{
+        const length = Math.sqrt(directionVectorX**2+directionVectorY**2);
+        directionVectorX = directionVectorX/length;
+        directionVectorY = directionVectorY/length;
+        const x = circleCenterX+directionVectorX*(radius+15);
+        const y = circleCenterY+directionVectorY*(radius+15);
+        this.ctx.font = `${17 * this.scale}px arial`;
+        this.ctx.textAlign = "center";
+        this.ctx.textBaseline = "middle";
+        this.ctx.fillStyle = "black";
+        this.ctx.fillText(`${weight}`, this.offsetX+x, this.offsetY+y);
+    }
+    private drawWeightToHalfLine( x1: number, y1: number, x2: number, y2: number, weight: number ): void {
         const halfLineX = (x1 + x2) / 2;
         const halfLineY = (y1 + y2) / 2;
         let lineVectorX = x1 - x2;
@@ -565,7 +667,7 @@ export class Network{
                     this.nodeIds.splice(index, 1);
                     this.graph.deleteNode(node.getId());
                 } else if (edge) {
-                    this.graph.removeEdge(edge.to, edge.from);
+                    this.graph.removeEdge(edge.from, edge.to, this.edgesTwoWay);
                 }
             } else if (this.mode === "idle") {
                 if (node) {
@@ -583,11 +685,13 @@ export class Network{
                 const { node, index } = this.hitNode( canvasMouseX, canvasMouseY );
                 if (node && this.firstNode) {
                     if (this.graph instanceof WeightedGraph) {
-                        const weight = this.euclideanWeights ? Math.floor( this.measureDistance( this.firstNode!.x!, this.firstNode!.y!, node.x!, node.y! ) / 10 ) : Math.floor(Math.random() * 4) + 1; this.graph.addEdge( this.firstNode!.getId(), node.getId(),true, weight );
+                        const weight = this.euclideanWeights ? Math.floor( this.measureDistance( this.firstNode!.x!, this.firstNode!.y!, node.x!, node.y! ) / 10 ) : Math.floor(Math.random() * 4) + 1;
+                        this.graph.addEdge( this.firstNode!.getId(), node.getId(),this.edgesTwoWay, weight );
                     } else {
                         this.graph.addEdge(
                             this.firstNode!.getId(),
-                            node.getId()
+                            node.getId(),
+                            this.edgesTwoWay
                         );
                     }
                     this.firstNode = null;

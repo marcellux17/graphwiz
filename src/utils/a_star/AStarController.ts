@@ -17,7 +17,7 @@ export class AStarController {
     private animation: Animation;
     constructor() {
         const graph = new WeightedGraph();
-        this.network = new Network(graph, true);
+        this.network = new Network(graph, true, true);
         this.algorithm = new AStar(graph);
         this.animation = new Animation(this.network);
         this.setUpNetworkEventListeners();
