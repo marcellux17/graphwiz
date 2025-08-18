@@ -4,16 +4,14 @@ import { playBox, pauseButton, playButton, startingNodeInfo, destinationNodeInfo
 import { changeMessageBox, makeInvisible, makeVisible, resetInput, } from "../dom/helpers";
 import { Network } from "../network/network";
 import AStar from "./AStarAlgorithm";
-import Dijkstra from "./AStarAlgorithm";
 
 type canvasState = "add-edge-mode" | "idle" | "delete" | "add-node-mode" | "run-animation" | "step-by-step" | "animation-running";
 export class AStarController {
     private network: Network;
-    private selectedEdgeId: number | null = null;
     private startingNodeId: number | null = null;
     private destinationNodeId: number | null = null;
     private canvasState: canvasState = "idle"; //aka no mode is selected
-    private algorithm: Dijkstra;
+    private algorithm: AStar;
     private animation: Animation;
     constructor() {
         const graph = new WeightedGraph();
@@ -61,7 +59,6 @@ export class AStarController {
                 changeMessageBox("select starting node");
                 makeVisible(pathInfoBox);
                 resetInput();
-                this.selectedEdgeId = null;
                 this.network.resetToIdle();
                 break;
             case "animation-running":
@@ -122,11 +119,6 @@ export class AStarController {
 
         runAnimationButton?.addEventListener("click", () => {
             this.changeCanvasState("run-animation");
-        });
-        weightInput.addEventListener("input", () => {
-            const newValue = Number.parseInt(weightInput.value);
-            const selectedElementId = this.selectedEdgeId!;
-            this.network.updateEdge({ id: selectedElementId, weight: newValue, });
         });
         resetButton?.addEventListener("click", () => {
             this.animation.resetAnimation();
