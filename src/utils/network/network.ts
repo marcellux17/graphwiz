@@ -291,12 +291,7 @@ export class Network{
         const normalizedMouseNodeVectorY = (y2 - y1) / length;
         const startingX = x1 + normalizedMouseNodeVectorX * this.nodeSize + normalizedMouseNodeVectorX * 2;
         const startingY = y1 + normalizedMouseNodeVectorY * this.nodeSize + normalizedMouseNodeVectorY * 2;
-        this.ctx.beginPath();
-        this.ctx.lineWidth = 2;
-        this.ctx.moveTo(this.offsetX + startingX, this.offsetY + startingY);
-        this.ctx.lineTo(this.offsetX + x2, this.offsetY + y2);
-        this.ctx.stroke();
-        this.ctx.closePath();
+        this.drawLine(startingX, startingY, x2, y2, 2, "black");
         if(!this.edgesTwoWay){
             this.drawTriangleTo(x2+normalizedMouseNodeVectorX*2, y2+normalizedMouseNodeVectorY*2, normalizedMouseNodeVectorX, normalizedMouseNodeVectorY, "black", false);
             return;
@@ -328,6 +323,15 @@ export class Network{
     }
     private canvasToScreenY(canvasY: number): number {
         return canvasY + this.offsetY;
+    }
+    private drawLine(fromX: number, fromY: number, toX: number, toY: number, lineWidth: number, color: string):void{
+        this.ctx.beginPath();
+        this.ctx.lineWidth = lineWidth;
+        this.ctx.strokeStyle = color;
+        this.ctx.moveTo(this.offsetX + fromX, this.offsetY + fromY);
+        this.ctx.lineTo(this.offsetX + toX, this.offsetY + toY);
+        this.ctx.stroke();
+        this.ctx.closePath();
     }
     private drawArc(x:number, y:number, radius: number, startingAngle: number, endAngle: number, contour: string, lineWidth: number,color?: string):void{
         this.ctx.beginPath();
@@ -398,24 +402,13 @@ export class Network{
             }
             edgeVectorNormalizedX *=(lengthOfEdge-this.nodeSize-2)//-2 is for the node outline
             edgeVectorNormalizedY *=(lengthOfEdge-this.nodeSize-2)//-2 is for the node outline
-            this.ctx.beginPath();
-            this.ctx.lineWidth = edge.width;
-            this.ctx.strokeStyle = edge.color;
-            this.ctx.moveTo(this.offsetX + fromX,this.offsetY + fromY);
-            this.ctx.lineTo(this.offsetX + toX, this.offsetY + toY);
-            this.ctx.stroke();
-            this.ctx.closePath();
+            this.drawLine(fromX, fromY, toX, toY, edge.width, edge.color)
             this.drawTriangleTo(fromX+edgeVectorNormalizedX, fromY+edgeVectorNormalizedY, edgeVectorNormalizedX, edgeVectorNormalizedY, edge.color, true);
             if (this.graph instanceof WeightedGraph) {
                 this.drawWeightToHalfLine(this.offsetX + fromX,this.offsetY + fromY, this.offsetX + toX, this.offsetY + toY, edge.weight!);
             }
         }else{
-            this.ctx.beginPath();
-            this.ctx.lineWidth = edge.width;
-            this.ctx.strokeStyle = edge.color;
-            this.ctx.moveTo(this.offsetX + fromX,this.offsetY + fromY);
-            this.ctx.lineTo(this.offsetX + toX, this.offsetY + toY);
-            this.ctx.stroke();
+            this.drawLine(fromX, fromY, toX, toY, edge.width, edge.color);
             if (this.graph instanceof WeightedGraph) {
                 this.drawWeightToHalfLine(this.offsetX + fromX,this.offsetY + fromY, this.offsetX + toX, this.offsetY + toY, edge.weight!);
             }
