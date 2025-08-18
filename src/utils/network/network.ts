@@ -405,12 +405,12 @@ export class Network{
             this.drawLine(fromX, fromY, toX, toY, edge.width, edge.color)
             this.drawTriangleTo(fromX+edgeVectorNormalizedX, fromY+edgeVectorNormalizedY, edgeVectorNormalizedX, edgeVectorNormalizedY, edge.color, true);
             if (this.graph instanceof WeightedGraph) {
-                this.drawWeightToHalfLine(this.offsetX + fromX,this.offsetY + fromY, this.offsetX + toX, this.offsetY + toY, edge.weight!);
+                this.drawWeightToHalfLine(fromX,fromY,toX,toY, edge.weight!);
             }
         }else{
             this.drawLine(fromX, fromY, toX, toY, edge.width, edge.color);
             if (this.graph instanceof WeightedGraph) {
-                this.drawWeightToHalfLine(this.offsetX + fromX,this.offsetY + fromY, this.offsetX + toX, this.offsetY + toY, edge.weight!);
+                this.drawWeightToHalfLine(fromX,fromY,toX,toY, edge.weight!);
             }
         }
     }
