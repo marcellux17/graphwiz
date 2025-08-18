@@ -58,7 +58,6 @@ export class AStarController {
             case "run-animation":
                 changeMessageBox("select starting node");
                 makeVisible(pathInfoBox);
-                resetInput();
                 this.network.resetToIdle();
                 break;
             case "animation-running":
@@ -72,7 +71,6 @@ export class AStarController {
                 this.animation.start();
                 break;
         }
-        resetInput();
     }
     selectNodeHandle(id: number): void {
         if (this.canvasState !== "run-animation") return;
