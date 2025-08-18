@@ -1,6 +1,7 @@
 :root {
-    --main-color: rgb(255, 202, 55);
-    --transition-color: rgb(255, 187, 0);
+    --main-color: #2c3e50;
+    --transition-color: #2c3e50;
+    --main-font-color: white;
 }
 body,
 html {
@@ -37,11 +38,9 @@ body {
 #modify-graph {
     display: flex;
     flex-direction: column;
-    margin-left: 10px;
-    height: 100%;
-    margin-right: 10px;
-    margin-top: 10px;
-    min-width: 200px;
+    padding: 10px 20px;
+    background-color: #ecf0f1;
+    min-width: 210px;
 }
 #modify-graph > * {
     margin-bottom: 0.2em;
@@ -54,7 +53,7 @@ select {
     border-radius: 5px;
     border: transparent;
     background-color: var(--main-color);
-    color: #000000;
+    color: var(--main-font-color);
 }
 #modify-graph button:hover {
     background-color: var(--transition-color);
@@ -158,6 +157,9 @@ select {
 #speed-box .box-information.hide{
     display: none;
 }
+#speed-box svg{
+    fill: white;
+}
 button {
     box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
     background-color: var(--main-color);
@@ -216,7 +218,7 @@ button {
     transform: translateY(-50%);
 }
 #toggle-info svg {
-    fill: black;
+    fill: white;
 }
 .toggle svg.hide {
     display: none;
@@ -232,7 +234,7 @@ button {
     padding: 1px 5px;
     border: none;
     border-radius: 3px;
-    color: black;
+    color: var(--main-font-color);
     font-weight: bold;
 }
 .tooltip.hide {

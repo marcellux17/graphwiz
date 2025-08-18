@@ -1,7 +1,7 @@
 :root{
     --image-width: 400px;
     --image-height: 260px;
-    --main-color: rgb(255, 202, 55);
+    --main-color:  rgba(44, 62, 80, 1);
 }
 html, body{
     min-height: 100vh;
@@ -10,13 +10,7 @@ html, body{
     font-size: 30px;
 }
 body {
-    background: #acaeff;
-    background: linear-gradient(
-        17deg,
-        rgb(202, 172, 165) 0%,
-        #ffc527 0%,
-        rgb(252, 246, 192) 100%
-    );
+    background: linear-gradient(283deg,rgba(44, 62, 80, 1) 0%, rgba(44, 62, 80, 1) 39%, rgba(225, 243, 255, 1) 100%);
 }
 #links{
     margin: auto;
