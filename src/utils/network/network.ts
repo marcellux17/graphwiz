@@ -301,12 +301,7 @@ export class Network{
             this.drawTriangleTo(x2+normalizedMouseNodeVectorX*2, y2+normalizedMouseNodeVectorY*2, normalizedMouseNodeVectorX, normalizedMouseNodeVectorY, "black", false);
             return;
         }
-        this.ctx.beginPath();
-        this.ctx.arc(this.offsetX + x2, this.offsetY + y2, 3, 0, Math.PI * 2);
-        this.ctx.stroke();
-        this.ctx.fillStyle = "red";
-        this.ctx.fill();
-        this.ctx.closePath();
+        this.drawArc(x2, y2, 3, 0, Math.PI*2, "black", 2, "red")
     }
     private drawEdges(): void {
         for (const edge of this.graph.getEdgeList()) {
@@ -334,22 +329,25 @@ export class Network{
     private canvasToScreenY(canvasY: number): number {
         return canvasY + this.offsetY;
     }
-    private drawNode(node: Node): void {
-        const x = this.offsetX + node.x!;
-        const y = this.offsetY + node.y!;
-        this.ctx.lineWidth = 4;
+    private drawArc(x:number, y:number, radius: number, startingAngle: number, endAngle: number, contour: string, lineWidth: number,color?: string):void{
         this.ctx.beginPath();
-        this.ctx.strokeStyle = "black";
-        this.ctx.arc(x, y, this.nodeSize, 0, Math.PI * 2);
-        this.ctx.closePath();
+        this.ctx.lineWidth = lineWidth;
+        this.ctx.strokeStyle = contour;
+        this.ctx.arc(this.offsetX + x, this.offsetY + y, radius, startingAngle, endAngle);
         this.ctx.stroke();
-        this.ctx.fillStyle = node.color ? node.color : "white";
-        this.ctx.fill();
+        if(color){
+            this.ctx.fillStyle = color;
+            this.ctx.fill();
+        }
+        this.ctx.closePath();
+    }
+    private drawNode(node: Node): void {
+        this.drawArc(node.x!, node.y!, this.nodeSize, 0, Math.PI*2,"black",4, node.color ? node.color : "white")
         this.ctx.font = `${17 * this.scale}px arial`;
         this.ctx.textAlign = "center";
         this.ctx.textBaseline = "middle";
         this.ctx.fillStyle = "black";
-        this.ctx.fillText(`${node.label}`, x, y);
+        this.ctx.fillText(`${node.label}`, this.offsetX+node.x!, this.offsetY+node.y!);
     }
     private drawEdge(edge: Edge): void {
         const fromNode = this.graph.getNode(edge.from);
@@ -386,12 +384,7 @@ export class Network{
                     endAngle = startAngle;
                     startAngle = temp;
                 }
-                this.ctx.beginPath();
-                this.ctx.lineWidth = edge.width;
-                this.ctx.strokeStyle = "black";
-                this.ctx.arc(this.offsetX+circleCenterX, this.offsetY+circleCenterY, radius, startAngle,endAngle , false);
-                this.ctx.stroke();
-                this.ctx.closePath();
+                this.drawArc(circleCenterX, circleCenterY, radius, startAngle, endAngle, "black", edge.width);
                 if(this.graph instanceof WeightedGraph){
                     this.drawWeightToArcMiddle(circleCenterX, circleCenterY, radius, edgeCenterX-circleCenterX, edgeCenterY-circleCenterY, edge.weight!);
                 }
