@@ -345,7 +345,7 @@ export class Network{
         this.ctx.font = `${fontSize * this.scale}px ${fontFamily}`;
         this.ctx.textAlign = "center";
         this.ctx.textBaseline = "middle";
-        this.ctx.fillStyle = "black";
+        this.ctx.fillStyle = fontColor;
         this.ctx.fillText(text, this.offsetX+x, this.offsetY+y);
     }
     private drawNode(node: Node): void {
