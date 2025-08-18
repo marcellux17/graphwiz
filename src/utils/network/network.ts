@@ -47,11 +47,13 @@ export class Network{
     private mode: networkMode = "idle";
     private graph: Graph;
     private edgesTwoWay:boolean;
+    private negativeEdges: boolean;
 
-    constructor(graph: Graph, euclideanWeights: boolean, edgesTwoWay: boolean = false) {
+    constructor(graph: Graph, euclideanWeights: boolean, edgesTwoWay: boolean = false, negativeEdges: boolean = false) {
         this.graph = graph;
         this.euclideanWeights = euclideanWeights;
         this.edgesTwoWay = edgesTwoWay;
+        this.negativeEdges = negativeEdges;
         canvas.addEventListener("mousedown", this.mouseDownEventHandler);
         canvas.addEventListener("wheel", this.wheelEventHandler);
         canvas.addEventListener("mousemove", this.mouseMoveEventHandler);
@@ -685,7 +687,10 @@ export class Network{
                 const { node, index } = this.hitNode( canvasMouseX, canvasMouseY );
                 if (node && this.firstNode) {
                     if (this.graph instanceof WeightedGraph) {
-                        const weight = this.euclideanWeights ? Math.floor( this.measureDistance( this.firstNode!.x!, this.firstNode!.y!, node.x!, node.y! ) / 10 ) : Math.floor(Math.random() * 4) + 1;
+                        const euclideanWeight = Math.floor( this.measureDistance( this.firstNode!.x!, this.firstNode!.y!, node.x!, node.y! ) / 10 );
+                        let normalWeight = Math.floor(Math.random() * 5) + 1;
+                        normalWeight *= (this.negativeEdges && Math.random() > 0.8) ? -1 : 1;
+                        const weight = this.euclideanWeights ?  euclideanWeight: normalWeight;
                         this.graph.addEdge( this.firstNode!.getId(), node.getId(),this.edgesTwoWay, weight );
                     } else {
                         this.graph.addEdge(
