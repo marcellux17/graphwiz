@@ -454,7 +454,6 @@ export class Network{
     private hitEdge(x: number, y: number): Edge | null {
         for (const edge of this.graph.getEdgeList()) {
             if (edge) {
-                console.log("it ran")
                 const fromNode = this.graph.getNode(edge.from);
                 const fromX = fromNode.x!;
                 const fromY = fromNode.y!;
@@ -466,7 +465,6 @@ export class Network{
                     return edge;
                 }
                 if((this.edgesTwoWay || !hasAPair) && this.checkIfOnLine(x, y, fromX, fromY, toX, toY)){
-                    console.log("it never runs")
                     return edge;
                 }
             }
