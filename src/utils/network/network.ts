@@ -341,13 +341,16 @@ export class Network{
         }
         this.ctx.closePath();
     }
-    private drawNode(node: Node): void {
-        this.drawArc(node.x!, node.y!, this.nodeSize, 0, Math.PI*2,"black",4, node.color ? node.color : "white")
-        this.ctx.font = `${17 * this.scale}px arial`;
+    private drawText(x: number, y: number,text: string, fontSize: number, fontFamily: string, fontColor: string):void{
+        this.ctx.font = `${fontSize * this.scale}px ${fontFamily}`;
         this.ctx.textAlign = "center";
         this.ctx.textBaseline = "middle";
         this.ctx.fillStyle = "black";
-        this.ctx.fillText(`${node.label}`, this.offsetX+node.x!, this.offsetY+node.y!);
+        this.ctx.fillText(text, this.offsetX+x, this.offsetY+y);
+    }
+    private drawNode(node: Node): void {
+        this.drawArc(node.x!, node.y!, this.nodeSize, 0, Math.PI*2,"black",4, node.color ? node.color : "white")
+        this.drawText(node.x!, node.y!, `${node.label}`, 17, "arial", "black");
     }
     private drawEdge(edge: Edge): void {
         const fromNode = this.graph.getNode(edge.from);
@@ -523,11 +526,7 @@ export class Network{
         directionVectorY = directionVectorY/length;
         const x = circleCenterX+directionVectorX*(radius+15);
         const y = circleCenterY+directionVectorY*(radius+15);
-        this.ctx.font = `${17 * this.scale}px arial`;
-        this.ctx.textAlign = "center";
-        this.ctx.textBaseline = "middle";
-        this.ctx.fillStyle = "black";
-        this.ctx.fillText(`${weight}`, this.offsetX+x, this.offsetY+y);
+        this.drawText(x, y, `${weight}`, 17, "arial", "black")
     }
     private drawWeightToHalfLine( x1: number, y1: number, x2: number, y2: number, weight: number ): void {
         const halfLineX = (x1 + x2) / 2;
@@ -545,11 +544,7 @@ export class Network{
         }
         const x = halfLineX + normalVectorX * 15;
         const y = halfLineY + normalVectorY * 15;
-        this.ctx.font = `${17 * this.scale}px arial`;
-        this.ctx.textAlign = "center";
-        this.ctx.textBaseline = "middle";
-        this.ctx.fillStyle = "black";
-        this.ctx.fillText(`${weight}`, x, y);
+        this.drawText(x, y, `${weight}`, 17, "arial", "black")
     }
     private updateEuclideanDistancesOfDraggedNode(): void {
         for (const edgeId of this.graph.getEdgeListOfNode( this.draggedNode!.getId() )) {
