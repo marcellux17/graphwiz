@@ -1,0 +1,225 @@
+import { Node, WeightedGraph } from "../datastructures/graph";
+import { MinPriorityQueue } from "../datastructures/queue";
+import { algorithmInfoBoxState, animationEdgeInformation, animationNodeInformation, animationState} from "../animation/types";
+import { NodeWithDistance } from "../dijkstra/DijkstraAlgorithm";
+
+export default class AStar{
+    private graph:WeightedGraph;
+    private distanceTable: (number |null)[];//idx: nodeId, element: distance to destination node
+    constructor(graph: WeightedGraph){
+        this.graph = graph;
+        this.distanceTable = Array(this.graph.getNodeList().length).fill(null);
+    }
+    private createPathHighLightState(state: animationState, from: number,to: number, previous: Map<number, number>): animationState {
+        let newState = state;
+        let currentNode:Node|null = this.graph.getNode(to);
+        let algorithmStateInfo: algorithmInfoBoxState = {
+            information: `shortest path found between ${this.graph.getLabelOfNode(from)} and ${this.graph.getLabelOfNode(to)}`,
+            dataStructure: {
+                type: "priority-queue",
+                ds: []
+            }
+        }
+        newState.algorithmInfobox = algorithmStateInfo;
+        while (currentNode !== null) {
+            const currentNodeId = currentNode.getId();
+            const nextNodeId = previous.get(currentNodeId);
+            newState = this.markNodeAsPartOfPath(newState, currentNodeId);
+            if (nextNodeId !== null && nextNodeId !== undefined) {
+                const edgeId = currentNode.getAdjacencyList()[nextNodeId];
+                newState = this.markEdgeAsPartOfPath(newState, edgeId)
+                currentNode = this.graph.getNode(nextNodeId);
+            } else {
+                currentNode = null;
+            }
+        }
+        return newState;
+    }
+    private markNodeAsVisited(state: animationState, nodeId: number): animationState {
+        const newState = JSON.parse(JSON.stringify(state));
+        if (newState.nodes[nodeId]) {
+            newState.nodes[nodeId].state = "visitedNode";
+        }
+        return newState;
+    }
+
+    private markEdgeAsSelected(state: animationState, edgeId: number): animationState {
+        const newState = JSON.parse(JSON.stringify(state));
+        if (newState.edges[edgeId]) {
+            newState.edges[edgeId].state = "selectedEdge";
+        }
+        return newState;
+    }
+
+    private markEdgeAsPartOfPath(state: animationState, edgeId: number): animationState {
+        const newState = JSON.parse(JSON.stringify(state));
+        if (newState.edges[edgeId]) {
+            newState.edges[edgeId].state = "partOfPath";
+        }
+        return newState;
+    }
+
+    private markNodeAsPartOfPath(state: animationState, nodeId: number): animationState {
+        const newState = JSON.parse(JSON.stringify(state));
+        if (newState.nodes[nodeId]) {
+            newState.nodes[nodeId].state = "partOfPath";
+        }
+        return newState;
+    }
+
+    private markEdgeAsNormal(state: animationState, edgeId: number): animationState {
+        const newState = JSON.parse(JSON.stringify(state));
+        if (newState.edges[edgeId]) {
+            newState.edges[edgeId].state = "normal";
+        }
+        return newState;
+    }
+
+    private updateNodeLabel(state: animationState, nodeId: number, newLabel: string): animationState {
+        const newState = JSON.parse(JSON.stringify(state));
+        if (newState.nodes[nodeId]) {
+            newState.nodes[nodeId].label = newLabel;
+        }
+        return newState;
+    }
+
+    private createInitialState(from: number): animationState {
+        const nodeList = this.graph.getNodeList();
+        const edgeList = this.graph.getEdgeList();
+        const edgeCount = edgeList.length;
+        const nodes: (animationNodeInformation | null)[] = Array(nodeList.length).fill(null);
+        const edges: (animationEdgeInformation | null)[] = Array(edgeCount).fill(null);
+        nodeList.forEach((node, id) => {
+            if (!node) return; 
+            nodes[id] = {
+                id,
+                state: "normal",
+                label: id === from ? node.label : `${node.label}(∞)`
+            };
+        });
+        edgeList.forEach((edge, id) => {
+            if (!edge) return;
+            edges[id] = {
+                id,
+                state: "normal",
+                label: `${edge.weight}`
+            };
+        });
+
+        return { nodes, edges };
+    }
+    private measureDistancesFromAllNodesToDestinationNode(to:number):void{
+        const nodes = this.graph.getNodeList();
+        for(let neighbourId = 0; neighbourId < nodes.length; neighbourId++){
+            if(nodes[neighbourId] !== null){
+                this.distanceTable[neighbourId] = this.measureDistance(nodes[to]!, nodes[neighbourId]!);
+            }
+        }
+    }
+    private measureDistance(nodeA: Node, nodeB: Node):number{
+        return Math.round(Math.sqrt((nodeA.x!-nodeB.x!)**2+(nodeA.y!-nodeB.y!)**2));
+    }
+    Run(from: number, to: number): animationState[] {
+        const estimatedDistances = new MinPriorityQueue<NodeWithDistance>((a, b) => a.estimated_distance - b.estimated_distance); //estimated distances
+        const animationStates: animationState[] = [];
+        const visited = new Map<number, boolean>();
+        const previousNode = new Map<number, number>();
+        this.measureDistancesFromAllNodesToDestinationNode(to);
+        
+        this.graph.getNodeList().forEach((node) => {
+            if (node && node.getId() !== from) {
+                estimatedDistances.insert({
+                    id: node.getId(),
+                    estimated_distance: Number.MAX_VALUE,
+                    label: this.graph.getLabelOfNode(node.getId())
+                });
+            } else if(node){
+                estimatedDistances.insert({
+                    id: node.getId(),
+                    estimated_distance: this.distanceTable[node.getId()]!,
+                    label: this.graph.getLabelOfNode(node.getId())
+                });
+            }
+        });
+        let currentState = this.createInitialState(from);
+        animationStates.push(currentState);
+        
+        let currentNode: NodeWithDistance = estimatedDistances.extractMin();
+        visited.set(currentNode.id, true);
+        
+        currentState = this.markNodeAsVisited(currentState, currentNode.id);
+        currentState.algorithmInfobox = {
+            information: "Selecting node from priority queue with the smallest distance",
+            dataStructure: {
+                type: "priority-queue",
+                ds: estimatedDistances.getArray()
+            }
+        }
+        animationStates.push(currentState);
+        while (currentNode.id !== to) {
+            const node = this.graph.getNode(currentNode.id);
+            let previousEdgeId:number|null = null;
+            const adjacencyList = node.getAdjacencyList();
+            for(let neighbourId = 0; neighbourId < adjacencyList.length; neighbourId++){
+                if(previousEdgeId !== null){
+                    currentState = this.markEdgeAsNormal(currentState, previousEdgeId);
+                }
+                const edgeIdConnectedToNeighbour = adjacencyList[neighbourId];
+                if(edgeIdConnectedToNeighbour === -1){
+                    continue;
+                }
+                if (!visited.has(neighbourId)) {
+                    const heuristicDistanceFromNeighbourToDest:number = this.distanceTable[neighbourId]!;
+                    const heuristicDistanceFromCurrentToDest: number = this.distanceTable[currentNode.id]!;
+
+                    const weightOfEdge = this.graph.getEdge(edgeIdConnectedToNeighbour).weight!;
+                    const estimatedDistance = estimatedDistances.getValue(neighbourId) - heuristicDistanceFromNeighbourToDest;
+                    const distanceThroughCurrentWithoutHeur = currentNode.estimated_distance - heuristicDistanceFromCurrentToDest;
+                    const distanceThroughCurrentNode =  distanceThroughCurrentWithoutHeur+ weightOfEdge;
+                    currentState = this.markEdgeAsSelected(currentState, edgeIdConnectedToNeighbour)
+                    currentState.algorithmInfobox = {
+                        information: `Checking for adjacent nodes if the distance through the node currently being visited is smaller than the distance previously set:<br> 
+                        <br>${distanceThroughCurrentWithoutHeur} + ${weightOfEdge} < ? ${estimatedDistance == Number.MAX_VALUE ? "∞": estimatedDistance}`,
+                        dataStructure: {
+                            type: "priority-queue",
+                            ds: estimatedDistances.getArray()
+                        }
+                    }
+                    animationStates.push(currentState);
+                    if (distanceThroughCurrentNode < estimatedDistance) {
+                        previousNode.set(neighbourId, currentNode.id);
+                        currentState = this.updateNodeLabel(currentState, neighbourId, `${this.graph.getLabelOfNode(neighbourId)}(${distanceThroughCurrentNode})`)
+                        currentState.algorithmInfobox = {
+                            information: `distance through current node < current smallest distance to neighbour<br> (${distanceThroughCurrentNode} < ${estimatedDistance == Number.MAX_VALUE ? "∞": estimatedDistance})`,
+                            dataStructure: {
+                                type: "priority-queue",
+                                ds: estimatedDistances.getArray()
+                            }
+                        };
+                        animationStates.push(currentState);
+                        estimatedDistances.update(neighbourId, distanceThroughCurrentNode+heuristicDistanceFromNeighbourToDest);
+                    }
+                    previousEdgeId = edgeIdConnectedToNeighbour;
+                }
+            }
+            if(previousEdgeId !== null){
+                currentState = this.markEdgeAsNormal(currentState, previousEdgeId);
+            }
+            visited.set(currentNode.id, true);
+            currentNode = estimatedDistances.extractMin();
+            currentState = this.markNodeAsVisited(currentState, currentNode.id);
+            currentState.algorithmInfobox = {
+                information: `Selecting node from priority queue with the smallest g(x) + h(x)<br>
+                h(x): heuristic, in our case its euclidean distance<br>
+                g(x): cumulated distance through visited nodes`,
+                dataStructure: {
+                    type: "priority-queue",
+                    ds: estimatedDistances.getArray()
+                }
+            };
+            animationStates.push(currentState);
+        }
+        animationStates.push(this.createPathHighLightState(currentState, from, to, previousNode));
+        return animationStates;
+    }
+}

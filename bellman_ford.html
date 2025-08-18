@@ -1,11 +1,183 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-    work in progress...
-</body>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="stylesheet" href="/src/styles/editor.css" />
+        <link rel="stylesheet" href="/src/styles/slider.css" />
+        <script type="module" src="/src/utils/bellmanford/setup.ts" defer></script>
+        <script type="module" src="/src/utils/dom/common.ts"></script>
+        <title>Graphwiz</title>
+    </head>
+    <body>
+        
+        <div id="container-wrapper">
+            <div id="message-box">select mode on the toolbar</div>
+            <div id="path-info" class="hide">
+                <div id="start">start:</div>
+                <div id="dest">dest:</div>
+            </div>
+            <div id="algorithm-information-box" class="hide">
+                <button id="toggle-info" class="toggle">
+                    <p class="tooltip hide">algorithm information</p>
+                    <svg
+                        id="open-info"
+                        class="hide toggle-open"
+                        xmlns="http://www.w3.org/2000/svg"
+                        height="35px"
+                        viewBox="0 -960 960 960"
+                        width="35px"
+                        fill="#1f1f1f"
+                    >
+                        <path
+                            d="M480-344 240-584l56-56 184 184 184-184 56 56-240 240Z"
+                        />
+                    </svg>
+                    <svg
+                        id="hide-info"
+                        class="toggle-close"
+                        xmlns="http://www.w3.org/2000/svg"
+                        height="35px"
+                        viewBox="0 -960 960 960"
+                        width="35px"
+                        fill="#1f1f1f"
+                    >
+                        <path
+                            d="M480-528 296-344l-56-56 240-240 240 240-56 56-184-184Z"
+                        />
+                    </svg>
+                </button>
+                <div id="algorithm-info" class="box-information">
+                </div>
+            </div>
+
+            <div id="play-box" class="hide">
+                <button id="reset">
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        height="40px"
+                        viewBox="0 -960 960 960"
+                        width="40px"
+                        fill="black"
+                    >
+                        <path
+                            d="M480-80q-75 0-140.5-28.5t-114-77q-48.5-48.5-77-114T120-440h80q0 117 81.5 198.5T480-160q117 0 198.5-81.5T760-440q0-117-81.5-198.5T480-720h-6l62 62-56 58-160-160 160-160 56 58-62 62h6q75 0 140.5 28.5t114 77q48.5 48.5 77 114T840-440q0 75-28.5 140.5t-77 114q-48.5 48.5-114 77T480-80Z"
+                        />
+                    </svg>
+                </button>
+                <button id="back">
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        height="40px"
+                        viewBox="0 -960 960 960"
+                        width="40px"
+                    >
+                        <path
+                            d="m330-444 201 201-51 51-288-288 288-288 51 51-201 201h438v72H330Z"
+                        />
+                    </svg>
+                </button>
+                <button id="play" class="hide">
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        height="40px"
+                        viewBox="0 -960 960 960"
+                        width="40px"
+                    >
+                        <path
+                            d="m380-300 280-180-280-180v360ZM480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z"
+                        />
+                    </svg>
+                </button>
+                <button id="pause">
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        height="40px"
+                        viewBox="0 -960 960 960"
+                        width="40px"
+                    >
+                        <path
+                            d="M528-192v-576h240v576H528Zm-336 0v-576h240v576H192Zm408-72h96v-432h-96v432Zm-336 0h96v-432h-96v432Zm0-432v432-432Zm336 0v432-432Z"
+                        />
+                    </svg>
+                </button>
+                <button id="forward">
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        height="40px"
+                        viewBox="0 -960 960 960"
+                        width="40px"
+                    >
+                        <path
+                            d="M630-444H192v-72h438L429-717l51-51 288 288-288 288-51-51 201-201Z"
+                        />
+                    </svg>
+                </button>
+            </div>
+            <div id="speed-box" class="hide">
+                <div class="box-information hide">
+                    <div id="speed-info">speed: 1x</div>
+                    <input
+                        id="speed-input"
+                        type="range"
+                        min="1"
+                        max="5"
+                        value="1"
+                    />
+                </div>
+                <button id="toggle-speed" class="toggle">
+                    <p class="tooltip hide">change speed of animation</p>
+                    <svg
+                        id="open-speed"
+                        class="toggle-open"
+                        xmlns="http://www.w3.org/2000/svg"
+                        height="35px"
+                        viewBox="0 -960 960 960"
+                        width="35px"
+                        fill="#1f1f1f"
+                    >
+                        <path
+                            d="M560-240 320-480l240-240 56 56-184 184 184 184-56 56Z"
+                        />
+                    </svg>
+                    <svg
+                        id="hide-speed"
+                        class="toggle-close hide"
+                        xmlns="http://www.w3.org/2000/svg"
+                        height="35px"
+                        viewBox="0 -960 960 960"
+                        width="35px"
+                        fill="#1f1f1f"
+                    >
+                        <path
+                            d="M504-480 320-664l56-56 240 240-240 240-56-56 184-184Z"
+                        />
+                    </svg>
+                </button>
+            </div>
+            <canvas id="canvas"></canvas>
+        </div>
+        <div id="modify-graph">
+            <button id="add-edge">add edge</button>
+            <button id="add-node">add node</button>
+            <button id="delete-mode">delete</button>
+            <button id="escape-mode">idle mode</button>
+            <button id="run-animation">run a*</button>
+            <select name="presets" id="presets">
+                <option value="">load graph</option>
+                <option value="a">a</option>
+                <option value="b">b</option>
+                <option value="c">c</option>
+                <option value="d">d</option>
+            </select>
+            <div id="change-data" class="hide">
+                <label for="change-weight" id="label-message"></label>
+                <input
+                    type="number"
+                    id="change-weight"
+                    maxlength="10"
+                />
+            </div>
+        </div>
+    </body>
 </html>
