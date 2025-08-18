@@ -364,54 +364,60 @@ export class Network{
         const toX = toNode.x!;
         const toY = toNode.y!;
         if(!this.edgesTwoWay){
-            const lengthOfEdge = this.measureDistance(fromX, fromY, toX, toY);
-            let edgeVectorNormalizedX = (toX-fromX)/lengthOfEdge;
-            let edgeVectorNormalizedY = (toY-fromY)/lengthOfEdge;
             if(this.graph.edgeHasAPair(edge)){
-                let edgeVectorNormalVX = -edgeVectorNormalizedY;
-                let edgeVectorNormalVY = edgeVectorNormalizedX;
-                const edgeCenterX = (fromX+toX)/2;
-                const edgeCenterY = (fromY+toY)/2;
-
-                const circleCenterX = edgeCenterX + edgeVectorNormalVX*lengthOfEdge;
-                const circleCenterY = edgeCenterY + edgeVectorNormalVY*lengthOfEdge;
-
-                const circleCenterToNodeVectorX = toX-circleCenterX;
-                const circleCenterToNodeVectorY = toY-circleCenterY;
-                const circleCenterFromNodeVectorX = fromX-circleCenterX;
-                const circleCenterFromNodeVectorY = fromY-circleCenterY;
-
-                const angleA = this.getAngleNormalized(circleCenterFromNodeVectorX, -circleCenterFromNodeVectorY);
-                const angleB = this.getAngleNormalized(circleCenterToNodeVectorX, -circleCenterToNodeVectorY);
-                let startAngle = Math.min(angleA, angleB);
-                let endAngle = Math.max(angleA, angleB);
-                const radius = this.measureDistance(circleCenterX, circleCenterY, toX, toY);
-                if(endAngle-startAngle > Math.PI){
-                    const temp = endAngle;
-                    endAngle = startAngle;
-                    startAngle = temp;
-                }
-                this.drawArc(circleCenterX, circleCenterY, radius, startAngle, endAngle, "black", edge.width);
-                if(this.graph instanceof WeightedGraph){
-                    this.drawWeightToArcMiddle(circleCenterX, circleCenterY, radius, edgeCenterX-circleCenterX, edgeCenterY-circleCenterY, edge.weight!);
-                }
-                edgeVectorNormalVX *= -1;
-                edgeVectorNormalVY *= -1;
-                this.drawTriangleTo(circleCenterX+edgeVectorNormalVX*radius, circleCenterY+edgeVectorNormalVY*radius, edgeVectorNormalizedX, edgeVectorNormalizedY, edge.color, false);
-                return;
-            }
-            edgeVectorNormalizedX *=(lengthOfEdge-this.nodeSize-2)//-2 is for the node outline
-            edgeVectorNormalizedY *=(lengthOfEdge-this.nodeSize-2)//-2 is for the node outline
-            this.drawLine(fromX, fromY, toX, toY, edge.width, edge.color)
-            this.drawTriangleTo(fromX+edgeVectorNormalizedX, fromY+edgeVectorNormalizedY, edgeVectorNormalizedX, edgeVectorNormalizedY, edge.color, true);
-            if (this.graph instanceof WeightedGraph) {
-                this.drawWeightToHalfLine(fromX,fromY,toX,toY, edge.weight!);
+                this.drawCurvedEdge(fromX, fromY, toX, toY, edge.width, edge.color, edge.weight);
+            }else{
+                this.drawStraightEdge(fromX, fromY, toX, toY, edge.width, edge.color, edge.weight)
+                const lengthOfEdge = this.measureDistance(fromX, fromY, toX, toY);
+                let edgeVectorNormalizedX = (toX-fromX)/lengthOfEdge;
+                let edgeVectorNormalizedY = (toY-fromY)/lengthOfEdge;
+                edgeVectorNormalizedX *=(lengthOfEdge-this.nodeSize-2)//-2 is for the node outline
+                edgeVectorNormalizedY *=(lengthOfEdge-this.nodeSize-2)//-2 is for the node outline
+                this.drawTriangleTo(fromX+edgeVectorNormalizedX, fromY+edgeVectorNormalizedY, edgeVectorNormalizedX, edgeVectorNormalizedY, edge.color, true);
             }
         }else{
-            this.drawLine(fromX, fromY, toX, toY, edge.width, edge.color);
-            if (this.graph instanceof WeightedGraph) {
-                this.drawWeightToHalfLine(fromX,fromY,toX,toY, edge.weight!);
-            }
+            this.drawStraightEdge(fromX, fromY, toX, toY, edge.width, edge.color, edge.weight)
+        }
+    }
+    private drawStraightEdge(fromX:number, fromY:number, toX:number, toY:number, width: number, color: string, weight?: number):void{
+        this.drawLine(fromX, fromY, toX, toY, width, color);
+        if (this.graph instanceof WeightedGraph) {
+            this.drawWeightToHalfLine(fromX,fromY,toX,toY, weight!);
+        }
+    }
+    private drawCurvedEdge(fromX:number, fromY:number, toX:number, toY:number, width: number, color: string, weight?: number):void{
+        const lengthOfEdge = this.measureDistance(fromX, fromY, toX, toY);
+        let edgeVectorNormalizedX = (toX-fromX)/lengthOfEdge;
+        let edgeVectorNormalizedY = (toY-fromY)/lengthOfEdge;
+        let edgeVectorNormalVX = -edgeVectorNormalizedY;
+        let edgeVectorNormalVY = edgeVectorNormalizedX;
+        const edgeCenterX = (fromX+toX)/2;
+        const edgeCenterY = (fromY+toY)/2;
+
+        const circleCenterX = edgeCenterX + edgeVectorNormalVX*lengthOfEdge;
+        const circleCenterY = edgeCenterY + edgeVectorNormalVY*lengthOfEdge;
+
+        const circleCenterToNodeVectorX = toX-circleCenterX;
+        const circleCenterToNodeVectorY = toY-circleCenterY;
+        const circleCenterFromNodeVectorX = fromX-circleCenterX;
+        const circleCenterFromNodeVectorY = fromY-circleCenterY;
+
+        const angleA = this.getAngleNormalized(circleCenterFromNodeVectorX, -circleCenterFromNodeVectorY);
+        const angleB = this.getAngleNormalized(circleCenterToNodeVectorX, -circleCenterToNodeVectorY);
+        let startAngle = Math.min(angleA, angleB);
+        let endAngle = Math.max(angleA, angleB);
+        const radius = this.measureDistance(circleCenterX, circleCenterY, toX, toY);
+        if(endAngle-startAngle > Math.PI){
+            const temp = endAngle;
+            endAngle = startAngle;
+            startAngle = temp;
+        }
+        this.drawArc(circleCenterX, circleCenterY, radius, startAngle, endAngle, "black", width);
+        edgeVectorNormalVX *= -1;
+        edgeVectorNormalVY *= -1;
+        this.drawTriangleTo(circleCenterX+edgeVectorNormalVX*radius, circleCenterY+edgeVectorNormalVY*radius, edgeVectorNormalizedX, edgeVectorNormalizedY, color, false);
+        if(this.graph instanceof WeightedGraph){
+            this.drawWeightToArcMiddle(circleCenterX, circleCenterY, radius, edgeCenterX-circleCenterX, edgeCenterY-circleCenterY, weight!);
         }
     }
     private getAngleNormalized(vectorX:number, vectorY:number):number{
