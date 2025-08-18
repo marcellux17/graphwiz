@@ -23,9 +23,6 @@ export class AStarController {
         this.setUpNetworkEventListeners();
         this.setUpUiEventListeners();
     }
-    getAnimation(): Animation {
-        return this.animation;
-    }
     changeCanvasState(newState: canvasState): void {
         if ( (this.canvasState === "run-animation" || this.canvasState === "animation-running") && newState !== "idle" && newState !== "animation-running" ) return;
         const prevCanvasState = this.canvasState;
