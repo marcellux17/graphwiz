@@ -489,10 +489,16 @@ export class Network{
 
         const circleCenterMouseVX = x-circleCenterX;
         const circleCenterMouseVY = y-circleCenterY;
+
         const mouseAngle = this.getAngleNormalized(circleCenterMouseVX, -circleCenterMouseVY);
         const angleA = this.getAngleNormalized(fromX-circleCenterX, -(fromY-circleCenterY));
         const angleB = this.getAngleNormalized(toX-circleCenterX, -(toY-circleCenterY));
-
+        let startAngle = Math.min(angleA, angleB);
+        let endAngle = Math.max(angleA, angleB);
+        let betweenAngles = mouseAngle > startAngle && mouseAngle < endAngle;
+        if(endAngle-startAngle > Math.PI){
+            betweenAngles = !betweenAngles;
+        }
         const lengthOfVector = Math.sqrt(circleCenterMouseVX**2+circleCenterMouseVY**2);
         const circleCenterMouseVnormalizedX = circleCenterMouseVX/lengthOfVector
         const circleCenterMouseVnormalizedY = circleCenterMouseVY/lengthOfVector
@@ -501,7 +507,7 @@ export class Network{
         const referencePointX = circleCenterX + circleCenterMouseVnormalizedX*radius;
         const referencePointY = circleCenterY + circleCenterMouseVnormalizedY*radius;
 
-        return this.measureDistance(referencePointX, referencePointY, x, y) < treshold && (Math.min(angleA, angleB) < mouseAngle && mouseAngle < Math.max(angleA, angleB));       
+        return this.measureDistance(referencePointX, referencePointY, x, y) < treshold && betweenAngles;       
     }
     private checkIfOnLine( x: number, y: number, x1: number, y1: number, x2: number, y2: number ): boolean {
         let threshold = 4;
