@@ -119,8 +119,8 @@ export class Graph {
         node.y = y;
     }
     edgeHasAPair(edge: Edge){
-        const toNode = this.nodes[edge.to]!;
-        return toNode.getAdjacencyList()[edge.from] !== -1;
+        const toNode = this.nodes[edge.getTo()]!;
+        return toNode.getAdjacencyList()[edge.getFrom()] !== -1;
     }
     areConnected(startId: number, targetId: number): boolean {
         if (startId === targetId) return true;
@@ -195,10 +195,16 @@ export class WeightedGraph extends Graph {
 export class Edge {
     private id: number;
     weight?: number;
-    to: number;
-    from: number;
+    private to: number;
+    private from: number;
     color: string = "black";
     width: number = 2;
+    getTo():number{
+        return this.to
+    }
+    getFrom():number{
+        return this.from;
+    }
     getId(): number {
         return this.id;
     }
