@@ -10,7 +10,9 @@ export class Graph {
         this.nodes = Array(200).fill(null);
         this.edges = Array(200).fill(null);
     }
-
+    getNumberOfEdges():number{
+        return this.numberOfNodes;
+    }
     addNode(): number {
         let idx = this.nodes.findIndex((n) => n === null);
         if (idx === -1) idx = this.nodes.length;
