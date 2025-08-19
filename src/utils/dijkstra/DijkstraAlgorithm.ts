@@ -13,7 +13,7 @@ export default class Dijkstra{
     constructor(graph: WeightedGraph){
         this.graph = graph;
     }
-    private createPathHighLightState(state: animationState, from: number,to: number, previous: Map<number, number>): animationState {
+    private createPathHighLightState(state: animationState, from: number,to: number, previous: number[]): animationState {
         let newState = state;
         let currentNode:Node|null = this.graph.getNode(to);
         let algorithmStateInfo: algorithmInfoBoxState = {
@@ -26,9 +26,9 @@ export default class Dijkstra{
         newState.algorithmInfobox = algorithmStateInfo;
         while (currentNode !== null) {
             const currentNodeId = currentNode.getId();
-            const nextNodeId = previous.get(currentNodeId);
+            const nextNodeId = previous[currentNodeId];
             newState = this.markNodeAsPartOfPath(newState, currentNodeId);
-            if (nextNodeId !== null && nextNodeId !== undefined) {
+            if (nextNodeId !== -1) {
                 const edgeId = currentNode.getAdjacencyList()[nextNodeId];
                 newState = this.markEdgeAsPartOfPath(newState, edgeId)
                 currentNode = this.graph.getNode(nextNodeId);
@@ -114,8 +114,9 @@ export default class Dijkstra{
     Run(from: number, to: number): animationState[] {
         const estimatedDistances = new MinPriorityQueue<NodeWithDistance>((a, b) => a.estimated_distance - b.estimated_distance); //estimated distances
         const animationStates: animationState[] = [];
-        const visited = new Map<number, boolean>();
-        const previousNode = new Map<number, number>();
+        const nodeList = this.graph.getNodeList();
+        const visited = Array(nodeList.length).fill(false);
+        const previousNode = Array(nodeList.length).fill(-1);//-1 = cannot be reached otherwise at a specific index gives us the node through which we can reach it
         this.graph.getNodeList().forEach((node) => {
             if (node && node.getId() !== from) {
                 estimatedDistances.insert({
@@ -134,7 +135,7 @@ export default class Dijkstra{
         let currentState = this.createInitialState(from);
         animationStates.push(currentState);
         let currentNode: NodeWithDistance = estimatedDistances.extractMin();
-        visited.set(currentNode.id, true);
+        visited[currentNode.id] = true
         currentState = this.markNodeAsVisited(currentState, currentNode.id);
         currentState.algorithmInfobox = {
             information: "Selecting node from priority queue with the smallest distance",
@@ -156,7 +157,7 @@ export default class Dijkstra{
                 if(edgeIdConnectedToNeighbour === -1){
                     continue;
                 }
-                if (!visited.has(neighbourId)) {
+                if (!visited[neighbourId]) {
                     const weightOfEdge = this.graph.getEdge(edgeIdConnectedToNeighbour).weight!;
                     const estimatedDistance = estimatedDistances.getValue(neighbourId);
                     const distanceThroughCurrentNode = currentNode.estimated_distance + weightOfEdge;
@@ -171,7 +172,7 @@ export default class Dijkstra{
                     }
                     animationStates.push(currentState);
                     if (distanceThroughCurrentNode < estimatedDistance) {
-                        previousNode.set(neighbourId, currentNode.id);
+                        previousNode[neighbourId] = currentNode.id;
                         currentState = this.updateNodeLabel(currentState, neighbourId, `${this.graph.getLabelOfNode(neighbourId)}(${distanceThroughCurrentNode})`)
                         currentState.algorithmInfobox = {
                             information: `distance through current node < current smallest distance to neighbour (${distanceThroughCurrentNode} < ${estimatedDistance == Number.MAX_VALUE ? "∞": estimatedDistance})`,
@@ -189,7 +190,7 @@ export default class Dijkstra{
             if(previousEdgeId !== null){
                 currentState = this.markEdgeAsNormal(currentState, previousEdgeId);
             }
-            visited.set(currentNode.id, true);
+            visited[currentNode.id] = true
             currentNode = estimatedDistances.extractMin();
             currentState = this.markNodeAsVisited(currentState, currentNode.id);
             currentState.algorithmInfobox = {
