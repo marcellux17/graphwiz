@@ -167,12 +167,12 @@ export class Graph {
 
 export class WeightedGraph extends Graph {
     getEdgeWeight(id: number): number {
-        return this.edges[id]!.weight!;
+        return this.edges[id]!.getWeight()!;
     }
 
     modifyWeight(id: number, newWeight: number): void {
         const edge = this.edges[id];
-        if (edge) edge.weight = newWeight;
+        if (edge) edge.setWeight(newWeight);
     }
 
     override addEdge( from: number, to: number,twoWay: boolean = true , weight: number = 1): number | undefined {
@@ -194,11 +194,17 @@ export class WeightedGraph extends Graph {
 
 export class Edge {
     private id: number;
-    weight?: number;
+    private weight?: number;
     private to: number;
     private from: number;
     color: string = "black";
     width: number = 2;
+    setWeight(weight: number):void{
+        this.weight = weight;
+    }
+    getWeight():number|undefined{
+        return this.weight;
+    }
     getTo():number{
         return this.to
     }
