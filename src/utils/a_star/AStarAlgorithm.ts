@@ -101,7 +101,7 @@ export default class AStar{
             edges[id] = {
                 id,
                 state: "normal",
-                label: `${edge.weight}`
+                label: `${edge.getWeight()}`
             };
         });
 
@@ -172,7 +172,7 @@ export default class AStar{
                     const heuristicDistanceFromNeighbourToDest:number = this.distanceTable[neighbourId]!;
                     const heuristicDistanceFromCurrentToDest: number = this.distanceTable[currentNode.id]!;
 
-                    const weightOfEdge = this.graph.getEdge(edgeIdConnectedToNeighbour).weight!;
+                    const weightOfEdge = this.graph.getEdge(edgeIdConnectedToNeighbour).getWeight()!;
                     const estimatedDistance = estimatedDistances.getValue(neighbourId) - heuristicDistanceFromNeighbourToDest;
                     const distanceThroughCurrentWithoutHeur = currentNode.estimated_distance - heuristicDistanceFromCurrentToDest;
                     const distanceThroughCurrentNode =  distanceThroughCurrentWithoutHeur+ weightOfEdge;

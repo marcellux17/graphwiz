@@ -104,7 +104,7 @@ export default class Dijkstra{
             edges[id] = {
                 id,
                 state: "normal",
-                label: `${edge.weight}`
+                label: `${edge.getWeight()}`
             };
         });
 
@@ -158,7 +158,7 @@ export default class Dijkstra{
                     continue;
                 }
                 if (!visited[neighbourId]) {
-                    const weightOfEdge = this.graph.getEdge(edgeIdConnectedToNeighbour).weight!;
+                    const weightOfEdge = this.graph.getEdge(edgeIdConnectedToNeighbour).getWeight()!;
                     const estimatedDistance = estimatedDistances.getValue(neighbourId);
                     const distanceThroughCurrentNode = currentNode.estimated_distance + weightOfEdge;
                     currentState = this.markEdgeAsSelected(currentState, edgeIdConnectedToNeighbour)
