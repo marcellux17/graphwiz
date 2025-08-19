@@ -89,9 +89,8 @@ export default class Dijkstra{
     private createInitialState(from: number): animationState {
         const nodeList = this.graph.getNodeList();
         const edgeList = this.graph.getEdgeList();
-        const edgeCount = edgeList.length;
         const nodes: (animationNodeInformation | null)[] = Array(nodeList.length).fill(null);
-        const edges: (animationEdgeInformation | null)[] = Array(edgeCount).fill(null);
+        const edges: (animationEdgeInformation | null)[] = Array(edgeList.length).fill(null);
         nodeList.forEach((node, id) => {
             if (!node) return; 
             nodes[id] = {
