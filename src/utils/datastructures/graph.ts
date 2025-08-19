@@ -10,7 +10,7 @@ export class Graph {
         this.nodes = Array(200).fill(null);
         this.edges = Array(200).fill(null);
     }
-    getNumberOfEdges():number{
+    getNumberOfNodes():number{
         return this.numberOfNodes;
     }
     addNode(): number {
