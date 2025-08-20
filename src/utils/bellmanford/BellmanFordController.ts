@@ -3,6 +3,7 @@ import { WeightedGraph } from "../datastructures/graph";
 import { playBox, pauseButton, playButton, startingNodeInfo, destinationNodeInfo, pathInfoBox, inputGroup, label, weightInput, speedRangeInput, speedInfo, backButton, forwardButton, resetButton, runAnimationButton, escapeModeButton, deleteModeButton, addNodeButton, addEdgeButton, presetInput, algorithmInformationBox, speedBox, } from "../dom/elements";
 import { changeMessageBox, makeInvisible, makeVisible, resetInput, } from "../dom/helpers";
 import { Network } from "../network/network";
+import BellmanFord from "./BellmanFordAlgorithm";
 
 type canvasState = "add-edge-mode" | "idle" | "delete" | "add-node-mode" | "run-animation" | "step-by-step" | "animation-running";
 export class BellmanFordController {
@@ -12,10 +13,12 @@ export class BellmanFordController {
     private destinationNodeId: number | null = null;
     private canvasState: canvasState = "idle"; //aka no mode is selected
     private animation: Animation;
+    private algorithm: BellmanFord
     constructor() {
         const graph = new WeightedGraph();
         this.network = new Network(graph, false, false, true);
         this.animation = new Animation(this.network);
+        this.algorithm = new BellmanFord(graph);
         this.setUpNetworkEventListeners();
         this.setUpUiEventListeners();
     }
@@ -92,8 +95,12 @@ export class BellmanFordController {
             return;
         }
         destinationNodeInfo!.textContent = `dest: ${this.network.getLabelOfNode( this.destinationNodeId! )}`;
-        // const states = this.algorithm.Run( this.startingNodeId!, this.destinationNodeId! );
-        // this.animation.setAnimationStates(states);
+        const states = this.algorithm.Run( this.startingNodeId!, this.destinationNodeId! );
+        if(states.length === 0){
+            changeMessageBox( "graph contains negative cycle(s), change graph to run algorithm" );
+            return;
+        }
+        this.animation.setAnimationStates(states);
         this.changeCanvasState("animation-running");
     }
     selectEdgeHandle(id: number): void {
