@@ -204,6 +204,9 @@ button {
     overflow: scroll;
     box-sizing: border-box;
 }
+#algorithm-info h4{
+    margin-top: 0;
+}
 #toggle-info {
     border: none;
     padding: 0;
