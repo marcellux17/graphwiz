@@ -114,7 +114,6 @@ export default class BellmanFord{
         }
         animationStates.push(currentState);
         currentState = this.markNodeAsVisited(currentState, from);
-        animationStates.push(currentState);
 
         let changes = true;
         let i = 0;
