@@ -23,3 +23,4 @@ algo_info_toggle.html
 *.sln
 *.sw?
 src/utils/exp/
+public/graph_presets/bellmanford/exp.json
