@@ -1,7 +1,7 @@
 import { Animation } from "../animation/animation";
 import { Graph } from "../datastructures/graph";
 import { playBox, pauseButton, playButton, speedRangeInput, speedInfo, backButton, forwardButton, resetButton, runAnimationButton, escapeModeButton, deleteModeButton, addNodeButton, addEdgeButton, presetInput, algorithmInformationBox, speedBox, } from "../dom/elements";
-import { changeMessageBox, makeInvisible, makeVisible, resetInput, } from "../dom/helpers";
+import { changeMessageBox, makeInvisible, makeVisible } from "../dom/helpers";
 import { Network } from "../network/network";
 import DFS from "./BFSAlgorithm";
 
@@ -49,7 +49,6 @@ export class BFSController {
                 break;
             case "run-animation":
                 changeMessageBox("select starting node");
-                resetInput();
                 this.network.resetToIdle();
                 break;
             case "animation-running":
