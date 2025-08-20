@@ -43,6 +43,7 @@ export class BFSController {
                     makeInvisible(algorithmInformationBox);
                     makeInvisible(speedBox);
                 }
+                this.startingNodeId = null;
                 changeMessageBox( "idle mode (click on edges to modify weights)" );
                 makeInvisible(playBox);
                 this.network.resetToIdle();
@@ -69,9 +70,8 @@ export class BFSController {
             this.startingNodeId = id;
             const states = this.algorithm.Run(this.startingNodeId);
             this.animation.setAnimationStates(states);
-            return;
+            this.changeCanvasState("animation-running");
         }
-        this.changeCanvasState("animation-running");
     }
     private setUpNetworkEventListeners(): void {
         this.selectNodeHandle = this.selectNodeHandle.bind(this);

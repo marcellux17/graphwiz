@@ -1,5 +1,6 @@
 import { animationEdgeInformation, animationNodeInformation, animationState} from "../animation/types";
 import { Graph } from "../datastructures/graph";
+import { Queue } from "../datastructures/queue";
 
 export default class BFS{
     private graph:Graph;
@@ -13,7 +14,6 @@ export default class BFS{
         }
         return newState;
     }
-
     private markEdgeAsSelected(state: animationState, edgeId: number): animationState {
         const newState = JSON.parse(JSON.stringify(state));
         if (newState.edges[edgeId]) {
@@ -21,23 +21,13 @@ export default class BFS{
         }
         return newState;
     }
-
-    private markEdgeAsPartOfPath(state: animationState, edgeId: number): animationState {
-        const newState = JSON.parse(JSON.stringify(state));
-        if (newState.edges[edgeId]) {
-            newState.edges[edgeId].state = "partOfPath";
-        }
-        return newState;
-    }
-
-    private markNodeAsPartOfPath(state: animationState, nodeId: number): animationState {
+    private markNodeAsInQueue(state: animationState, nodeId: number): animationState {
         const newState = JSON.parse(JSON.stringify(state));
         if (newState.nodes[nodeId]) {
-            newState.nodes[nodeId].state = "partOfPath";
+            newState.nodes[nodeId].state = "inQueue";
         }
         return newState;
     }
-
     private markEdgeAsNormal(state: animationState, edgeId: number): animationState {
         const newState = JSON.parse(JSON.stringify(state));
         if (newState.edges[edgeId]) {
@@ -45,15 +35,6 @@ export default class BFS{
         }
         return newState;
     }
-
-    private updateNodeLabel(state: animationState, nodeId: number, newLabel: string): animationState {
-        const newState = JSON.parse(JSON.stringify(state));
-        if (newState.nodes[nodeId]) {
-            newState.nodes[nodeId].label = newLabel;
-        }
-        return newState;
-    }
-
     private createInitialState(from: number): animationState {
         const nodeList = this.graph.getNodeList();
         const edgeList = this.graph.getEdgeList();
@@ -79,10 +60,68 @@ export default class BFS{
 
         return { nodes, edges };
     }
+    private getLabelsForQueueRepresentation(ids: number[]):string[]{
+        return ids.map(id => this.graph.getLabelOfNode(id));
+    }
     Run(from: number): animationState[] {
         const animationStates: animationState[] = [];
-        //code
+        const nodes = this.graph.getNodeList();
+        const queue = new Queue<number>(nodes.length);
+        const visited = Array(nodes.length).fill(false);
+
+        let currentState = this.createInitialState(from);
+        currentState = this.markNodeAsVisited(currentState, from);
+        currentState.algorithmInfobox = {
+            information: `Starting node has been put in queue to run bfs.`
+        }
+        animationStates.push(currentState);
+
+        visited[from] = true;
+        queue.enqueue(from);
+        while(!queue.isEmpty()){
+            const currentNodeId = queue.dequeue();
+            currentState = this.markNodeAsVisited(currentState, currentNodeId!);
+            currentState.algorithmInfobox = {
+            information: `Selecting node from queue: (${this.graph.getLabelOfNode(currentNodeId!)}).`,
+                dataStructure: {
+                    type: "queue",
+                    ds: this.getLabelsForQueueRepresentation(queue.toArray())
+                }
+            }
+            animationStates.push(currentState);
+            const adjacencyList = this.graph.getNode(currentNodeId!).getAdjacencyList();
+            for(let i = 0; i < nodes.length; i++){
+                if(adjacencyList[i] !== -1){
+                    currentState = this.markEdgeAsSelected(currentState, adjacencyList[i]);
+                    currentState.algorithmInfobox = {
+                        information: `Checking whether neighbour has been visited yet or in queue.`,
+                        dataStructure: {
+                                type: "queue",
+                                ds: this.getLabelsForQueueRepresentation(queue.toArray())
+                            }
+                    };
+                    animationStates.push(currentState);
+                    if(!visited[i]){
+                        visited[i] = true;
+                        queue.enqueue(i);
+                        currentState = this.markNodeAsInQueue(currentState, i);
+                        currentState.algorithmInfobox = {
+                            information: `neighbour of ${this.graph.getLabelOfNode(currentNodeId!)} hasn't yet been visited and currently not in queue.<hr>putting it in queue.`,
+                            dataStructure: {
+                                type: "queue",
+                                ds: this.getLabelsForQueueRepresentation(queue.toArray())
+                            }
+                        }
+                        animationStates.push(currentState);
+                    }
+                    currentState = this.markEdgeAsNormal(currentState, adjacencyList[i]);
+                }
+            }
+        }
+        currentState.algorithmInfobox = {
+            information: `Algorithm finished running!<hr> All nodes reachable from starting node have been visited since the queue is empty!`
+        }
+        animationStates.push(currentState);
         return animationStates;
     }
-        
 }

@@ -26,6 +26,7 @@ export class Animation {
     private pathColor = "#17c53cff";
     private normalNodeColor = "white";
     private normalEdgeColor = "black";
+    private queueNodeColor = "#2e77ffff";
     private selectedEdgeColor = "blue";
     private visitedNodeColor = "orange";
     private animationPhase: animationPhase = "running";
@@ -129,6 +130,9 @@ export class Animation {
                     break;
                 case "partOfPath": 
                     color = this.pathColor;
+                    break;
+                case "inQueue":
+                    color = this.queueNodeColor;
                     break;
                 default: 
                     color = this.normalNodeColor;
