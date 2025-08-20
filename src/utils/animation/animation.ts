@@ -93,14 +93,12 @@ export class Animation {
     }
     start(): void {
         this.setAnimationPhase("running");
-        this.resetAnimation();
         this.continueAnimation();
     }
     resetAnimation(): void {
         this.pause();
         this.currentAnimationStateNumber = 0;
         this.animateCurrentState();
-        this.clearInfoBox();
     }
     animateCurrentState(): void {
         if (this.currentAnimationStateNumber === -1) return;
