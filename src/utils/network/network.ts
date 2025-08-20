@@ -162,7 +162,7 @@ export class Network{
             edgeToModified.color = edge.color;
         }
         if(edge.weight){
-            edgeToModified.weight = edge.weight;
+            edgeToModified.setWeight(edge.weight);
         }
         if(edge.width){
             edgeToModified.width = edge.width;
@@ -177,7 +177,7 @@ export class Network{
                 edgeToModify.color = edge.color;
             }
             if (edge.weight !== undefined) {
-                edgeToModify.weight = edge.weight;
+                edgeToModify.setWeight(edge.weight);
             }
             if(edge.width){
                 edgeToModify.width = edge.width;
@@ -357,17 +357,17 @@ export class Network{
         this.drawText(node.x!, node.y!, `${node.label}`, 17, "arial", "black");
     }
     private drawEdge(edge: Edge): void {
-        const fromNode = this.graph.getNode(edge.from);
-        const toNode = this.graph.getNode(edge.to);
+        const fromNode = this.graph.getNode(edge.getFrom());
+        const toNode = this.graph.getNode(edge.getTo());
         const fromX = fromNode.x!;
         const fromY = fromNode.y!;
         const toX = toNode.x!;
         const toY = toNode.y!;
         if(!this.edgesTwoWay){
             if(this.graph.edgeHasAPair(edge)){
-                this.drawCurvedEdge(fromX, fromY, toX, toY, edge.width, edge.color, edge.weight);
+                this.drawCurvedEdge(fromX, fromY, toX, toY, edge.width, edge.color, edge.getWeight());
             }else{
-                this.drawStraightEdge(fromX, fromY, toX, toY, edge.width, edge.color, edge.weight)
+                this.drawStraightEdge(fromX, fromY, toX, toY, edge.width, edge.color, edge.getWeight())
                 const lengthOfEdge = this.measureDistance(fromX, fromY, toX, toY);
                 let edgeVectorNormalizedX = (toX-fromX)/lengthOfEdge;
                 let edgeVectorNormalizedY = (toY-fromY)/lengthOfEdge;
@@ -376,7 +376,7 @@ export class Network{
                 this.drawTriangleTo(fromX+edgeVectorNormalizedX, fromY+edgeVectorNormalizedY, edgeVectorNormalizedX, edgeVectorNormalizedY, edge.color, true);
             }
         }else{
-            this.drawStraightEdge(fromX, fromY, toX, toY, edge.width, edge.color, edge.weight)
+            this.drawStraightEdge(fromX, fromY, toX, toY, edge.width, edge.color, edge.getWeight())
         }
     }
     private drawStraightEdge(fromX:number, fromY:number, toX:number, toY:number, width: number, color: string, weight?: number):void{
@@ -454,10 +454,10 @@ export class Network{
     private hitEdge(x: number, y: number): Edge | null {
         for (const edge of this.graph.getEdgeList()) {
             if (edge) {
-                const fromNode = this.graph.getNode(edge.from);
+                const fromNode = this.graph.getNode(edge.getFrom());
                 const fromX = fromNode.x!;
                 const fromY = fromNode.y!;
-                const toNode = this.graph.getNode(edge.to);
+                const toNode = this.graph.getNode(edge.getTo());
                 const toX = toNode.x!;
                 const toY = toNode.y!;
                 const hasAPair = this.graph.edgeHasAPair(edge)
@@ -553,9 +553,9 @@ export class Network{
     private updateEuclideanDistancesOfDraggedNode(): void {
         for (const edgeId of this.graph.getEdgeListOfNode( this.draggedNode!.getId() )) {
             const edge = this.graph.getEdge(edgeId);
-            const fromNode = this.graph.getNode(edge.from);
-            const toNode = this.graph.getNode(edge.to);
-            edge.weight = Math.floor( this.measureDistance( fromNode.x!, fromNode.y!, toNode.x!, toNode.y! ) / 10 );
+            const fromNode = this.graph.getNode(edge.getFrom());
+            const toNode = this.graph.getNode(edge.getTo());
+            edge.setWeight(Math.floor( this.measureDistance( fromNode.x!, fromNode.y!, toNode.x!, toNode.y! ) / 10 ));
         }
     }
     private measureGraphRectangle(): { topLeftX: number; topLeftY: number; width: number; height: number; } {
@@ -661,7 +661,7 @@ export class Network{
                     this.nodeIds.splice(index, 1);
                     this.graph.deleteNode(node.getId());
                 } else if (edge) {
-                    this.graph.removeEdge(edge.from, edge.to, this.edgesTwoWay);
+                    this.graph.removeEdge(edge.getFrom(), edge.getTo(), this.edgesTwoWay);
                 }
             } else if (this.mode === "idle") {
                 if (node) {
