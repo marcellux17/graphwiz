@@ -412,7 +412,7 @@ export class Network{
             endAngle = startAngle;
             startAngle = temp;
         }
-        this.drawArc(circleCenterX, circleCenterY, radius, startAngle, endAngle, "black", width);
+        this.drawArc(circleCenterX, circleCenterY, radius, startAngle, endAngle, color, width);
         edgeVectorNormalVX *= -1;
         edgeVectorNormalVY *= -1;
         this.drawTriangleTo(circleCenterX+edgeVectorNormalVX*radius, circleCenterY+edgeVectorNormalVY*radius, edgeVectorNormalizedX, edgeVectorNormalizedY, color, false);
