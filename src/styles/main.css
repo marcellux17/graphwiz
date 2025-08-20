@@ -1,6 +1,6 @@
 :root{
-    --image-width: 400px;
-    --image-height: 260px;
+    --image-width: 300px;
+    --image-height: 190px;
     --main-color:  rgba(44, 62, 80, 1);
 }
 html, body{
