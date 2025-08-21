@@ -3,7 +3,7 @@ import { Graph } from "../datastructures/graph";
 import { playBox, pauseButton, playButton, speedRangeInput, speedInfo, backButton, forwardButton, resetButton, runAnimationButton, escapeModeButton, deleteModeButton, addNodeButton, addEdgeButton, presetInput, algorithmInformationBox, speedBox, } from "../dom/elements";
 import { changeMessageBox, makeInvisible, makeVisible } from "../dom/helpers";
 import { Network } from "../network/network";
-import DFS from "./BFSAlgorithm";
+import BFS from "./BFSAlgorithm";
 
 type canvasState = "add-edge-mode" | "idle" | "delete" | "add-node-mode" | "run-animation" | "step-by-step" | "animation-running";
 export class BFSController {
@@ -11,12 +11,12 @@ export class BFSController {
     private startingNodeId: number | null = null;
     private canvasState: canvasState = "idle"; //aka no mode is selected
     private animation: Animation;
-    private algorithm: DFS;
+    private algorithm: BFS;
     constructor() {
         const graph = new Graph();
         this.network = new Network(graph, false, true, false);
         this.animation = new Animation(this.network);
-        this.algorithm = new DFS(graph);
+        this.algorithm = new BFS(graph);
         this.setUpNetworkEventListeners();
         this.setUpUiEventListeners();
     }
