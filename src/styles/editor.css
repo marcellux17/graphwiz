@@ -247,8 +247,10 @@ button {
     margin-top: 20px;
     display: flex;
     gap: 5px;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     margin-bottom: 20px;
+    width: 100%;
+    overflow: auto;
 }
 #algorithm-info .ds-name{
     text-transform: capitalize;
@@ -270,6 +272,7 @@ button {
     display: flex;
     justify-content: center;
     align-items: center;
+    flex-shrink: 0;
 }
 #ds-labels {
     font-size: 0.65rem;

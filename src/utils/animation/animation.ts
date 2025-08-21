@@ -195,7 +195,7 @@ export class Animation {
             container.className = type;
             algorithmInfoBox.appendChild(dsName);
             
-            for (let i = 0; i < 6; i++) {
+            for (let i = 0; i < ds.length; i++) {
                 if (ds[i]) {
                     const el = document.createElement("div");
                     el.className = "ds-box";
@@ -208,14 +208,13 @@ export class Animation {
                 const labels = document.createElement("div");
                 labels.id = "ds-labels";
                 labels.innerHTML = `<span>Front</span><span>Back</span>`;
-                container.appendChild(labels);
+                algorithmInfoBox.appendChild(labels);
             }
-            
             if (type === "stack") {
                 const label = document.createElement("div");
-                label.className = "ds-labels";
+                label.id = "ds-labels";
                 label.innerHTML = `<span>Top</span>`;
-                container.appendChild(label);
+                algorithmInfoBox.appendChild(label);
             }
         }
     }
