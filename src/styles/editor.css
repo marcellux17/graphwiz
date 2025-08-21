@@ -274,15 +274,19 @@ button {
     align-items: center;
     flex-shrink: 0;
 }
-#ds-labels {
+#queue-label {
     font-size: 0.65rem;
     margin-top: 5px;
     display: flex;
     justify-content: space-between;
     width: 100%;
 }
-.stack #ds-labels {
+#stack-label {
+    font-size: 0.65rem;
+    margin-top: 5px;
+    display: flex;
     justify-content: center;
+    width: 100%;
 }
 .stack {
     flex-direction: column-reverse;

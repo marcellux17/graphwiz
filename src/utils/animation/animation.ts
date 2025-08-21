@@ -27,6 +27,7 @@ export class Animation {
     private normalNodeColor = "white";
     private normalEdgeColor = "black";
     private queueNodeColor = "#2e77ffff";
+    private stackNodeColor = "#2e77ffff";
     private selectedEdgeColor = "blue";
     private visitedNodeColor = "orange";
     private animationPhase: animationPhase = "running";
@@ -134,6 +135,9 @@ export class Animation {
                 case "inQueue":
                     color = this.queueNodeColor;
                     break;
+                case "inStack":
+                    color = this.stackNodeColor;
+                    break;
                 default: 
                     color = this.normalNodeColor;
                     break;
@@ -206,14 +210,14 @@ export class Animation {
             algorithmInfoBox.appendChild(container);
             if (type === "queue" || type === "priority-queue") {
                 const labels = document.createElement("div");
-                labels.id = "ds-labels";
+                labels.id = "queue-label";
                 labels.innerHTML = `<span>Front</span><span>Back</span>`;
                 algorithmInfoBox.appendChild(labels);
             }
             if (type === "stack") {
                 const label = document.createElement("div");
-                label.id = "ds-labels";
-                label.innerHTML = `<span>Top</span>`;
+                label.id = "stack-label";
+                label.innerHTML = `<span>Bottom</span>`;
                 algorithmInfoBox.appendChild(label);
             }
         }
