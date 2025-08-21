@@ -2,16 +2,6 @@ export type animationState = {
     nodes: (animationNodeInformation|null)[];
     edges: (animationEdgeInformation|null)[];
     algorithmInfobox?: algorithmInfoBoxState;
-    mutations?: {
-        next?: {
-            edges: string[],
-            nodes: string[]
-        },
-        previous?: {
-            edges: string[],
-            nodes: string[]
-        }
-    }
 }
 export type animationNodeInformation = {
     state: nodeState;
