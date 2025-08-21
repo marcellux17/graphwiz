@@ -1,7 +1,7 @@
 import { Animation } from "../animation/animation";
 import { Graph } from "../datastructures/graph";
 import { playBox, pauseButton, playButton, speedRangeInput, speedInfo, backButton, forwardButton, resetButton, runAnimationButton, escapeModeButton, deleteModeButton, addNodeButton, addEdgeButton, presetInput, algorithmInformationBox, speedBox, } from "../dom/elements";
-import { changeMessageBox, makeInvisible, makeVisible, resetInput, } from "../dom/helpers";
+import { changeMessageBox, makeInvisible, makeVisible, } from "../dom/helpers";
 import { Network } from "../network/network";
 import DFS from "./DFSAlgorithm";
 
@@ -43,13 +43,13 @@ export class DFSController {
                     makeInvisible(algorithmInformationBox);
                     makeInvisible(speedBox);
                 }
+                this.startingNodeId = null;
                 changeMessageBox( "idle mode (click on edges to modify weights)" );
                 makeInvisible(playBox);
                 this.network.resetToIdle();
                 break;
             case "run-animation":
                 changeMessageBox("select starting node");
-                resetInput();
                 this.network.resetToIdle();
                 break;
             case "animation-running":
@@ -70,9 +70,8 @@ export class DFSController {
             this.startingNodeId = id;
             const states = this.algorithm.Run(this.startingNodeId);
             this.animation.setAnimationStates(states);
-            return;
+            this.changeCanvasState("animation-running");
         }
-        this.changeCanvasState("animation-running");
     }
     private setUpNetworkEventListeners(): void {
         this.selectNodeHandle = this.selectNodeHandle.bind(this);
@@ -125,10 +124,10 @@ export class DFSController {
             speedInfo.textContent = `speed: ${newspeed}x`;
             this.animation.setAnimationSpeedChange(1000 / newspeed);
         });
-        // presetInput?.addEventListener("input", () => {
-        //     if(presetInput!.value !== "load a graph" && this.canvasState !== "run-animation" && this.canvasState !== "animation-running"){
-        //         this.network.loadPreset("dfs", presetInput!.value);
-        //     }
-        // })
+        presetInput?.addEventListener("input", () => {
+            if(presetInput!.value !== "load a graph" && this.canvasState !== "run-animation" && this.canvasState !== "animation-running"){
+                this.network.loadPreset("dfs", presetInput!.value);
+            }
+        })
     }
 }
