@@ -71,65 +71,40 @@ export class Queue<T> {
         return this.toArray().toString();
     }
 }
-export class MinPriorityQueue<T extends NodeWithDistance> {
-    private items: T[] = [];
-    private idToIndex: Map<number, number> = new Map();
-
-    constructor(private compare: (a: T, b: T) => number) {}
-
-    private updateIndexMap(): void {
-        this.idToIndex.clear();
-        for (let i = 0; i < this.items.length; i++) {
-            this.idToIndex.set(this.items[i].id, i);
+export type QueueElement = {
+    id: number, 
+    value: number
+}
+export class MinPriorityQueue {
+    private arr: QueueElement[] = [];
+    insert(element: QueueElement): void {
+        let i = 0;
+        while (i < this.arr.length && this.arr[i].value <= element.value) {
+            i++;
         }
+        this.arr.splice(i, 0, element);
     }
-    private findInsertPosition(item: T): number {
-        for (let i = 0; i < this.items.length; i++) {
-            if (this.compare(item, this.items[i]) < 0) {
-                return i;
-            }
-        }
-        return this.items.length;
+    extractMin(): QueueElement | null {
+        if (this.arr.length === 0) return null;
+        return this.arr.shift()!;
     }
+    update(id: number, newValue: any): void {
+        const index = this.arr.findIndex(el => el.id === id);
+        if (index === -1) return;
 
-    getValue(id: number): number {
-        const index = this.idToIndex.get(id)!;
-        return this.items[index].estimated_distance;
-    }
+        const element = this.arr[index];
+        this.arr.splice(index, 1);
 
-    insert(item: T): void {
-        const insertPos = this.findInsertPosition(item);
-        this.items.splice(insertPos, 0, item);
-        this.updateIndexMap();
+        element.value = newValue;
+        this.insert(element);
     }
-
-    extractMin(): T {
-        const min = this.items.shift()!;
-        this.idToIndex.delete(min.id);
-        this.updateIndexMap();
-        return min;
-    }
-
-    update(id: number, newDistance: number): void {
-        const index = this.idToIndex.get(id)!;
-        const item = this.items[index];
-        this.items.splice(index, 1);
-        item.estimated_distance = newDistance;
-        const newPos = this.findInsertPosition(item);
-        this.items.splice(newPos, 0, item);
-        this.updateIndexMap();
-    }
-
-    peek(): T | undefined {
-        return this.items[0];
+    get(id: number): QueueElement | null {
+        return this.arr.find(el => el.id === id) || null;
     }
     isEmpty(): boolean {
-        return this.items.length === 0;
+        return this.arr.length === 0;
     }
-    size(): number {
-        return this.items.length;
-    }
-    getArray(): string[] {
-        return this.items.map((item) => item.label);
+    getArray():number[]{
+        return this.arr.map(element => element.id);
     }
 }

@@ -1,5 +1,5 @@
 import { Node, WeightedGraph } from "../datastructures/graph";
-import { MinPriorityQueue } from "../datastructures/queue";
+import { MinPriorityQueue, QueueElement } from "../datastructures/queue";
 import { algorithmInfoBoxState, animationEdgeInformation, animationNodeInformation, animationState} from "../animation/types";
 
 
@@ -110,9 +110,11 @@ export default class Dijkstra{
 
         return { nodes, edges };
     }
-
+    private getLabelsForQueueRepresentation(ids: number[]):string[]{
+        return ids.map(id => this.graph.getLabelOfNode(id));
+    }
     Run(from: number, to: number): animationState[] {
-        const estimatedDistances = new MinPriorityQueue<NodeWithDistance>((a, b) => a.estimated_distance - b.estimated_distance); //estimated distances
+        const estimatedDistances = new MinPriorityQueue(); //estimated distances
         const animationStates: animationState[] = [];
         const nodeList = this.graph.getNodeList();
         const visited = Array(nodeList.length).fill(false);
@@ -121,27 +123,25 @@ export default class Dijkstra{
             if (node && node.getId() !== from) {
                 estimatedDistances.insert({
                     id: node.getId(),
-                    estimated_distance: Number.MAX_VALUE,
-                    label: this.graph.getLabelOfNode(node.getId())
+                    value: Number.MAX_VALUE
                 });
             } else if(node){
                 estimatedDistances.insert({
                     id: node.getId(),
-                    estimated_distance: 0,
-                    label: this.graph.getLabelOfNode(node.getId())
+                    value: 0
                 });
             }
         });
         let currentState = this.createInitialState(from);
         animationStates.push(currentState);
-        let currentNode: NodeWithDistance = estimatedDistances.extractMin();
+        let currentNode: QueueElement = estimatedDistances.extractMin()!;
         visited[currentNode.id] = true
         currentState = this.markNodeAsVisited(currentState, currentNode.id);
         currentState.algorithmInfobox = {
             information: "Selecting node from priority queue with the smallest distance",
             dataStructure: {
                 type: "priority-queue",
-                ds: estimatedDistances.getArray()
+                ds: this.getLabelsForQueueRepresentation(estimatedDistances.getArray())
             }
         }
         animationStates.push(currentState);
@@ -159,15 +159,15 @@ export default class Dijkstra{
                 }
                 if (!visited[neighbourId]) {
                     const weightOfEdge = this.graph.getEdge(edgeIdConnectedToNeighbour).getWeight()!;
-                    const estimatedDistance = estimatedDistances.getValue(neighbourId);
-                    const distanceThroughCurrentNode = currentNode.estimated_distance + weightOfEdge;
+                    const estimatedDistance = estimatedDistances.get(neighbourId)!.value;
+                    const distanceThroughCurrentNode = currentNode.value + weightOfEdge;
                     currentState = this.markEdgeAsSelected(currentState, edgeIdConnectedToNeighbour)
                     currentState.algorithmInfobox = {
                         information: `Checking for adjacent nodes if the distance through the node currently being visited is smaller than the distance previously set.<br> 
-                        is it true??:<br>${currentNode.estimated_distance} + ${weightOfEdge} < ${estimatedDistance == Number.MAX_VALUE ? "∞": estimatedDistance}`,
+                        is it true??:<br>${currentNode.value} + ${weightOfEdge} < ${estimatedDistance == Number.MAX_VALUE ? "∞": estimatedDistance}`,
                         dataStructure: {
                             type: "priority-queue",
-                            ds: estimatedDistances.getArray()
+                            ds: this.getLabelsForQueueRepresentation(estimatedDistances.getArray())
                         }
                     }
                     animationStates.push(currentState);
@@ -178,7 +178,7 @@ export default class Dijkstra{
                             information: `distance through current node < current smallest distance to neighbour (${distanceThroughCurrentNode} < ${estimatedDistance == Number.MAX_VALUE ? "∞": estimatedDistance})`,
                             dataStructure: {
                                 type: "priority-queue",
-                                ds: estimatedDistances.getArray()
+                                ds: this.getLabelsForQueueRepresentation(estimatedDistances.getArray())
                             }
                         };
                         animationStates.push(currentState);
@@ -191,13 +191,13 @@ export default class Dijkstra{
                 currentState = this.markEdgeAsNormal(currentState, previousEdgeId);
             }
             visited[currentNode.id] = true
-            currentNode = estimatedDistances.extractMin();
+            currentNode = estimatedDistances.extractMin()!;
             currentState = this.markNodeAsVisited(currentState, currentNode.id);
             currentState.algorithmInfobox = {
                 information: "Selecting node from priority queue with the smallest distance",
                 dataStructure: {
                     type: "priority-queue",
-                    ds: estimatedDistances.getArray()
+                    ds: this.getLabelsForQueueRepresentation(estimatedDistances.getArray())
                 }
             };
             animationStates.push(currentState);

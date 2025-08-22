@@ -1,5 +1,5 @@
 import { Node, WeightedGraph } from "../datastructures/graph";
-import { MinPriorityQueue } from "../datastructures/queue";
+import { MinPriorityQueue, QueueElement } from "../datastructures/queue";
 import { algorithmInfoBoxState, animationEdgeInformation, animationNodeInformation, animationState} from "../animation/types";
 import { NodeWithDistance } from "../dijkstra/DijkstraAlgorithm";
 
@@ -118,8 +118,11 @@ export default class AStar{
     private measureDistance(nodeA: Node, nodeB: Node):number{
         return Math.round(Math.sqrt((nodeA.x!-nodeB.x!)**2+(nodeA.y!-nodeB.y!)**2));
     }
+    private getLabelsForQueueRepresentation(ids: number[]):string[]{
+        return ids.map(id => this.graph.getLabelOfNode(id));
+    }
     Run(from: number, to: number): animationState[] {
-        const estimatedDistances = new MinPriorityQueue<NodeWithDistance>((a, b) => a.estimated_distance - b.estimated_distance); //estimated distances
+        const estimatedDistances = new MinPriorityQueue(); //estimated distances
         const animationStates: animationState[] = [];
         const nodeList = this.graph.getNodeList();
         const visited = Array(nodeList.length).fill(false);
@@ -130,21 +133,19 @@ export default class AStar{
             if (node && node.getId() !== from) {
                 estimatedDistances.insert({
                     id: node.getId(),
-                    estimated_distance: Number.MAX_VALUE,
-                    label: this.graph.getLabelOfNode(node.getId())
+                    value: Number.MAX_VALUE
                 });
             } else if(node){
                 estimatedDistances.insert({
                     id: node.getId(),
-                    estimated_distance: this.distanceTable[node.getId()]!,
-                    label: this.graph.getLabelOfNode(node.getId())
+                    value: this.distanceTable[node.getId()]!,
                 });
             }
         });
         let currentState = this.createInitialState(from);
         animationStates.push(currentState);
         
-        let currentNode: NodeWithDistance = estimatedDistances.extractMin();
+        let currentNode: QueueElement = estimatedDistances.extractMin()!;
         visited[currentNode.id] = true;
         
         currentState = this.markNodeAsVisited(currentState, currentNode.id);
@@ -152,7 +153,7 @@ export default class AStar{
             information: "Selecting node from priority queue with the smallest distance",
             dataStructure: {
                 type: "priority-queue",
-                ds: estimatedDistances.getArray()
+                ds: this.getLabelsForQueueRepresentation(estimatedDistances.getArray())
             }
         }
         animationStates.push(currentState);
@@ -173,8 +174,8 @@ export default class AStar{
                     const heuristicDistanceFromCurrentToDest: number = this.distanceTable[currentNode.id]!;
 
                     const weightOfEdge = this.graph.getEdge(edgeIdConnectedToNeighbour).getWeight()!;
-                    const estimatedDistance = estimatedDistances.getValue(neighbourId) - heuristicDistanceFromNeighbourToDest;
-                    const distanceThroughCurrentWithoutHeur = currentNode.estimated_distance - heuristicDistanceFromCurrentToDest;
+                    const estimatedDistance = estimatedDistances.get(neighbourId)!.value - heuristicDistanceFromNeighbourToDest;
+                    const distanceThroughCurrentWithoutHeur = currentNode.value - heuristicDistanceFromCurrentToDest;
                     const distanceThroughCurrentNode =  distanceThroughCurrentWithoutHeur+ weightOfEdge;
                     currentState = this.markEdgeAsSelected(currentState, edgeIdConnectedToNeighbour)
                     currentState.algorithmInfobox = {
@@ -182,7 +183,7 @@ export default class AStar{
                         <br>${distanceThroughCurrentWithoutHeur} + ${weightOfEdge} < ? ${estimatedDistance == Number.MAX_VALUE ? "∞": estimatedDistance}`,
                         dataStructure: {
                             type: "priority-queue",
-                            ds: estimatedDistances.getArray()
+                            ds: this.getLabelsForQueueRepresentation(estimatedDistances.getArray())
                         }
                     }
                     animationStates.push(currentState);
@@ -193,7 +194,7 @@ export default class AStar{
                             information: `distance through current node < current smallest distance to neighbour<br> (${distanceThroughCurrentNode} < ${estimatedDistance == Number.MAX_VALUE ? "∞": estimatedDistance})`,
                             dataStructure: {
                                 type: "priority-queue",
-                                ds: estimatedDistances.getArray()
+                                ds: this.getLabelsForQueueRepresentation(estimatedDistances.getArray())
                             }
                         };
                         animationStates.push(currentState);
@@ -206,7 +207,7 @@ export default class AStar{
                 currentState = this.markEdgeAsNormal(currentState, previousEdgeId);
             }
             visited[currentNode.id] = true;
-            currentNode = estimatedDistances.extractMin();
+            currentNode = estimatedDistances.extractMin()!;
             currentState = this.markNodeAsVisited(currentState, currentNode.id);
             currentState.algorithmInfobox = {
                 information: `Selecting node from priority queue with the smallest g(x) + h(x)<br>
@@ -214,7 +215,7 @@ export default class AStar{
                 g(x): cumulated distance through visited nodes`,
                 dataStructure: {
                     type: "priority-queue",
-                    ds: estimatedDistances.getArray()
+                    ds: this.getLabelsForQueueRepresentation(estimatedDistances.getArray())
                 }
             };
             animationStates.push(currentState);
