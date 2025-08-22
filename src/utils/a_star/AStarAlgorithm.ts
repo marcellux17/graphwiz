@@ -1,7 +1,6 @@
 import { Node, WeightedGraph } from "../datastructures/Graph";
 import { MinPriorityQueue, QueueElement } from "../datastructures/Queue";
 import { algorithmInfoBoxState, animationEdgeInformation, animationNodeInformation, animationState} from "../animation/types";
-import { NodeWithDistance } from "../dijkstra/DijkstraAlgorithm";
 
 export default class AStar{
     private graph:WeightedGraph;

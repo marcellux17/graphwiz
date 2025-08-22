@@ -1,5 +1,3 @@
-import { NodeWithDistance } from "../dijkstra/DijkstraAlgorithm";
-
 export class Queue<T> {
     //circular queue implmentation
     private capacity: number;

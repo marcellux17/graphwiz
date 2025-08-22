@@ -1,13 +1,7 @@
 import { Node, WeightedGraph } from "../datastructures/Graph";
-import { MinPriorityQueue, QueueElement } from "../datastructures/Queue";
+import { MinPriorityQueue, QueueElement } from "../datastructures/Queue.ts";
 import { algorithmInfoBoxState, animationEdgeInformation, animationNodeInformation, animationState} from "../animation/types";
 
-
-export type NodeWithDistance = {
-    id: number;
-    estimated_distance: number;
-    label: string;
-}
 export default class Dijkstra{
     private graph:WeightedGraph;
     constructor(graph: WeightedGraph){
