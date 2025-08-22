@@ -1,4 +1,4 @@
-import { Graph, WeightedGraph, Node, Edge } from "../datastructures/graph";
+import { Graph, WeightedGraph, Node, Edge } from "../datastructures/Graph";
 import { canvas } from "../dom/elements";
 
 type Preset = {

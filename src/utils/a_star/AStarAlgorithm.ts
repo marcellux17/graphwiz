@@ -1,5 +1,5 @@
-import { Node, WeightedGraph } from "../datastructures/graph";
-import { MinPriorityQueue, QueueElement } from "../datastructures/queue";
+import { Node, WeightedGraph } from "../datastructures/Graph";
+import { MinPriorityQueue, QueueElement } from "../datastructures/Queue";
 import { algorithmInfoBoxState, animationEdgeInformation, animationNodeInformation, animationState} from "../animation/types";
 import { NodeWithDistance } from "../dijkstra/DijkstraAlgorithm";
 

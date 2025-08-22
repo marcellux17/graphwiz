@@ -1,4 +1,4 @@
-import { Queue } from "./queue";
+import { Queue } from "./Queue";
 
 export class Graph {
     protected nodes: (Node | null)[];

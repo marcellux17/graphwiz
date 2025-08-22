@@ -1,5 +1,5 @@
 import { animationEdgeInformation, animationNodeInformation, animationState} from "../animation/types";
-import { Graph } from "../datastructures/graph";
+import { Graph } from "../datastructures/Graph";
 
 export default class DFS{
     private graph:Graph;

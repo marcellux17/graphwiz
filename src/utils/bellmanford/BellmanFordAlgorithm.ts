@@ -1,4 +1,4 @@
-import { Node, WeightedGraph } from "../datastructures/graph";
+import { Node, WeightedGraph } from "../datastructures/Graph";
 import { animationEdgeInformation, animationNodeInformation, animationState} from "../animation/types";
 
 export default class BellmanFord{

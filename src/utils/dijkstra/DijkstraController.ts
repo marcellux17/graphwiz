@@ -1,5 +1,5 @@
 import { Animation } from "../animation/animation";
-import { WeightedGraph } from "../datastructures/graph";
+import { WeightedGraph } from "../datastructures/Graph";
 import { playBox, pauseButton, playButton, startingNodeInfo, destinationNodeInfo, pathInfoBox, inputGroup, label, weightInput, speedRangeInput, speedInfo, backButton, forwardButton, resetButton, runAnimationButton, escapeModeButton, deleteModeButton, addNodeButton, addEdgeButton, presetInput, algorithmInformationBox, speedBox, } from "../dom/elements";
 import { changeMessageBox, makeInvisible, makeVisible, resetInput, } from "../dom/helpers";
 import { Network } from "../network/network";

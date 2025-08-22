@@ -1,6 +1,6 @@
 import { animationEdgeInformation, animationNodeInformation, animationState} from "../animation/types";
-import { Graph } from "../datastructures/graph";
-import { Queue } from "../datastructures/queue";
+import { Graph } from "../datastructures/Graph";
+import { Queue } from "../datastructures/Queue";
 
 export default class BFS{
     private graph:Graph;
