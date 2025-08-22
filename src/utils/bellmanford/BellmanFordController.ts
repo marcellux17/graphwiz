@@ -98,6 +98,9 @@ export class BellmanFordController {
         const states = this.algorithm.Run( this.startingNodeId!, this.destinationNodeId! );
         if(states.length === 0){
             changeMessageBox( "graph contains negative cycle(s), change graph to run algorithm" );
+            setTimeout(() => {
+                this.changeCanvasState("idle");
+            }, 1500);
             return;
         }
         this.animation.setAnimationStates(states);
