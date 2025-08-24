@@ -133,10 +133,10 @@ export class KruskalController {
             speedInfo.textContent = `speed: ${newspeed}x`;
             this.animation.setAnimationSpeedChange(1000 / newspeed);
         });
-        // presetInput?.addEventListener("input", () => {
-        //     if(presetInput!.value !== "load a graph" && this.canvasState !== "animation-running"){
-        //         this.network.loadPreset("kruskal", presetInput!.value);
-        //     }
-        // })
+        presetInput?.addEventListener("input", () => {
+            if(presetInput!.value !== "load a graph" && this.canvasState !== "animation-running"){
+                this.network.loadPreset("kruskal", presetInput!.value);
+            }
+        })
     }
 }
