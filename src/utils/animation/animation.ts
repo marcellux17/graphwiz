@@ -28,6 +28,7 @@ export class Animation {
     private normalEdgeColor = "black";
     private queueNodeColor = "#2e77ffff";
     private stackNodeColor = "#2e77ffff";
+    private deselectedEdgeColor = "#d1d1d1ff";
     private selectedEdgeColor = "blue";
     private visitedNodeColor = "orange";
     private animationPhase: animationPhase = "running";
@@ -155,19 +156,22 @@ export class Animation {
             let edgeWidth: number = 2;
             switch (edge.state) {
                 case "selectedEdge": 
-                color = this.selectedEdgeColor; 
-                edgeWidth = 3;
-                break;
+                    color = this.selectedEdgeColor; 
+                    edgeWidth = 3;
+                    break;
                 case "normal": 
-                color = this.normalEdgeColor; 
-                break;
+                    color = this.normalEdgeColor; 
+                    break;
                 case "partOfPath": 
-                color = this.pathColor; 
-                edgeWidth = 3;
-                break;
+                    color = this.pathColor; 
+                    edgeWidth = 4;
+                    break;
+                case "deselectedEdge": 
+                    color = this.deselectedEdgeColor;
+                    break;
                 default: 
-                color = this.normalEdgeColor;
-                break;
+                    color = this.normalEdgeColor;
+                    break;
             }
             edgeUpdates.push({
                 id: edge.id,

@@ -13,7 +13,7 @@ export type animationEdgeInformation = {
     label: string;
     id: number;
 }
-export type edgeState = "selectedEdge" | "visitedEdge" | "partOfPath" | "normal";
+export type edgeState = "selectedEdge" | "visitedEdge" | "partOfPath" | "normal" | "deselectedEdge";
 export type nodeState = "visitedNode" | "inQueue" | "partOfPath" | "inStack" | "normal";
 export type algorithmInfoBoxState = {
     information?: string; //information to display in the algorithm-information-box: describes what's happening inside the algorithm

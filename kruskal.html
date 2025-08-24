@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <link rel="stylesheet" href="/src/styles/editor.css" />
         <link rel="stylesheet" href="/src/styles/slider.css" />
-        <script type="module" src="/src/utils/dijkstra/setup.ts" defer></script>
+        <script type="module" src="/src/utils/kruskal/setup.ts" defer></script>
         <script type="module" src="/src/utils/dom/common.ts"></script>
         <title>Graphwiz</title>
     </head>
@@ -165,6 +165,8 @@
             <button id="run-animation">run kruskal</button>
             <select name="presets" id="presets">
                 <option value="">load graph</option>
+                <option value="a">a</option>
+                <option value="b">b</option>
             </select>
             <div id="change-data" class="hide">
                 <label for="change-weight" id="label-message"></label>

@@ -1,3 +1,3 @@
-import { DijkstraController } from "./KruskalController";
+import { KruskalController } from "./KruskalController";
 
-const controller = new DijkstraController();
+const controller = new KruskalController();
