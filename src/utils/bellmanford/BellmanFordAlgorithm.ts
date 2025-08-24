@@ -10,7 +10,7 @@ export default class BellmanFord{
         let newState = state;
         let currentNode:Node|null = this.graph.getNode(to);
         newState.algorithmInfobox = {
-            information: `shortest path found between ${this.graph.getLabelOfNode(from)} and ${this.graph.getLabelOfNode(to)}`
+            information: `Algorithm finished running!<hr>Shortest path found between ${this.graph.getLabelOfNode(from)} and ${this.graph.getLabelOfNode(to)}.`
         }
         while (currentNode !== null) {
             const currentNodeId = currentNode.getId();

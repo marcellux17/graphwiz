@@ -11,7 +11,7 @@ export default class Dijkstra{
         let newState = state;
         let currentNode:Node|null = this.graph.getNode(to);
         let algorithmStateInfo: algorithmInfoBoxState = {
-            information: `shortest path found between ${this.graph.getLabelOfNode(from)} and ${this.graph.getLabelOfNode(to)}`,
+            information: `Algorithm finished running!<hr>Shortest path found between ${this.graph.getLabelOfNode(from)} and ${this.graph.getLabelOfNode(to)}.`,
             dataStructure: {
                 type: "priority-queue",
                 ds: []
