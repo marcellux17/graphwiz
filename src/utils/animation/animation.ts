@@ -23,7 +23,7 @@ export class Animation {
     private animationSpeed = 1000; //in ms
     private animationSpeedChange = 1000; //in case the user wants to change the speed of the animation
     private currentAnimationStateNumber = 0; //in the animation function it first increments so it does not point to a negative index of the states
-    private pathColor = "#17c53cff";
+    private pathColor = "#c00000ff";
     private normalNodeColor = "white";
     private normalEdgeColor = "black";
     private queueNodeColor = "#2e77ffff";
