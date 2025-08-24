@@ -382,7 +382,7 @@ export class Network{
     private drawStraightEdge(fromX:number, fromY:number, toX:number, toY:number, width: number, color: string, weight?: number):void{
         this.drawLine(fromX, fromY, toX, toY, width, color);
         if (this.graph instanceof WeightedGraph) {
-            this.drawWeightToHalfLine(fromX,fromY,toX,toY, weight!);
+            this.drawWeightToHalfLine(fromX,fromY,toX,toY, weight!, color);
         }
     }
     private drawCurvedEdge(fromX:number, fromY:number, toX:number, toY:number, width: number, color: string, weight?: number):void{
@@ -417,7 +417,7 @@ export class Network{
         edgeVectorNormalVY *= -1;
         this.drawTriangleTo(circleCenterX+edgeVectorNormalVX*radius, circleCenterY+edgeVectorNormalVY*radius, edgeVectorNormalizedX, edgeVectorNormalizedY, color, false);
         if(this.graph instanceof WeightedGraph){
-            this.drawWeightToArcMiddle(circleCenterX, circleCenterY, radius, edgeCenterX-circleCenterX, edgeCenterY-circleCenterY, weight!);
+            this.drawWeightToArcMiddle(circleCenterX, circleCenterY, radius, edgeCenterX-circleCenterX, edgeCenterY-circleCenterY, weight!, color);
         }
     }
     private getAngleNormalized(vectorX:number, vectorY:number):number{
@@ -524,15 +524,15 @@ export class Network{
         const distSq = (x - closestX) ** 2 + (y - closestY) ** 2;
         return distSq <= threshold ** 2;
     }
-    private drawWeightToArcMiddle(circleCenterX: number, circleCenterY: number,radius:number, directionVectorX: number, directionVectorY: number, weight: number):void{
+    private drawWeightToArcMiddle(circleCenterX: number, circleCenterY: number,radius:number, directionVectorX: number, directionVectorY: number, weight: number, color?: string):void{
         const length = Math.sqrt(directionVectorX**2+directionVectorY**2);
         directionVectorX = directionVectorX/length;
         directionVectorY = directionVectorY/length;
         const x = circleCenterX+directionVectorX*(radius+15);
         const y = circleCenterY+directionVectorY*(radius+15);
-        this.drawText(x, y, `${weight}`, 17, "arial", "black")
+        this.drawText(x, y, `${weight}`, 17, "arial", color? color: "black")
     }
-    private drawWeightToHalfLine( x1: number, y1: number, x2: number, y2: number, weight: number ): void {
+    private drawWeightToHalfLine( x1: number, y1: number, x2: number, y2: number, weight: number, color?: string ): void {
         const halfLineX = (x1 + x2) / 2;
         const halfLineY = (y1 + y2) / 2;
         let lineVectorX = x1 - x2;
@@ -548,7 +548,7 @@ export class Network{
         }
         const x = halfLineX + normalVectorX * 15;
         const y = halfLineY + normalVectorY * 15;
-        this.drawText(x, y, `${weight}`, 17, "arial", "black")
+        this.drawText(x, y, `${weight}`, 17, "arial", color? color: "black");
     }
     private updateEuclideanDistancesOfDraggedNode(): void {
         for (const edgeId of this.graph.getEdgeListOfNode( this.draggedNode!.getId() )) {
