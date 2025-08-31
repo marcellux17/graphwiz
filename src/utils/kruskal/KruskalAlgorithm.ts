@@ -2,12 +2,6 @@ import { Edge, WeightedGraph } from "../datastructures/Graph";
 import { animationEdgeInformation, animationNodeInformation, animationState} from "../animation/types";
 import { DisjointSet } from "../datastructures/DisjointSet";
 
-
-export type NodeWithDistance = {
-    id: number;
-    estimated_distance: number;
-    label: string;
-}
 export default class Kruskal{
     private graph:WeightedGraph;
     constructor(graph: WeightedGraph){
