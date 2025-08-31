@@ -152,7 +152,7 @@ export default class AStar{
             information: "Selecting node from priority queue with the smallest distance",
             dataStructure: {
                 type: "priority-queue",
-                ds: this.getLabelsForQueueRepresentation(estimatedDistances.getArray())
+                ds: this.getLabelsForQueueRepresentation(estimatedDistances.toArray())
             }
         }
         animationStates.push(currentState);
@@ -182,7 +182,7 @@ export default class AStar{
                         <br>${distanceThroughCurrentWithoutHeur} + ${weightOfEdge} < ? ${estimatedDistance == Number.MAX_VALUE ? "∞": estimatedDistance}`,
                         dataStructure: {
                             type: "priority-queue",
-                            ds: this.getLabelsForQueueRepresentation(estimatedDistances.getArray())
+                            ds: this.getLabelsForQueueRepresentation(estimatedDistances.toArray())
                         }
                     }
                     animationStates.push(currentState);
@@ -193,7 +193,7 @@ export default class AStar{
                             information: `distance through current node < current smallest distance to neighbour<br> (${distanceThroughCurrentNode} < ${estimatedDistance == Number.MAX_VALUE ? "∞": estimatedDistance})`,
                             dataStructure: {
                                 type: "priority-queue",
-                                ds: this.getLabelsForQueueRepresentation(estimatedDistances.getArray())
+                                ds: this.getLabelsForQueueRepresentation(estimatedDistances.toArray())
                             }
                         };
                         animationStates.push(currentState);
@@ -214,7 +214,7 @@ export default class AStar{
                 g(x): cumulated distance through visited nodes`,
                 dataStructure: {
                     type: "priority-queue",
-                    ds: this.getLabelsForQueueRepresentation(estimatedDistances.getArray())
+                    ds: this.getLabelsForQueueRepresentation(estimatedDistances.toArray())
                 }
             };
             animationStates.push(currentState);

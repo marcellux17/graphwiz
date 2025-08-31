@@ -135,7 +135,7 @@ export default class Dijkstra{
             information: "Selecting node from priority queue with the smallest distance",
             dataStructure: {
                 type: "priority-queue",
-                ds: this.getLabelsForQueueRepresentation(estimatedDistances.getArray())
+                ds: this.getLabelsForQueueRepresentation(estimatedDistances.toArray())
             }
         }
         animationStates.push(currentState);
@@ -161,7 +161,7 @@ export default class Dijkstra{
                         is it true??:<br>${currentNode.value} + ${weightOfEdge} < ${estimatedDistance == Number.MAX_VALUE ? "∞": estimatedDistance}`,
                         dataStructure: {
                             type: "priority-queue",
-                            ds: this.getLabelsForQueueRepresentation(estimatedDistances.getArray())
+                            ds: this.getLabelsForQueueRepresentation(estimatedDistances.toArray())
                         }
                     }
                     animationStates.push(currentState);
@@ -172,7 +172,7 @@ export default class Dijkstra{
                             information: `distance through current node < current smallest distance to neighbour (${distanceThroughCurrentNode} < ${estimatedDistance == Number.MAX_VALUE ? "∞": estimatedDistance})`,
                             dataStructure: {
                                 type: "priority-queue",
-                                ds: this.getLabelsForQueueRepresentation(estimatedDistances.getArray())
+                                ds: this.getLabelsForQueueRepresentation(estimatedDistances.toArray())
                             }
                         };
                         animationStates.push(currentState);
@@ -191,7 +191,7 @@ export default class Dijkstra{
                 information: "Selecting node from priority queue with the smallest distance",
                 dataStructure: {
                     type: "priority-queue",
-                    ds: this.getLabelsForQueueRepresentation(estimatedDistances.getArray())
+                    ds: this.getLabelsForQueueRepresentation(estimatedDistances.toArray())
                 }
             };
             animationStates.push(currentState);

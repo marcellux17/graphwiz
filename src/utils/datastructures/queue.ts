@@ -50,7 +50,6 @@ export class Queue<T> {
         if (this.isEmpty()) {
             return [];
         }
-
         const result: T[] = [];
         let count = this.size;
         let index = this.front;
@@ -64,9 +63,6 @@ export class Queue<T> {
         }
 
         return result;
-    }
-    toString(): string {
-        return this.toArray().toString();
     }
 }
 export type QueueElement = {
@@ -102,7 +98,7 @@ export class MinPriorityQueue {
     isEmpty(): boolean {
         return this.arr.length === 0;
     }
-    getArray():number[]{
+    toArray():number[]{
         return this.arr.map(element => element.id);
     }
 }
