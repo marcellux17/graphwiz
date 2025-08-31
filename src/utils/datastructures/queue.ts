@@ -23,7 +23,7 @@ export class Queue<T> {
     }
     enqueue(value: T): void {
         if (this.isFull()) {
-            throw Error("queue is full");
+            return;
         }
         this.rear = (this.rear + 1) % this.capacity;
         this.items[this.rear] = value;
