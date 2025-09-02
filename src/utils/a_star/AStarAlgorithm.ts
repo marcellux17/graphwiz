@@ -143,6 +143,17 @@ export default class AStar{
         });
         let currentState = this.createInitialState(from);
         currentState.algorithmInfobox = {
+            information: `We assign each node a value of ∞, except for the starting node which will get a value of 0. It denotes the shortest distance known from the source node.
+            Inside the loop we retrieve the element that has the smallest possible value of g(x) + h(x). With the retrieval the the shortest distance to the node is finalized.
+            We also check if a shorter distance is possible through the current node to the adjacent node. If so we update the priority-queue. We repeat this until the destination node is retrieved.
+            <hr>
+            h(x): heuristic, in our case its euclidean distance<br>
+            g(x): shortest distance known from source node`
+            
+        };
+        animationStates.push(currentState);
+        currentState = JSON.parse(JSON.stringify(currentState));
+        currentState.algorithmInfobox = {
             information: "Selecting node from priority queue with the smallest distance",
             dataStructure: {
                 type: "priority-queue",
@@ -227,7 +238,7 @@ export default class AStar{
             currentState.algorithmInfobox = {
                 information: `Selecting node from priority queue with the smallest g(x) + h(x)<br>
                 h(x): heuristic, in our case its euclidean distance<br>
-                g(x): cumulated distance through visited nodes`,
+                g(x): shortest distance known from source node`,
                 dataStructure: {
                     type: "priority-queue",
                     ds: this.getLabelsForQueueRepresentation(estimatedDistances.toArray())
