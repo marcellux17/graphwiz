@@ -84,6 +84,15 @@ export default class DFS{
         }
         animationStates.push(currentState);
         while(stack.length > 0){
+            currentState = JSON.parse(JSON.stringify(currentState))
+            currentState.algorithmInfobox = {
+                information: `Pop() method called on stack to retrieve top element.`,
+                dataStructure: {
+                    type: "stack",
+                    ds: this.getLabelsForStackRepresentation(stack)
+                }
+            }
+            animationStates.push(currentState);
             const currentNodeId = stack.pop();
             currentState = this.markNodeAsVisited(currentState, currentNodeId!);
             currentState.algorithmInfobox = {
