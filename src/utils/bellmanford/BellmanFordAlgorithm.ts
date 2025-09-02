@@ -102,7 +102,7 @@ export default class BellmanFord{
     Run(from: number, to:number): animationState[] {
         const animationStates: animationState[] = [];
         const nodeList = this.graph.getNodeList();
-        const currentEstimate = Array(nodeList.length).fill(Number.MAX_VALUE);
+        const currentEstimate = Array(nodeList.length).fill(Infinity);
         const previousNodes = Array(nodeList.length).fill(-1);
         const previousEdges = Array(nodeList.length).fill(-1);
         currentEstimate[from] = 0; 
@@ -131,7 +131,7 @@ export default class BellmanFord{
                 }
                 const to = edge.getTo();
                 const from = edge.getFrom();
-                if(currentEstimate[from] !== Number.MAX_VALUE){
+                if(currentEstimate[from] !== Infinity){
                     const distanceThroughFrom = currentEstimate[from] + edge.getWeight()
                     currentState = this.markEdgeAsSelected(currentState, edge.getId());
                     previousEdge = edge.getId();
@@ -145,7 +145,7 @@ export default class BellmanFord{
                     if(distanceThroughFrom < currentEstimate[to]){
                         currentState = this.updateNodeLabel(currentState, to, `${this.graph.getLabelOfNode(to)}(${distanceThroughFrom})`)
                         currentState.algorithmInfobox = {
-                            information: `it holds: (${distanceThroughFrom} < ${currentEstimate[to] == Number.MAX_VALUE ? "∞": currentEstimate[to]})
+                            information: `it holds: (${distanceThroughFrom} < ${currentEstimate[to] == Infinity ? "∞": currentEstimate[to]})
                             <hr>d[u] + w(e) < d[v]`
                         }
                         previousNodes[to] = from;
@@ -156,7 +156,7 @@ export default class BellmanFord{
                     }else{
                         currentState = JSON.parse(JSON.stringify(currentState));
                         currentState.algorithmInfobox = {
-                            information: `it does not hold: (${distanceThroughFrom} < ${currentEstimate[to] == Number.MAX_VALUE ? "∞": currentEstimate[to]})
+                            information: `it does not hold: (${distanceThroughFrom} < ${currentEstimate[to] == Infinity ? "∞": currentEstimate[to]})
                             <hr>d[u] + w(e) > d[v]`
                         }
                         animationStates.push(currentState);
@@ -177,7 +177,7 @@ export default class BellmanFord{
             }
             const to = edge.getTo();
             const from = edge.getFrom();
-            if(currentEstimate[from] !== Number.MAX_VALUE){
+            if(currentEstimate[from] !== Infinity){
                 const distanceThroughFrom = currentEstimate[from] + edge.getWeight()
                 if(distanceThroughFrom < currentEstimate[to]){
                     return [];

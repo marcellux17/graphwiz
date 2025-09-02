@@ -117,7 +117,7 @@ export default class Dijkstra{
             if (node && node.getId() !== from) {
                 estimatedDistances.insert({
                     id: node.getId(),
-                    value: Number.MAX_VALUE
+                    value: Infinity
                 });
             } else if(node){
                 estimatedDistances.insert({
@@ -158,7 +158,7 @@ export default class Dijkstra{
                     currentState = this.markEdgeAsSelected(currentState, edgeIdConnectedToNeighbour)
                     currentState.algorithmInfobox = {
                         information: `Checking for adjacent nodes if the distance through the node currently being visited is smaller than the distance previously set.<br> 
-                        is it true??:<br>${currentNode.value} + ${weightOfEdge} < ${estimatedDistance == Number.MAX_VALUE ? "∞": estimatedDistance}`,
+                        is it true??:<br>${currentNode.value} + ${weightOfEdge} < ${estimatedDistance == Infinity ? "∞": estimatedDistance}`,
                         dataStructure: {
                             type: "priority-queue",
                             ds: this.getLabelsForQueueRepresentation(estimatedDistances.toArray())
@@ -169,7 +169,7 @@ export default class Dijkstra{
                         previousNode[neighbourId] = currentNode.id;
                         currentState = this.updateNodeLabel(currentState, neighbourId, `${this.graph.getLabelOfNode(neighbourId)}(${distanceThroughCurrentNode})`)
                         currentState.algorithmInfobox = {
-                            information: `distance through current node < current smallest distance to neighbour (${distanceThroughCurrentNode} < ${estimatedDistance == Number.MAX_VALUE ? "∞": estimatedDistance})`,
+                            information: `distance through current node < current smallest distance to neighbour (${distanceThroughCurrentNode} < ${estimatedDistance == Infinity ? "∞": estimatedDistance})`,
                             dataStructure: {
                                 type: "priority-queue",
                                 ds: this.getLabelsForQueueRepresentation(estimatedDistances.toArray())

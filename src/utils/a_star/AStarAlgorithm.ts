@@ -132,7 +132,7 @@ export default class AStar{
             if (node && node.getId() !== from) {
                 estimatedDistances.insert({
                     id: node.getId(),
-                    value: Number.MAX_VALUE
+                    value: Infinity
                 });
             } else if(node){
                 estimatedDistances.insert({
@@ -186,7 +186,7 @@ export default class AStar{
                     currentState = this.markEdgeAsSelected(currentState, edgeIdConnectedToNeighbour)
                     currentState.algorithmInfobox = {
                         information: `Checking for adjacent nodes if the distance through the node currently being visited is smaller than the distance previously set:<br> 
-                        <br>${distanceThroughCurrentWithoutHeur} + ${weightOfEdge} < ? ${estimatedDistance == Number.MAX_VALUE ? "∞": estimatedDistance}`,
+                        <br>${distanceThroughCurrentWithoutHeur} + ${weightOfEdge} < ? ${estimatedDistance == Infinity ? "∞": estimatedDistance}`,
                         dataStructure: {
                             type: "priority-queue",
                             ds: this.getLabelsForQueueRepresentation(estimatedDistances.toArray())
@@ -197,7 +197,7 @@ export default class AStar{
                         previousNode[neighbourId] = currentNode.id;
                         currentState = this.updateNodeLabel(currentState, neighbourId, `${this.graph.getLabelOfNode(neighbourId)}(${distanceThroughCurrentNode})`)
                         currentState.algorithmInfobox = {
-                            information: `distance through current node < current smallest distance to neighbour<br> (${distanceThroughCurrentNode} < ${estimatedDistance == Number.MAX_VALUE ? "∞": estimatedDistance})`,
+                            information: `distance through current node < current smallest distance to neighbour<br> (${distanceThroughCurrentNode} < ${estimatedDistance == Infinity ? "∞": estimatedDistance})`,
                             dataStructure: {
                                 type: "priority-queue",
                                 ds: this.getLabelsForQueueRepresentation(estimatedDistances.toArray())

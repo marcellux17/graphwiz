@@ -559,10 +559,10 @@ export class Network{
         }
     }
     private measureGraphRectangle(): { topLeftX: number; topLeftY: number; width: number; height: number; } {
-        let minX = Number.MAX_VALUE;
-        let maxX = -Number.MAX_VALUE;
-        let minY = Number.MAX_VALUE;
-        let maxY = -Number.MAX_VALUE;
+        let minX = Infinity;
+        let maxX = -Infinity;
+        let minY = Infinity;
+        let maxY = -Infinity;
         for (const nodeId of this.nodeIds) {
             const node = this.graph.getNode(nodeId);
             if (node.x! < minX) {
