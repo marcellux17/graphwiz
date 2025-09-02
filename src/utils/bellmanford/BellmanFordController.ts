@@ -1,8 +1,8 @@
-import { Animation } from "../animation/animation";
+import { Animation } from "../animation/Animation";
 import { WeightedGraph } from "../datastructures/Graph";
 import { playBox, pauseButton, playButton, startingNodeInfo, destinationNodeInfo, pathInfoBox, inputGroup, label, weightInput, speedRangeInput, speedInfo, backButton, forwardButton, resetButton, runAnimationButton, escapeModeButton, deleteModeButton, addNodeButton, addEdgeButton, presetInput, algorithmInformationBox, speedBox, } from "../dom/elements";
 import { changeMessageBox, makeInvisible, makeVisible, resetInput, } from "../dom/helpers";
-import { Network } from "../network/network";
+import { Network } from "../network/Network";
 import BellmanFord from "./BellmanFordAlgorithm";
 
 type canvasState = "add-edge-mode" | "idle" | "delete" | "add-node-mode" | "run-animation" | "step-by-step" | "animation-running";
