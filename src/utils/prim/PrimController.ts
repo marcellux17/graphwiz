@@ -72,10 +72,8 @@ export class PrimController {
     }
     selectNodeHandle(id: number): void {
         if (this.canvasState !== "run-animation") return;
-        if (this.startingNodeId === null) {
-            this.startingNodeId = id;
-        }
-        const states = this.algorithm.Run(0);
+        this.startingNodeId = id;
+        const states = this.algorithm.Run(this.startingNodeId);
         this.animation.setAnimationStates(states);
         this.changeCanvasState("animation-running");
     }

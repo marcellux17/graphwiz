@@ -78,7 +78,7 @@ export class DijkstraController {
     }
     selectNodeHandle(id: number): void {
         if (this.canvasState !== "run-animation") return;
-        if (this.startingNodeId === null && this.startingNodeId != 0) {
+        if (this.startingNodeId === null) {
             this.startingNodeId = id;
             changeMessageBox("choose destination node");
             startingNodeInfo!.textContent = `start: ${this.network.getLabelOfNode( this.startingNodeId! )}`;

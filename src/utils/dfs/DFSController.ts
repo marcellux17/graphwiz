@@ -66,12 +66,10 @@ export class DFSController {
     }
     selectNodeHandle(id: number): void {
         if (this.canvasState !== "run-animation") return;
-        if (this.startingNodeId === null && this.startingNodeId != 0) {
-            this.startingNodeId = id;
-            const states = this.algorithm.Run(this.startingNodeId);
-            this.animation.setAnimationStates(states);
-            this.changeCanvasState("animation-running");
-        }
+        this.startingNodeId = id;
+        const states = this.algorithm.Run(this.startingNodeId);
+        this.animation.setAnimationStates(states);
+        this.changeCanvasState("animation-running");  
     }
     private setUpNetworkEventListeners(): void {
         this.selectNodeHandle = this.selectNodeHandle.bind(this);
