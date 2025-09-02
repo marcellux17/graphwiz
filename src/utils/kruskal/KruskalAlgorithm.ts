@@ -105,7 +105,7 @@ export default class Kruskal{
             }else{
                 currentState = this.markEdgeAsDeselected(currentState, sortedEdges[i]!.getId());
                 currentState.algorithmInfobox = {
-                    information: "The selected edge does forms a cycle as both nodes connected by the edge are in the same component. It will be part of the minimum spanning tree."
+                    information: "The selected edge does form a cycle as both nodes connected by the edge are in the same component. It will be part of the minimum spanning tree."
                 }
                 animationStates.push(currentState);
             }
