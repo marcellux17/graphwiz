@@ -1,14 +1,15 @@
 import { Animation } from "../animation/animation";
 import { WeightedGraph } from "../datastructures/Graph";
-import { playBox, pauseButton, playButton, startingNodeInfo, destinationNodeInfo, pathInfoBox, inputGroup, label, weightInput, speedRangeInput, speedInfo, backButton, forwardButton, resetButton, runAnimationButton, escapeModeButton, deleteModeButton, addNodeButton, addEdgeButton, presetInput, algorithmInformationBox, speedBox, } from "../dom/elements";
+import { playBox, pauseButton, playButton, pathInfoBox, inputGroup, label, weightInput, speedRangeInput, speedInfo, backButton, forwardButton, resetButton, runAnimationButton, escapeModeButton, deleteModeButton, addNodeButton, addEdgeButton, presetInput, algorithmInformationBox, speedBox, } from "../dom/elements";
 import { changeMessageBox, makeInvisible, makeVisible, resetInput, } from "../dom/helpers";
 import { Network } from "../network/network";
 import Prim from "./PrimAlgorithm";
 
-type canvasState = "add-edge-mode" | "idle" | "delete" | "add-node-mode" | "step-by-step" | "animation-running";
+type canvasState = "add-edge-mode" | "idle" | "delete" | "add-node-mode" | "run-animation" | "step-by-step" | "animation-running";
 export class PrimController {
     private network: Network;
     private selectedEdgeId: number | null = null;
+    private startingNodeId: number | null = null;
     private canvasState: canvasState = "idle"; //aka no mode is selected
     private algorithm: Prim;
     private animation: Animation;
@@ -21,12 +22,14 @@ export class PrimController {
         this.setUpUiEventListeners();
     }
     changeCanvasState(newState: canvasState): void {
-        if ( this.canvasState === "animation-running" && newState !== "idle") return;
+        if ( (this.canvasState === "run-animation" || this.canvasState === "animation-running") && newState !== "idle" && newState !== "animation-running" ) return;
         const prevCanvasState = this.canvasState;
         this.canvasState = newState;
         switch (newState) {
             case "add-edge-mode":
-                changeMessageBox( "to create an edge click and drag from one node to the other" );
+                changeMessageBox(
+                    "to create an edge click and drag from one node to the other"
+                );
                 this.network.addEdgeModeOn();
                 break;
             case "add-node-mode":
@@ -38,16 +41,20 @@ export class PrimController {
                 this.network.deleteElementModeOn();
                 break;
             case "idle":
-                if (prevCanvasState === "animation-running" ) {
+                if ( prevCanvasState === "run-animation" || prevCanvasState === "animation-running" ) {
                     this.animation.escapeAnimation();
                     makeInvisible(algorithmInformationBox);
                     makeInvisible(speedBox);
                 }
-                startingNodeInfo!.textContent = "start: ";
-                destinationNodeInfo!.textContent = "dest: ";
+                this.startingNodeId = null;
                 changeMessageBox( "idle mode (click on edges to modify weights)" );
-                makeInvisible(pathInfoBox);
                 makeInvisible(playBox);
+                this.network.resetToIdle();
+                break;
+            case "run-animation":
+                changeMessageBox("select starting node");
+                resetInput();
+                this.selectedEdgeId = null;
                 this.network.resetToIdle();
                 break;
             case "animation-running":
@@ -58,15 +65,23 @@ export class PrimController {
                 makeVisible(speedBox);
                 this.network.fitGraphIntoAnimationSpace(350)
                 this.network.disableEverything();
-                const states = this.algorithm.Run();
-                this.animation.setAnimationStates(states);
                 this.animation.start();
                 break;
         }
         resetInput();
     }
+    selectNodeHandle(id: number): void {
+        if (this.canvasState !== "run-animation") return;
+        if (this.startingNodeId === null) {
+            this.startingNodeId = id;
+        }
+        const states = this.algorithm.Run(0);
+        this.animation.setAnimationStates(states);
+        this.changeCanvasState("animation-running");
+    }
     selectEdgeHandle(id: number): void {
-        if ( this.canvasState === "animation-running" || this.canvasState !== "idle")return;
+        if ( this.canvasState === "animation-running" || this.canvasState === "run-animation" )return;
+        if (this.canvasState !== "idle") return;
         makeVisible(inputGroup);
         this.selectedEdgeId = id;
         label.textContent = `Change weight of the selected edge`;
@@ -76,9 +91,11 @@ export class PrimController {
         resetInput();
     }
     private setUpNetworkEventListeners(): void {
+        this.selectNodeHandle = this.selectNodeHandle.bind(this);
         this.selectEdgeHandle = this.selectEdgeHandle.bind(this);
         this.canvasBlankClickHandle = this.canvasBlankClickHandle.bind(this);
         this.network.onSelectEdge(this.selectEdgeHandle);
+        this.network.onSelectNode(this.selectNodeHandle);
         this.network.onCanvasBlankClick(this.canvasBlankClickHandle);
     }
     private setUpUiEventListeners(): void {
@@ -98,7 +115,7 @@ export class PrimController {
         });
 
         runAnimationButton?.addEventListener("click", () => {
-            this.changeCanvasState("animation-running");
+            this.changeCanvasState("run-animation");
         });
         weightInput.addEventListener("input", () => {
             const newValue = Number.parseInt(weightInput.value);
@@ -134,7 +151,7 @@ export class PrimController {
             this.animation.setAnimationSpeedChange(1000 / newspeed);
         });
         presetInput?.addEventListener("input", () => {
-            if(presetInput!.value !== "load a graph" && this.canvasState !== "animation-running"){
+            if(presetInput!.value !== "load a graph" && this.canvasState !== "run-animation" && this.canvasState !== "animation-running"){
                 this.network.loadPreset("prim", presetInput!.value);
             }
         })
