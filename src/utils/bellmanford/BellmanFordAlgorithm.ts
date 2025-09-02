@@ -153,6 +153,13 @@ export default class BellmanFord{
                         currentEstimate[to] = distanceThroughFrom;
                         animationStates.push(currentState);
                         changes = true;
+                    }else{
+                        currentState = JSON.parse(JSON.stringify(currentState));
+                        currentState.algorithmInfobox = {
+                            information: `it does not hold: (${distanceThroughFrom} < ${currentEstimate[to] == Number.MAX_VALUE ? "∞": currentEstimate[to]})
+                            <hr>d[u] + w(e) > d[v]`
+                        }
+                        animationStates.push(currentState);
                     }
 
                 }
