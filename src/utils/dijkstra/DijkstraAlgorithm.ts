@@ -130,7 +130,7 @@ export default class Dijkstra{
         currentState.algorithmInfobox = {
             information: `We assign each node a value of ∞, except for the starting node which will get a value of 0. It denotes the shortest distance known from the source node.
             Inside the loop we retrieve the element with the minimum distance from the priority-queue. With the retrieval the the shortest distance to the node is finalized.
-            We also check if a shorter distance is possible through the current node to the adjacent node. If so we update the priority-queue. We repeat this until the priority-queue is empty.`
+            We also check if a shorter distance is possible through the current node to the adjacent node. If so we update the priority-queue. We repeat this until the destination is retrieved.`
         }
         animationStates.push(currentState);
         let currentNode: QueueElement = estimatedDistances.extractMin()!;
