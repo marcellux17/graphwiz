@@ -79,6 +79,15 @@ export default class BFS{
         visited[from] = true;
         queue.enqueue(from);
         while(!queue.isEmpty()){
+            currentState = JSON.parse(JSON.stringify(currentState));
+            currentState.algorithmInfobox = {
+            information: `Selecting node from queue.<hr>calling Dequeue()`,
+                dataStructure: {
+                    type: "queue",
+                    ds: this.getLabelsForQueueRepresentation(queue.toArray())
+                }
+            }
+            animationStates.push(currentState);
             const currentNodeId = queue.dequeue();
             currentState = this.markNodeAsVisited(currentState, currentNodeId!);
             currentState.algorithmInfobox = {
