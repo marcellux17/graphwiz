@@ -1,6 +1,6 @@
 :root{
-    --image-width: 420px;
-    --image-height: 270px;
+    --image-width: 520px;
+    --image-height: 320px;
     --main-color:  rgba(44, 62, 80, 1);
 }
 html, body{
@@ -47,4 +47,17 @@ header h2{
     color: white;
     font-size: 1.5rem;
     text-align: center;
+}
+@media (max-width: 768px) {
+    :root {
+        --image-width: 300px;
+        --image-height: 200px;
+    }
+}
+
+@media (max-width: 480px) {
+    :root {
+        --image-width: 200px;
+        --image-height: 120px;
+    }
 }
