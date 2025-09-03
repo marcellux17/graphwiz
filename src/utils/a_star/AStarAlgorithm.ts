@@ -121,9 +121,9 @@ export default class AStar{
         return ids.map(id => this.graph.getLabelOfNode(id));
     }
     Run(from: number, to: number): animationState[] {
-        const estimatedDistances = new MinPriorityQueue(); //estimated distances
         const animationStates: animationState[] = [];
         const nodeList = this.graph.getNodeList();
+        const estimatedDistances = new MinPriorityQueue(nodeList.length); //estimated distances
         const visited = Array(nodeList.length).fill(false);
         const previousNode = Array(nodeList.length).fill(-1);
         this.measureDistancesFromAllNodesToDestinationNode(to);

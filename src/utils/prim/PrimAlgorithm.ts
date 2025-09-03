@@ -77,7 +77,7 @@ export default class Prim{
     private fillQueue(from: number):MinPriorityQueue{
         const nodes = this.graph.getNodeList()
         const bfsQueue = new Queue<number>(nodes.length);
-        const returnQueue = new MinPriorityQueue();
+        const returnQueue = new MinPriorityQueue(nodes.length);
         const visited = new Array(nodes.length).fill(false);
         visited[from] = true;
         bfsQueue.enqueue(from);

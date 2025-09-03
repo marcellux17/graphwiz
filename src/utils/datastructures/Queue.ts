@@ -69,36 +69,68 @@ export type QueueElement = {
     id: number, 
     value: number
 }
+
 export class MinPriorityQueue {
-    private arr: QueueElement[] = [];
+    private arr: (QueueElement | null)[];
+    private size: number = 0;
+    constructor(capacity: number) {
+        this.arr = new Array(capacity).fill(null);
+    }
     insert(element: QueueElement): void {
         let i = 0;
-        while (i < this.arr.length && this.arr[i].value <= element.value) {
+        while (i < this.size && this.arr[i]!.value <= element.value) {
             i++;
         }
-        this.arr.splice(i, 0, element);
+        for (let j = this.size; j > i; j--) {
+            this.arr[j] = this.arr[j - 1];
+        }    
+        this.arr[i] = element;
+        this.size++;
     }
     extractMin(): QueueElement | null {
-        if (this.arr.length === 0) return null;
-        return this.arr.shift()!;
+        if (this.size === 0) return null;
+        const min = this.arr[0]!;
+        for (let i = 0; i < this.size - 1; i++) {
+            this.arr[i] = this.arr[i + 1];
+        }
+        this.arr[this.size - 1] = null;
+        this.size--;
+        return min;
     }
     update(id: number, newValue: any): void {
-        const index = this.arr.findIndex(el => el.id === id);
+        let index = -1;
+        for (let i = 0; i < this.size; i++) {
+            if (this.arr[i]!.id === id) {
+                index = i;
+                break;
+            }
+        }
         if (index === -1) return;
-
-        const element = this.arr[index];
-        this.arr.splice(index, 1);
-
+        const element = this.arr[index]!;
+        for (let i = index; i < this.size - 1; i++) {
+            this.arr[i] = this.arr[i + 1];
+        }
+        this.arr[this.size - 1] = null;
+        this.size--;
         element.value = newValue;
         this.insert(element);
     }
     get(id: number): QueueElement | null {
-        return this.arr.find(el => el.id === id) || null;
+        for (let i = 0; i < this.size; i++) {
+            if (this.arr[i]!.id === id) {
+                return this.arr[i]!;
+            }
+        }
+        return null;
     }
     isEmpty(): boolean {
-        return this.arr.length === 0;
+        return this.size === 0;
     }
-    toArray():number[]{
-        return this.arr.map(element => element.id);
+    toArray(): number[] {
+        const result: number[] = new Array(this.size).fill(0);
+        for (let i = 0; i < this.size; i++) {
+            result.push(this.arr[i]!.id);
+        }
+        return result;
     }
 }

@@ -108,9 +108,9 @@ export default class Dijkstra{
         return ids.map(id => this.graph.getLabelOfNode(id));
     }
     Run(from: number, to: number): animationState[] {
-        const estimatedDistances = new MinPriorityQueue(); //estimated distances
         const animationStates: animationState[] = [];
         const nodeList = this.graph.getNodeList();
+        const estimatedDistances = new MinPriorityQueue(nodeList.length); //estimated distances
         const visited = Array(nodeList.length).fill(false);
         const previousNode = Array(nodeList.length).fill(-1);//-1 = cannot be reached otherwise at a specific index gives us the node through which we can reach it
         this.graph.getNodeList().forEach((node) => {
