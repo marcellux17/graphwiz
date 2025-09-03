@@ -56,7 +56,7 @@ export class Network{
         this.negativeEdges = negativeEdges;
         canvas.addEventListener("mousedown", this.mouseDownEventHandler);
         canvas.addEventListener("wheel", this.wheelEventHandler);
-        canvas.addEventListener("mousemove", this.mouseMoveEventHandler);
+        window.addEventListener("mousemove", this.mouseMoveEventHandler);
         window.addEventListener("mouseup", this.mouseUpEventHandler);
         window.addEventListener("load", () => {
             this.initCanvasSize();
