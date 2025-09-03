@@ -189,11 +189,22 @@ export default class Dijkstra{
             if(previousEdgeId !== null){
                 currentState = this.markEdgeAsNormal(currentState, previousEdgeId);
             }
+            currentState = JSON.parse(JSON.stringify(currentState));
+            currentState.algorithmInfobox = {
+                information: "Selecting node from priority queue with the smallest distance.",
+                dataStructure: {
+                    type: "priority-queue",
+                    ds: this.getLabelsForQueueRepresentation(estimatedDistances.toArray())
+                }
+            };
+            animationStates.push(currentState);
+
             visited[currentNode.id] = true
             currentNode = estimatedDistances.extractMin()!;
+            
             currentState = this.markNodeAsVisited(currentState, currentNode.id);
             currentState.algorithmInfobox = {
-                information: "Selecting node from priority queue with the smallest distance",
+                information: "Node with the smallest from priority-queue selected.",
                 dataStructure: {
                     type: "priority-queue",
                     ds: this.getLabelsForQueueRepresentation(estimatedDistances.toArray())
