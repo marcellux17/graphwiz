@@ -66,7 +66,7 @@ export class AStarController {
                 makeVisible(speedBox);
                 makeVisible(algorithmInformationBox);
                 makeInvisible(playButton);
-                this.network.fitGraphIntoAnimationSpace(350)
+                this.network.fitGraphIntoAnimationSpace();
                 this.network.disableEverything();
                 this.animation.start();
                 break;

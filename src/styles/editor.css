@@ -186,7 +186,7 @@ button {
     top: 40px;
     left: 5px;
     z-index: 5;
-    width: 350px;
+    width: 27%;
 }
 #algorithm-information-box.hide{
     display: none;

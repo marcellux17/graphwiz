@@ -1,5 +1,5 @@
 import { Graph, WeightedGraph, Node, Edge } from "../datastructures/Graph";
-import { canvas } from "../dom/elements";
+import { algorithmInformationBox, canvas } from "../dom/elements";
 
 type Preset = {
     nodes: presetNode[];
@@ -124,7 +124,8 @@ export class Network{
         if (this.graph instanceof WeightedGraph)return this.graph.getEdgeWeight(edgeId);
         return 0;
     }
-    fitGraphIntoAnimationSpace(algorithmInfoBoxOffsetX:number):void{
+    fitGraphIntoAnimationSpace():void{
+        const algorithmInfoBoxOffsetX:number = algorithmInformationBox!.clientWidth;
         let {topLeftX, topLeftY, width, height} = this.measureGraphRectangle();
         const animationSpaceWidth = this.canvasWidth-algorithmInfoBoxOffsetX-70;
         const animationSpaceHeight = this.canvasHeight-50;
@@ -230,7 +231,7 @@ export class Network{
                 this.graph.addEdge(edge.from, edge.to, this.edgesTwoWay);
             }
         }
-        this.fitGraphIntoAnimationSpace(350);
+        this.fitGraphIntoAnimationSpace();
     }
     private canvasScaleDown(): void {
         if (this.scale < 0.5) return;

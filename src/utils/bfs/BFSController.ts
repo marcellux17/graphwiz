@@ -58,7 +58,7 @@ export class BFSController {
                 makeInvisible(playButton);
                 makeVisible(algorithmInformationBox);
                 makeVisible(speedBox);
-                this.network.fitGraphIntoAnimationSpace(350)
+                this.network.fitGraphIntoAnimationSpace(algorithmInformationBox!.clientWidth)
                 this.network.disableEverything();
                 this.animation.start();
                 break;

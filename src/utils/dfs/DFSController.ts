@@ -58,7 +58,7 @@ export class DFSController {
                 makeInvisible(playButton);
                 makeVisible(algorithmInformationBox);
                 makeVisible(speedBox);
-                this.network.fitGraphIntoAnimationSpace(350)
+                this.network.fitGraphIntoAnimationSpace();
                 this.network.disableEverything();
                 this.animation.start();
                 break;
