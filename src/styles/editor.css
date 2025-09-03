@@ -6,7 +6,6 @@
 body,
 html {
     margin: 0;
-    font-size: 23px;
     font-family: Arial, Helvetica, sans-serif;
     color: #000000;
     height: 100%;
@@ -16,7 +15,7 @@ html {
     top: 5px;
     left: 5px;
     z-index: 5;
-    font-size: 0.9rem;
+    font-size: 1.2rem;
 }
 body {
     position: relative;
@@ -49,7 +48,7 @@ body {
 select {
     padding: 0.5em 1.5em;
     box-sizing: border-box;
-    font-size: 0.85rem;
+    font-size: 1.2rem;
     border-radius: 5px;
     border: transparent;
     background-color: var(--main-color);
@@ -72,14 +71,15 @@ select {
 #change-data {
     display: flex;
     flex-direction: column;
-    font-size: 0.7rem;
+    font-size: 1rem;
 }
 #change-data input {
-    font-size: 0.85rem;
+    font-size: 1rem;
     border: solid 2px #000000;
     border-radius: 3px;
     color: #000000;
     box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
+    text-align: center;
 }
 #change-data input:focus {
     border: solid 3px #000000;
@@ -173,9 +173,7 @@ button {
     display: flex;
     flex-direction: column;
     text-align: left;
-}
-#path-info p {
-    margin: 0;
+    font-size: 1.2rem;
 }
 #path-info.hide {
     display: none;
@@ -192,7 +190,7 @@ button {
     display: none;
 }
 #algorithm-info {
-    font-size: 0.6rem;
+    font-size: 0.7rem;
     width: 100%;
     height: 70vh;
     border-radius: 3px;
@@ -257,7 +255,7 @@ button {
     text-align: center;
 }
 #info-text{
-    font-size: 0.65rem;
+    font-size: 0.9rem;
     min-height: 30%;
     text-wrap: wrap;
 }
