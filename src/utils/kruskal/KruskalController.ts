@@ -56,7 +56,7 @@ export class KruskalController {
                 makeInvisible(playButton);
                 makeVisible(algorithmInformationBox);
                 makeVisible(speedBox);
-                this.network.fitGraphIntoAnimationSpace(algorithmInformationBox!.clientWidth)
+                this.network.fitGraphIntoAnimationSpace();
                 this.network.disableEverything();
                 const states = this.algorithm.Run();
                 this.animation.setAnimationStates(states);
