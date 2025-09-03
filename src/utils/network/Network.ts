@@ -605,7 +605,6 @@ export class Network{
         this.isDown = true;
     };
     private mouseMoveEventHandler = (e: MouseEvent): void => {
-        e.preventDefault();
         if (this.mode === "disabled") return;
         if (!this.isDown) return;
         this.dragging = true;
