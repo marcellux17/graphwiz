@@ -72,7 +72,7 @@ export type QueueElement = {
 
 export class MinPriorityQueue {
     private arr: (QueueElement | null)[];
-    private size: number = 0;
+    private size = 0;
     constructor(capacity: number) {
         this.arr = new Array(capacity).fill(null);
     }

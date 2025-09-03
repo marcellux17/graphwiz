@@ -19,28 +19,28 @@ type presetEdge = {
 type networkMode = "addEdgeMode" | "addNodeMode" | "idle" | "delete" | "disabled";
 export type canvasEvent = "selectEdge" | "selectNode";
 export class Network{
-    private ctx:CanvasRenderingContext2D = canvas.getContext("2d")!;;
-    private isDown:boolean = false;
-    private dragging:boolean = false;
-    private isPanning:boolean = false;
-    private offsetX:number = 0;
-    private offsetY:number = 0;
-    private scale:number = 1;
-    private scaleFactor:number = 0.05;
-    private mousePositionX:number = 0;
-    private mousePositionY:number = 0;
-    private nodeSize:number = 30;
+    private ctx:CanvasRenderingContext2D = canvas.getContext("2d")!;
+    private isDown = false;
+    private dragging = false;
+    private isPanning = false;
+    private offsetX = 0;
+    private offsetY = 0;
+    private scale = 1;
+    private scaleFactor = 0.05;
+    private mousePositionX = 0;
+    private mousePositionY = 0;
+    private nodeSize = 30;
     private nodeIds:number[] = [];
-    private mouseNodecenterVectorX:number = 0;
-    private mouseNodecenterVectorY:number = 0;
-    private nodeDragging:boolean = false;
+    private mouseNodecenterVectorX = 0;
+    private mouseNodecenterVectorY = 0;
+    private nodeDragging = false;
     private draggedNode:Node|null = null;
     private dpr:number = 1;
-    private euclideanWeights:boolean = false;
-    private pendingEdge:boolean = false;
+    private euclideanWeights = false;
+    private pendingEdge = false;
     private firstNode:Node|null = null;
-    private canvasWidth: number = 0;
-    private canvasHeight: number = 0;
+    private canvasWidth = 0;
+    private canvasHeight = 0;
     private selectNodeCallback: ((nodeId:number) => void) | null = null;
     private selectEdgeCallback: ((edgeId:number) => void) | null = null;
     private canvasBlankClick: (() => void) | null = null;
@@ -125,7 +125,7 @@ export class Network{
         return 0;
     }
     fitGraphIntoAnimationSpace():void{
-        const algorithmInfoBoxOffsetX:number = algorithmInformationBox!.clientWidth;
+        const algorithmInfoBoxOffsetX = algorithmInformationBox!.clientWidth;
         let {topLeftX, topLeftY, width, height} = this.measureGraphRectangle();
         const animationSpaceWidth = this.canvasWidth-algorithmInfoBoxOffsetX-70;
         const animationSpaceHeight = this.canvasHeight-50;

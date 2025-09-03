@@ -68,7 +68,7 @@ export default class DFS{
     Run(from: number): animationState[] {
         const animationStates: animationState[] = [];
         const nodes = this.graph.getNodeList();
-        const visited = Array(nodes.length).fill(false);
+        const visited:boolean[] = Array(nodes.length).fill(false);
         //code
         const stack:number[] = [];
         stack.push(from);

@@ -111,8 +111,8 @@ export default class Dijkstra{
         const animationStates: animationState[] = [];
         const nodeList = this.graph.getNodeList();
         const estimatedDistances = new MinPriorityQueue(nodeList.length); //estimated distances
-        const visited = Array(nodeList.length).fill(false);
-        const previousNode = Array(nodeList.length).fill(-1);//-1 = cannot be reached otherwise at a specific index gives us the node through which we can reach it
+        const visited:boolean[] = Array(nodeList.length).fill(false);
+        const previousNode:number[] = Array(nodeList.length).fill(-1);//-1 = cannot be reached otherwise at a specific index gives us the node through which we can reach it
         this.graph.getNodeList().forEach((node) => {
             if (node && node.getId() !== from) {
                 estimatedDistances.insert({
@@ -133,7 +133,7 @@ export default class Dijkstra{
             We also check if a shorter distance is possible through the current node to the adjacent node. If so we update the priority-queue. We repeat this until the destination is retrieved.`
         }
         animationStates.push(currentState);
-        let currentNode: QueueElement = estimatedDistances.extractMin()!;
+        let currentNode = estimatedDistances.extractMin()!;
         visited[currentNode.id] = true
         currentState = this.markNodeAsVisited(currentState, currentNode.id);
         currentState.algorithmInfobox = {

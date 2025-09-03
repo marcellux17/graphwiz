@@ -124,8 +124,8 @@ export default class AStar{
         const animationStates: animationState[] = [];
         const nodeList = this.graph.getNodeList();
         const estimatedDistances = new MinPriorityQueue(nodeList.length); //estimated distances
-        const visited = Array(nodeList.length).fill(false);
-        const previousNode = Array(nodeList.length).fill(-1);
+        const visited:boolean[] = Array(nodeList.length).fill(false);
+        const previousNode:number[] = Array(nodeList.length).fill(-1);
         this.measureDistancesFromAllNodesToDestinationNode(to);
         
         this.graph.getNodeList().forEach((node) => {
@@ -162,7 +162,7 @@ export default class AStar{
         }
         animationStates.push(currentState);
         
-        let currentNode: QueueElement = estimatedDistances.extractMin()!;
+        let currentNode = estimatedDistances.extractMin()!;
         visited[currentNode.id] = true;
         
         currentState = this.markNodeAsVisited(currentState, currentNode.id);
@@ -187,8 +187,8 @@ export default class AStar{
                     continue;
                 }
                 if (!visited[neighbourId]) {
-                    const heuristicDistanceFromNeighbourToDest:number = this.distanceTable[neighbourId]!;
-                    const heuristicDistanceFromCurrentToDest: number = this.distanceTable[currentNode.id]!;
+                    const heuristicDistanceFromNeighbourToDest = this.distanceTable[neighbourId]!;
+                    const heuristicDistanceFromCurrentToDest = this.distanceTable[currentNode.id]!;
 
                     const weightOfEdge = this.graph.getEdge(edgeIdConnectedToNeighbour).getWeight()!;
                     const estimatedDistance = estimatedDistances.get(neighbourId)!.value - heuristicDistanceFromNeighbourToDest;

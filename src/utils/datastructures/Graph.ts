@@ -3,8 +3,8 @@ import { Queue } from "./Queue";
 export class Graph {
     protected nodes: (Node | null)[];
     protected edges: (Edge | null)[];
-    protected i: number = 1;
-    protected numberOfNodes: number = 0;
+    protected i = 1;
+    protected numberOfNodes = 0;
 
     constructor() {
         this.nodes = Array(200).fill(null);
@@ -197,8 +197,8 @@ export class Edge {
     private weight?: number;
     private to: number;
     private from: number;
-    color: string = "black";
-    width: number = 2;
+    color = "black";
+    width = 2;
     setWeight(weight: number):void{
         this.weight = weight;
     }
@@ -233,7 +233,7 @@ export class Node {
     label: string;
     x?: number;
     y?: number;
-    color: string = "white";
+    color = "white";
     constructor(label: string, id: number) {
         this.label = label;
         this.originalLabel = label;
