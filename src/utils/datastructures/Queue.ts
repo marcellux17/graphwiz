@@ -129,7 +129,7 @@ export class MinPriorityQueue {
     toArray(): number[] {
         const result: number[] = new Array(this.size).fill(0);
         for (let i = 0; i < this.size; i++) {
-            result.push(this.arr[i]!.id);
+            result[i] = this.arr[i]!.id;
         }
         return result;
     }
