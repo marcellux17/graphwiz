@@ -677,7 +677,7 @@ export class Network{
             }
         } else if (this.dragging) {
             if (this.mode === "addEdgeMode") {
-                const { node, index } = this.hitNode( canvasMouseX, canvasMouseY );
+                const { node } = this.hitNode( canvasMouseX, canvasMouseY );
                 if (node && this.firstNode) {
                     if (this.graph instanceof WeightedGraph) {
                         const euclideanWeight = Math.floor( this.measureDistance( this.firstNode!.x!, this.firstNode!.y!, node.x!, node.y! ) / 10 );

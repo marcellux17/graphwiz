@@ -35,7 +35,7 @@ export default class BFS{
         }
         return newState;
     }
-    private createInitialState(from: number): animationState {
+    private createInitialState(): animationState {
         const nodeList = this.graph.getNodeList();
         const edgeList = this.graph.getEdgeList();
         const edgeCount = edgeList.length;
@@ -69,7 +69,7 @@ export default class BFS{
         const queue = new Queue<number>(nodes.length);
         const visited = Array(nodes.length).fill(false);
 
-        let currentState = this.createInitialState(from);
+        let currentState = this.createInitialState();
         currentState = this.markNodeAsVisited(currentState, from);
         currentState.algorithmInfobox = {
             information: `Starting node has been put in queue to run bfs.`

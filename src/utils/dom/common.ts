@@ -2,7 +2,7 @@ import { toggleButtons, toggleCloseButtons, toggleOpenButtons, } from "./element
 import { makeInvisible, makeVisible } from "./helpers";
 
 toggleCloseButtons.forEach((button) => {
-    button.addEventListener("click", (e) => {
+    button.addEventListener("click", () => {
         const toggleOpenPair = button.parentElement!.querySelector<HTMLElement>(".toggle-open");
         const infoBox = button.parentElement!.parentElement!.querySelector<HTMLElement>( ".box-information" );
         makeVisible(toggleOpenPair);
@@ -11,7 +11,7 @@ toggleCloseButtons.forEach((button) => {
     });
 });
 toggleOpenButtons.forEach((button) => {
-    button.addEventListener("click", (e) => {
+    button.addEventListener("click", () => {
         const toggleClosePair = button.parentElement!.querySelector<HTMLElement>(".toggle-close");
         const infoBox = button.parentElement!.parentElement!.querySelector<HTMLElement>( ".box-information" );
         makeVisible(toggleClosePair);

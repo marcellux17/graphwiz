@@ -1,5 +1,5 @@
 import { Node, WeightedGraph } from "../datastructures/Graph";
-import { MinPriorityQueue, QueueElement } from "../datastructures/Queue.ts";
+import { MinPriorityQueue } from "../datastructures/Queue.ts";
 import { algorithmInfoBoxState, animationEdgeInformation, animationNodeInformation, animationState} from "../animation/types";
 
 export default class Dijkstra{

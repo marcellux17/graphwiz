@@ -37,7 +37,7 @@ export default class DFS{
         return newState;
     }
 
-    private createInitialState(from: number): animationState {
+    private createInitialState(): animationState {
         const nodeList = this.graph.getNodeList();
         const edgeList = this.graph.getEdgeList();
         const edgeCount = edgeList.length;
@@ -73,7 +73,7 @@ export default class DFS{
         const stack:number[] = [];
         stack.push(from);
         visited[from] = true;
-        let currentState = this.createInitialState(from);
+        let currentState = this.createInitialState();
         currentState = this.markNodeAsInStack(currentState, from);
         currentState.algorithmInfobox = {
             information: "Putting the starting node in stack for dfs to run.",
