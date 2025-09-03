@@ -125,10 +125,10 @@ export class Network{
         return 0;
     }
     fitGraphIntoAnimationSpace():void{
-        const algorithmInfoBoxOffsetX = algorithmInformationBox!.clientWidth;
+        const algorithmInfoBoxOffsetX = algorithmInformationBox!.clientWidth === 0? 50: algorithmInformationBox!.clientWidth;
         let {topLeftX, topLeftY, width, height} = this.measureGraphRectangle();
         const animationSpaceWidth = this.canvasWidth-algorithmInfoBoxOffsetX-70;
-        const animationSpaceHeight = this.canvasHeight-50;
+        const animationSpaceHeight = this.canvasHeight-100;
         if(width/animationSpaceWidth > 1){
             let newScale = animationSpaceWidth/width;
             topLeftX *= newScale
