@@ -103,58 +103,58 @@
                 </button>
                 <button id="forward">
                     <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        height="40px"
-                        viewBox="0 -960 960 960"
-                        width="40px"
+                    xmlns="http://www.w3.org/2000/svg"
+                    height="40px"
+                    viewBox="0 -960 960 960"
+                    width="40px"
                     >
-                        <path
-                            d="M630-444H192v-72h438L429-717l51-51 288 288-288 288-51-51 201-201Z"
-                        />
-                    </svg>
-                </button>
-            </div>
-            <div id="speed-box" class="hide">
-                <div class="box-information hide">
-                    <div id="speed-info">speed: 1x</div>
-                    <input
-                        id="speed-input"
-                        type="range"
-                        min="1"
-                        max="10"
-                        value="1"
+                    <path
+                    d="M630-444H192v-72h438L429-717l51-51 288 288-288 288-51-51 201-201Z"
                     />
-                </div>
-                <button id="toggle-speed" class="toggle">
-                    <p class="tooltip hide">change speed of animation</p>
-                    <svg
-                        id="open-speed"
-                        class="toggle-open"
-                        xmlns="http://www.w3.org/2000/svg"
-                        height="35px"
-                        viewBox="0 -960 960 960"
-                        width="35px"
-                        fill="#1f1f1f"
-                    >
-                        <path
-                            d="M560-240 320-480l240-240 56 56-184 184 184 184-56 56Z"
-                        />
-                    </svg>
-                    <svg
-                        id="hide-speed"
-                        class="toggle-close hide"
-                        xmlns="http://www.w3.org/2000/svg"
-                        height="35px"
-                        viewBox="0 -960 960 960"
+                </svg>
+            </button>
+        </div>
+        <div id="speed-box" class="hide">
+            <div class="box-information hide">
+                <div id="speed-info">speed: 1x</div>
+                <input
+                id="speed-input"
+                type="range"
+                min="1"
+                max="10"
+                value="1"
+                />
+            </div>
+            <button id="toggle-speed" class="toggle">
+                <p class="tooltip hide">change speed of animation</p>
+                <svg
+                id="open-speed"
+                class="toggle-open"
+                xmlns="http://www.w3.org/2000/svg"
+                height="35px"
+                viewBox="0 -960 960 960"
+                width="35px"
+                fill="#1f1f1f"
+                >
+                <path
+                d="M560-240 320-480l240-240 56 56-184 184 184 184-56 56Z"
+                />
+            </svg>
+            <svg
+            id="hide-speed"
+            class="toggle-close hide"
+            xmlns="http://www.w3.org/2000/svg"
+            height="35px"
+            viewBox="0 -960 960 960"
                         width="35px"
                         fill="#1f1f1f"
                     >
                         <path
                             d="M504-480 320-664l56-56 240 240-240 240-56-56 184-184Z"
-                        />
-                    </svg>
-                </button>
-            </div>
+                            />
+                        </svg>
+                    </button>
+                </div>
             <canvas id="canvas"></canvas>
         </div>
         <div id="modify-graph">
@@ -171,5 +171,8 @@
                 <option value="d">d</option>
             </select>
         </div>
+        <div id="screen-size-warning" class="hide">
+            <p>This feature works best on desktop devices with a mouse.<br> Please try again on a larger screen for the full experience.</p>
+        </div>
     </body>
-</html>
+    </html>

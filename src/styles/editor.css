@@ -296,3 +296,21 @@ button {
 .priority-queue {
     flex-direction: row;
 }
+
+#screen-size-warning{
+    position: absolute;
+    z-index: 10;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgb(254, 74, 74);
+    color: white;
+    font-size: 0.8rem;
+}
+@media (max-width: 850px), (max-height: 400px) {
+    #screen-size-warning {
+        display: flex;
+    }
+}
