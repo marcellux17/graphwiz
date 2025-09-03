@@ -4,6 +4,7 @@
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <link rel="stylesheet" href="/src/styles/main.css" />
+        <script src="./src/utils/dom/common.ts" type="module" defer></script>
         <title>Graphwiz</title>
     </head>
     <body>
@@ -32,33 +33,42 @@
                     
             </h2>
         </header>
+        <div id="relative-links">
+            <a href="#bfs">bfs</a>
+            <a href="#dfs">dfs</a>
+            <a href="#dijkstra">dijkstra</a>
+            <a href="#a_star">a*</a>
+            <a href="#bellman-ford">bellman-ford</a>
+            <a href="#kruskal">kruskal</a>
+            <a href="#prim">prim</a>
+        </div>
         <div id="links">
-            <a class="card" href="bfs.html">
+            <a class="card" href="bfs.html" id="bfs">
                 <p class="card-title">BFS</p>
                 <img src="./graph_pictures/bfs.png" alt="" />
             </a>
-            <a class="card" href="dfs.html">
+            <a class="card" href="dfs.html" id="dfs">
                 <p class="card-title">DFS</p>
                 <img src="./graph_pictures/dfs.png" alt="" />
             </a>
-            <a class="card" href="dijkstra.html">
+            <a class="card" href="dijkstra.html" id="dijkstra">
                 <p class="card-title">Dijkstra</p>
                 <img src="./graph_pictures/dijkstra.png" alt="" />
             </a>
-            <a class="card" href="a_star.html">
+            <a class="card" href="a_star.html" id="a_star">
                 <p class="card-title">A*</p>
                 <img src="./graph_pictures/a_star.png" alt="" />
             </a>
-            <a class="card" href="bellman_ford.html">
+            <a class="card" href="bellman_ford.html" id="bellman-ford">
                 <p class="card-title">Bellman-Ford 
                 </p>
                 <img src="./graph_pictures/bellmanford.png" alt="" />
             </a>
-            <a class="card" href="kruskal.html">
+            <a class="card" href="kruskal.html" id="kruskal">
                 <p class="card-title">Kruskal</p>
                 <img src="./graph_pictures/kruskal.png" alt="" />
             </a>
-            <a class="card" href="prim.html">
+            <a class="card" href="prim.html" id="prim">
                 <p class="card-title">Prim</p>
                 <img src="./graph_pictures/kruskal.png" alt="" />
             </a>
