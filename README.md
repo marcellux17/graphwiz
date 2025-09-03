@@ -10,6 +10,8 @@ I hope you enjoy learning about these cool graph algorithms as much as I enjoyed
 https://github.com/user-attachments/assets/b060d0c1-7ebf-4060-b80d-cbcbfabc2b4f
 ## Adding edges
 https://github.com/user-attachments/assets/8616eb04-95d1-410e-8818-67eee7024d98
+## Node dragging
+https://github.com/user-attachments/assets/48741094-65b4-4cae-b7ef-898ae1b4396e
 ## Deletion of nodes/edges
 https://github.com/user-attachments/assets/8976e397-e50b-4ff9-9287-55c9b730a06d
 ## Zoom and pan
@@ -32,7 +34,7 @@ https://github.com/user-attachments/assets/f0cbc524-d6cc-4a85-9b9d-ee96eda3b836
 Graphwiz is built with Vite. To run it locally:
 
 ## Clone the repository
-git clone https://github.com/your-username/graphwiz.git
+git clone https://github.com/marcellux17/graphwiz.git
 
 ## Navigate into the project
 cd graphwiz
