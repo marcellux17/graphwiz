@@ -1,6 +1,7 @@
 import { Edge, WeightedGraph } from "../datastructures/Graph";
 import { animationEdgeInformation, animationNodeInformation, animationState} from "../animation/types";
 import { DisjointSet } from "../datastructures/DisjointSet";
+import { Queue } from "../datastructures/Queue";
 
 export default class Kruskal{
     private graph:WeightedGraph;
@@ -62,15 +63,34 @@ export default class Kruskal{
 
         return { nodes, edges };
     }
-    Run(): animationState[] {
-        const animationStates: animationState[] = [];
-        //code
-        const sortedEdges = this.graph.getEdgeList().map((edge) => {
-            if(edge instanceof Edge){
-                return new Edge(edge.getId(), edge.getTo(), edge.getFrom(), edge.getWeight());
+    private findComponentEdgeList(nodeId: number):(Edge|null)[]{
+        const edgeList = this.graph.getEdgeList();
+        const nodeList = this.graph.getNodeList();
+        const edges = new Array(edgeList.length).fill(null);
+        const queue = new Queue<number>(nodeList.length);
+        const visited:boolean[] = new Array(nodeList.length).fill(false);
+        queue.enqueue(nodeId);
+        visited[nodeId] = true;
+        while(!queue.isEmpty()){
+            const currentNodeId = queue.dequeue()!;
+            const adjacencyList = this.graph.getNode(currentNodeId).getAdjacencyList();
+            for(let neighbourId = 0; neighbourId < adjacencyList.length; neighbourId++){
+                const edgeId = adjacencyList[neighbourId];
+                if(edgeId !== -1 && !visited[neighbourId]){
+                    queue.enqueue(neighbourId)
+                    visited[neighbourId] = true;
+                }
+                if(edgeId !== -1 && edges[edgeId] === null){
+                    edges[edgeId] = this.graph.getEdge(edgeId);
+                }
             }
-            return null;
-        }).sort((a, b) => {
+        }
+        return edges;
+    }
+    Run(nodeId: number): animationState[] {
+        const animationStates: animationState[] = [];
+        const componentEdges = this.findComponentEdgeList(nodeId);
+        const sortedEdges = componentEdges.sort((a, b) => {
             if(a === null)return 1;
             if(b === null)return -1;
             return a.getWeight()!-b.getWeight()!;

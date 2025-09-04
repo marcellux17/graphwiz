@@ -5,10 +5,11 @@ import { changeMessageBox, makeInvisible, makeVisible, resetInput, } from "../do
 import { Network } from "../network/Network";
 import Kruskal from "./KruskalAlgorithm";
 
-type canvasState = "add-edge-mode" | "idle" | "delete" | "add-node-mode" | "step-by-step" | "animation-running";
+type canvasState = "add-edge-mode" | "idle" | "delete" | "add-node-mode" | "step-by-step" | "animation-running" | "run-animation";
 export class KruskalController {
     private network: Network;
     private selectedEdgeId: number | null = null;
+    private componentNodeId: number | null = null;
     private canvasState: canvasState = "idle"; //aka no mode is selected
     private algorithm: Kruskal;
     private animation: Animation;
@@ -37,11 +38,18 @@ export class KruskalController {
                 changeMessageBox("select an element to delete");
                 this.network.deleteElementModeOn();
                 break;
+            case "run-animation":
+                changeMessageBox("select a node from a component");
+                resetInput();
+                this.selectedEdgeId = null;
+                this.network.resetToIdle();
+                break;
             case "idle":
                 if (prevCanvasState === "animation-running" ) {
                     this.animation.escapeAnimation();
                     makeInvisible(algorithmInformationBox);
                     makeInvisible(speedBox);
+                    this.componentNodeId = null;
                 }
                 startingNodeInfo!.textContent = "start: ";
                 destinationNodeInfo!.textContent = "dest: ";
@@ -58,12 +66,18 @@ export class KruskalController {
                 makeVisible(speedBox);
                 this.network.fitGraphIntoAnimationSpace();
                 this.network.disableEverything();
-                const states = this.algorithm.Run();
-                this.animation.setAnimationStates(states);
                 this.animation.start();
                 break;
         }
         resetInput();
+    }
+    selectNodeHandle(id: number): void {
+        if (this.canvasState !== "run-animation") return;
+        this.componentNodeId = id;
+        console.log("it ran")
+        const states = this.algorithm.Run(this.componentNodeId);
+        this.animation.setAnimationStates(states);
+        this.changeCanvasState("animation-running");
     }
     selectEdgeHandle(id: number): void {
         if ( this.canvasState === "animation-running" || this.canvasState !== "idle")return;
@@ -77,8 +91,10 @@ export class KruskalController {
     }
     private setUpNetworkEventListeners(): void {
         this.selectEdgeHandle = this.selectEdgeHandle.bind(this);
+        this.selectNodeHandle = this.selectNodeHandle.bind(this);
         this.canvasBlankClickHandle = this.canvasBlankClickHandle.bind(this);
         this.network.onSelectEdge(this.selectEdgeHandle);
+        this.network.onSelectNode(this.selectNodeHandle);
         this.network.onCanvasBlankClick(this.canvasBlankClickHandle);
     }
     private setUpUiEventListeners(): void {
@@ -98,7 +114,7 @@ export class KruskalController {
         });
 
         runAnimationButton?.addEventListener("click", () => {
-            this.changeCanvasState("animation-running");
+            this.changeCanvasState("run-animation");
         });
         weightInput.addEventListener("input", () => {
             const newValue = Number.parseInt(weightInput.value);
