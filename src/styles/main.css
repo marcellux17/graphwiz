@@ -81,8 +81,8 @@ header h1{
 #github-logo{
     position: fixed;
     height: 50px;
-    bottom: 10px;
-    left: 10px;
+    bottom: 5px;
+    left: 5px;
     fill: var(--main-color);
     z-index: 10;
 }
