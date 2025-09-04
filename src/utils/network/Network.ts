@@ -17,7 +17,6 @@ type presetEdge = {
     weight?: number;
 }
 type networkMode = "addEdgeMode" | "addNodeMode" | "idle" | "delete" | "disabled";
-export type canvasEvent = "selectEdge" | "selectNode";
 export class Network{
     private ctx:CanvasRenderingContext2D = canvas.getContext("2d")!;
     private isDown = false;
