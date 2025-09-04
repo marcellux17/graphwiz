@@ -73,3 +73,10 @@ header h1{
     padding: 1rem 2rem;
 }
 
+#github-logo{
+    position: fixed;
+    height: 50px;
+    bottom: 10px;
+    left: 10px;
+    fill: var(--main-color);
+}
