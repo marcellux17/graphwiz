@@ -1,4 +1,5 @@
-export const canvas:HTMLCanvasElement = document.querySelector<HTMLCanvasElement>("#canvas")!;
+export const canvas = document.querySelector<HTMLCanvasElement>("#canvas")!;
+export const editingPanel = document.querySelector<HTMLDivElement>("#modify-graph");
 //editing buttons
 export const addEdgeButton = document.querySelector<HTMLButtonElement>("#add-edge");
 export const addNodeButton = document.querySelector<HTMLButtonElement>("#add-node");

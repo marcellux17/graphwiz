@@ -1,5 +1,5 @@
 import { Graph, WeightedGraph, Node, Edge } from "../datastructures/Graph";
-import { algorithmInformationBox, canvas } from "../dom/elements";
+import { algorithmInformationBox, canvas, editingPanel } from "../dom/elements";
 
 type Preset = {
     nodes: presetNode[];
@@ -57,21 +57,8 @@ export class Network{
         canvas.addEventListener("wheel", this.wheelEventHandler);
         window.addEventListener("mousemove", this.mouseMoveEventHandler);
         window.addEventListener("mouseup", this.mouseUpEventHandler);
-        window.addEventListener("load", () => {
-            this.initCanvasSize();
-            this.drawCanvas();
-        });
-    }
-    private initCanvasSize(): void {
-        const rect = canvas.getBoundingClientRect();
-        this.dpr = window.devicePixelRatio || 1;
-        canvas.width = Math.round(rect.width * this.dpr);
-        canvas.height = Math.round(rect.height * this.dpr);
-        this.canvasWidth = Math.round(rect.width);
-        this.canvasHeight = Math.round(rect.height);
-        canvas.style.width = `${Math.round(rect.width)}px`;
-        canvas.style.height = `${Math.round(rect.height)}px`;
-        this.ctx.scale(this.dpr, this.dpr);
+        window.addEventListener("load", this.resizeHandler);
+        window.addEventListener("resize", this.resizeHandler)
     }
     loadPreset(folder: string, presetName: string): void {
         const request = new Request(`./graph_presets/${folder}/${presetName}.json`);
@@ -705,4 +692,20 @@ export class Network{
         this.isPanning = false;
         this.drawCanvas();
     };
+    private resizeHandler = ():void =>{
+        const editingPanelRect = editingPanel!.getBoundingClientRect();
+        const windowWidth = window.innerWidth;
+        const windowHeight = window.innerHeight;
+        const newWidth = windowWidth-editingPanelRect.width;
+        this.dpr = window.devicePixelRatio || 1;
+        canvas.width = Math.round(newWidth * this.dpr);
+        canvas.height = Math.round(windowHeight * this.dpr);;
+        this.canvasWidth = Math.round(newWidth);
+        this.canvasHeight = Math.round(windowHeight);
+        canvas.style.width = `${Math.round(newWidth)}px`;
+        canvas.style.height = `${Math.round(windowHeight)}px`;
+        this.ctx.reset();
+        this.ctx.scale(this.dpr, this.dpr);
+        this.drawCanvas();
+    }
 }
