@@ -1,5 +1,5 @@
 :root{
-    --image-width: 50%;
+    --image-width: 100%;
     --image-height: auto;
     --main-color:  rgba(44, 62, 80, 1);
     --header-height: 150px;
@@ -27,6 +27,8 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
+    width: 50%;
+    max-width: 768px;
 }
 .card-title{
     font-size: 2rem;
@@ -79,4 +81,5 @@ header h1{
     bottom: 10px;
     left: 10px;
     fill: var(--main-color);
+    z-index: 10;
 }
