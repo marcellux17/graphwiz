@@ -69,10 +69,13 @@ header h1{
     font-size: 1.5rem;
     text-align: center;
     margin: auto;
+    letter-spacing: 0.1rem;
 }
 #introduction{
+    margin: auto;
     margin-top: var(--header-height);
     padding: 1rem 2rem;
+    max-width: 60%;
 }
 
 #github-logo{
@@ -82,4 +85,16 @@ header h1{
     left: 10px;
     fill: var(--main-color);
     z-index: 10;
+}
+@media (max-width: 768px){
+    .card{
+        width: 80%;
+    }
+    header h1{
+        font-size: 1.2rem;
+    }
+    #introduction{
+        margin-left: 0;
+        max-width: 100%;
+    }
 }
