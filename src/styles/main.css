@@ -2,6 +2,7 @@
     --image-width: 50%;
     --image-height: auto;
     --main-color:  rgba(44, 62, 80, 1);
+    --header-height: 150px;
 }
 html, body{
     min-height: 100vh;
@@ -42,14 +43,33 @@ body {
     border-radius: 5px;
 }
 header{
-    margin-top: 1rem;
-    margin-bottom: 4rem;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+    padding-left: 1rem;
+    position: fixed;
+    top: 0;
+    width: 100%;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
+    background-color: rgba(44, 62, 80, 1);
+    border-bottom: 2px solid white;
+    z-index: 5;
+    height: var(--header-height);
+    box-sizing: border-box;
 }
-header h2{
+header svg{
+    fill: white;
+    height: 80%;
+}
+header h1{
     color: white;
     font-size: 1.5rem;
     text-align: center;
+    margin: auto;
 }
+#introduction{
+    margin-top: var(--header-height);
+    padding: 1rem 2rem;
+}
+
