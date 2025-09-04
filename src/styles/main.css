@@ -29,10 +29,12 @@ body {
 }
 .card-title{
     font-size: 2rem;
+    font-weight: bold;
     white-space: nowrap;
     text-decoration: none;
     text-align: center;
     color: white;
+    margin-bottom: 1rem;
 }
 .card img{
     width: var(--image-width);
