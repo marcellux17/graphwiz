@@ -1,6 +1,6 @@
 import { Animation } from "../animation/Animation";
 import { WeightedGraph } from "../datastructures/Graph";
-import { playBox, pauseButton, playButton, startingNodeInfo, destinationNodeInfo, pathInfoBox, speedRangeInput, speedInfo, backButton, forwardButton, resetButton, runAnimationButton, escapeModeButton, deleteModeButton, addNodeButton, addEdgeButton, presetInput, speedBox, algorithmInformationBox, } from "../dom/elements";
+import { playBox, pauseButton, playButton, startingNodeInfo, destinationNodeInfo, pathInfoBox, speedRangeInput, speedInfo, backButton, forwardButton, resetButton, runAnimationButton, escapeModeButton, deleteModeButton, addNodeButton, addEdgeButton, presetInput, speedBox, algorithmInformationBox, downloadGraphButton, } from "../dom/elements";
 import { changeMessageBox, makeInvisible, makeVisible} from "../dom/helpers";
 import { Network } from "../network/Network";
 import AStar from "./AStarAlgorithm";
@@ -13,10 +13,11 @@ export class AStarController {
     private canvasState: canvasState = "idle"; //aka no mode is selected
     private algorithm: AStar;
     private animation: Animation;
+    private graph: WeightedGraph;
     constructor() {
-        const graph = new WeightedGraph();
-        this.network = new Network(graph, true, true);
-        this.algorithm = new AStar(graph);
+        this.graph = new WeightedGraph();
+        this.network = new Network(this.graph, true, true);
+        this.algorithm = new AStar(this.graph);
         this.animation = new Animation(this.network);
         this.setUpNetworkEventListeners();
         this.setUpUiEventListeners();
@@ -100,6 +101,11 @@ export class AStarController {
         this.network.onSelectNode(this.selectNodeHandle);
     }
     private setUpUiEventListeners(): void {
+        downloadGraphButton?.addEventListener("click", () => {
+            if(this.canvasState !== "run-animation" && this.canvasState !== "animation-running"){
+                this.network.saveGraphToJSON();
+            }
+        })
         addEdgeButton?.addEventListener("click", () => {
             this.changeCanvasState("add-edge-mode");
         });

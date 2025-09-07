@@ -1,6 +1,6 @@
 import { Animation } from "../animation/Animation";
 import { Graph } from "../datastructures/Graph";
-import { playBox, pauseButton, playButton, speedRangeInput, speedInfo, backButton, forwardButton, resetButton, runAnimationButton, escapeModeButton, deleteModeButton, addNodeButton, addEdgeButton, presetInput, algorithmInformationBox, speedBox, } from "../dom/elements";
+import { playBox, pauseButton, playButton, speedRangeInput, speedInfo, backButton, forwardButton, resetButton, runAnimationButton, escapeModeButton, deleteModeButton, addNodeButton, addEdgeButton, presetInput, algorithmInformationBox, speedBox, downloadGraphButton, } from "../dom/elements";
 import { changeMessageBox, makeInvisible, makeVisible, } from "../dom/helpers";
 import { Network } from "../network/Network";
 import DFS from "./DFSAlgorithm";
@@ -76,10 +76,14 @@ export class DFSController {
         this.network.onSelectNode(this.selectNodeHandle);
     }
     private setUpUiEventListeners(): void {
+        downloadGraphButton?.addEventListener("click", () => {
+            if(this.canvasState !== "run-animation" && this.canvasState !== "animation-running"){
+                this.network.saveGraphToJSON();
+            }
+        })
         addEdgeButton?.addEventListener("click", () => {
             this.changeCanvasState("add-edge-mode");
         });
-
         addNodeButton?.addEventListener("click", () => {
             this.changeCanvasState("add-node-mode");
         });

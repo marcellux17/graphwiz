@@ -7,6 +7,8 @@ export const deleteModeButton = document.querySelector<HTMLButtonElement>("#dele
 export const escapeModeButton = document.querySelector<HTMLButtonElement>("#escape-mode");
 export const presetInput = document.querySelector<HTMLSelectElement>("#presets");
 
+export const downloadGraphButton = document.querySelector<HTMLButtonElement>("#download-graph");
+
 //animation related elements
 export const playBox = document.querySelector<HTMLDivElement>("#play-box");
 export const backButton = document.querySelector<HTMLButtonElement>("#back");

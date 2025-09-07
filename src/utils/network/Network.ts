@@ -1,7 +1,12 @@
 import { Graph, WeightedGraph, Node, Edge } from "../datastructures/Graph";
 import { algorithmInformationBox, canvas, editingPanel } from "../dom/elements";
+import { saveAs } from "file-saver"
 
 type Preset = {
+    info: {
+        weighted: boolean;
+        edgesToWay: boolean;
+    };
     nodes: presetNode[];
     edges: presetEdge[];
 };
@@ -59,6 +64,45 @@ export class Network{
         window.addEventListener("mouseup", this.mouseUpEventHandler);
         window.addEventListener("load", this.resizeHandler);
         window.addEventListener("resize", this.resizeHandler)
+    }
+    saveGraphToJSON():void{
+        const jsonOjbect:Preset = {info: {
+            weighted: this.graph instanceof WeightedGraph,
+            edgesToWay: this.edgesTwoWay
+        }, nodes: [], edges: []};
+        const nodes = this.graph.getNodeList();
+        for(let nodeId = 0; nodeId < nodes.length; nodeId++){
+            const node = nodes[nodeId];
+            if(node !== null){
+                const nodeObj: presetNode = {
+                    id: node.getId(),
+                    x: node.x!,
+                    y: node.y!,
+                    color: node.color,
+                }
+                jsonOjbect.nodes.push(nodeObj);
+            }
+        }
+        const edges = this.graph.getEdgeList();
+        for(let edgeId = 0; edgeId < edges.length; edgeId++){
+            const edge = edges[edgeId];
+            if(edge !== null){
+                const edgeOjb:presetEdge = {
+                    from: edge.getFrom(),
+                    to: edge.getTo(),
+                }
+                if(this.graph instanceof WeightedGraph){
+                    edgeOjb.weight = edge.getWeight()!
+                }
+                jsonOjbect.edges.push(edgeOjb);
+            }
+        }
+        const blob = new Blob([JSON.stringify(jsonOjbect)], { type: "application/json;charset=utf-8" });
+        const now = new Date();
+        const date = now.toISOString().split("T")[0];
+        const time = now.toTimeString() .split(" ")[0] .replace(/:/g, "-");
+        const filename = `graphwiz-${date}_${time}.json`;
+        saveAs(blob, filename);
     }
     loadPreset(folder: string, presetName: string): void {
         const request = new Request(`./graph_presets/${folder}/${presetName}.json`);
