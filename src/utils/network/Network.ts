@@ -87,16 +87,6 @@ export class Network{
         const filename = `graphwiz-${date}_${time}.json`;
         saveAs(blob, filename);
     }
-    loadPreset(folder: string, presetName: string): void {
-        const request = new Request(`./graph_presets/${folder}/${presetName}.json`);
-        fetch(request)
-            .then((res) => {
-                return res.json();
-            })
-            .then((preset) => {
-                this.drawPreset(preset);
-            });
-    }
     deleteElementModeOn(): void {
         this.resetToIdle();
         this.mode = "delete";
@@ -228,7 +218,7 @@ export class Network{
     resetGraphToOriginal(): void {
         this.graph.resetGraphToOriginalVisual();
     }
-    private drawPreset(preset: Preset): void {
+    loadPreset(preset: Preset): void {
         this.scale = 1;
         this.nodeSize = 30;
         this.graph.clearGraph();

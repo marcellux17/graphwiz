@@ -45,7 +45,7 @@ body {
     margin-bottom: 0.2em;
 }
 #modify-graph button,
-select {
+select, #graph-upload {
     padding: 0.5em 1.5em;
     box-sizing: border-box;
     font-size: 1.1rem;
@@ -55,6 +55,9 @@ select {
     color: var(--main-font-color);
     font-family: inherit;
     display: flex;
+}
+#graph-upload{
+    cursor: pointer;
 }
 #modify-graph button:hover {
     background-color: var(--transition-color);

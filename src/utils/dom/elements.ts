@@ -8,6 +8,7 @@ export const escapeModeButton = document.querySelector<HTMLButtonElement>("#esca
 export const presetInput = document.querySelector<HTMLSelectElement>("#presets");
 
 export const downloadGraphButton = document.querySelector<HTMLButtonElement>("#download-graph");
+export const uploadGraphInput = document.querySelector<HTMLInputElement>("#graph-upload input")
 
 //animation related elements
 export const playBox = document.querySelector<HTMLDivElement>("#play-box");

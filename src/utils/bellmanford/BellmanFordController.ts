@@ -1,8 +1,9 @@
 import { Animation } from "../animation/Animation";
 import { WeightedGraph } from "../datastructures/Graph";
-import { playBox, pauseButton, playButton, startingNodeInfo, destinationNodeInfo, pathInfoBox, inputGroup, label, weightInput, speedRangeInput, speedInfo, backButton, forwardButton, resetButton, runAnimationButton, escapeModeButton, deleteModeButton, addNodeButton, addEdgeButton, presetInput, algorithmInformationBox, speedBox, downloadGraphButton, } from "../dom/elements";
+import { playBox, pauseButton, playButton, startingNodeInfo, destinationNodeInfo, pathInfoBox, inputGroup, label, weightInput, speedRangeInput, speedInfo, backButton, forwardButton, resetButton, runAnimationButton, escapeModeButton, deleteModeButton, addNodeButton, addEdgeButton, presetInput, algorithmInformationBox, speedBox, downloadGraphButton, uploadGraphInput, } from "../dom/elements";
 import { changeMessageBox, makeInvisible, makeVisible, resetInput, } from "../dom/helpers";
 import { Network } from "../network/Network";
+import { isPreset } from "../types/preset";
 import BellmanFord from "./BellmanFordAlgorithm";
 
 type canvasState = "add-edge-mode" | "idle" | "delete" | "add-node-mode" | "run-animation" | "step-by-step" | "animation-running";
@@ -126,6 +127,20 @@ export class BellmanFordController {
         this.network.onCanvasBlankClick(this.canvasBlankClickHandle);
     }
     private setUpUiEventListeners(): void {
+        uploadGraphInput?.addEventListener("change", async () => {
+            const file = uploadGraphInput!.files![0];
+            if(file.type !== "application/json")return;
+            const text = await file.text();
+            try{
+                const json = await JSON.parse(text);
+                if(!isPreset(json))throw new Error("wrong graph format");
+                if(json.info.edgesToWay || !json.info.weighted)throw new Error("the graph is not suitable for the algorithm")
+                this.network.loadPreset(json);
+            }catch(e:any){
+                //should update this for a nice error message for the user
+                alert(e.message)
+            }
+        })
         downloadGraphButton?.addEventListener("click", () => {
             if(this.canvasState !== "run-animation" && this.canvasState !== "animation-running"){
                 this.network.saveGraphToJSON();
@@ -184,7 +199,14 @@ export class BellmanFordController {
         });
         presetInput?.addEventListener("input", () => {
             if(presetInput!.value !== "load a graph" && this.canvasState !== "run-animation" && this.canvasState !== "animation-running"){
-                this.network.loadPreset("bellmanford", presetInput!.value);
+                const request = new Request(`./graph_presets/bellmanford/${presetInput!.value}.json`);
+                fetch(request)
+                    .then((res) => {
+                        return res.json();
+                    })
+                    .then((preset) => {
+                        this.network.loadPreset(preset);
+                    });
             }
         })
     }
