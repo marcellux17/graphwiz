@@ -1,23 +1,24 @@
-import { Animation } from "../animation/Animation";
-import { Graph } from "../datastructures/Graph";
-import { playBox, pauseButton, playButton, speedRangeInput, speedInfo, backButton, forwardButton, resetButton, runAnimationButton, escapeModeButton, deleteModeButton, addNodeButton, addEdgeButton, presetInput, algorithmInformationBox, speedBox, downloadGraphButton, uploadGraphInput, } from "../dom/elements";
-import { changeMessageBox, makeInvisible, makeVisible } from "../dom/helpers";
-import { Network } from "../network/Network";
-import { isPreset } from "../types/preset";
-import BFS from "./BFSAlgorithm";
+import { Animation } from "../../animation/Animation";
+import { WeightedGraph } from "../../datastructures/Graph";
+import { playBox, pauseButton, playButton, inputGroup, label, weightInput, speedRangeInput, speedInfo, backButton, forwardButton, resetButton, runAnimationButton, escapeModeButton, deleteModeButton, addNodeButton, addEdgeButton, presetInput, algorithmInformationBox, speedBox, downloadGraphButton, uploadGraphInput, } from "../../dom/elements";
+import { changeMessageBox, makeInvisible, makeVisible, resetInput, } from "../../dom/helpers";
+import { Network } from "../../network/Network";
+import { isPreset } from "../../types/preset";
+import Prim from "./PrimAlgorithm";
 
 type canvasState = "add-edge-mode" | "idle" | "delete" | "add-node-mode" | "run-animation" | "step-by-step" | "animation-running";
-export class BFSController {
+export class PrimController {
     private network: Network;
+    private selectedEdgeId: number | null = null;
     private startingNodeId: number | null = null;
     private canvasState: canvasState = "idle"; //aka no mode is selected
+    private algorithm: Prim;
     private animation: Animation;
-    private algorithm: BFS;
     constructor() {
-        const graph = new Graph();
-        this.network = new Network(graph, false, true, false);
+        const graph = new WeightedGraph();
+        this.network = new Network(graph, false, true);
+        this.algorithm = new Prim(graph);
         this.animation = new Animation(this.network);
-        this.algorithm = new BFS(graph);
         this.setUpNetworkEventListeners();
         this.setUpUiEventListeners();
     }
@@ -27,7 +28,9 @@ export class BFSController {
         this.canvasState = newState;
         switch (newState) {
             case "add-edge-mode":
-                changeMessageBox( "to create an edge click and drag from one node to the other" );
+                changeMessageBox(
+                    "to create an edge click and drag from one node to the other"
+                );
                 this.network.addEdgeModeOn();
                 break;
             case "add-node-mode":
@@ -51,6 +54,8 @@ export class BFSController {
                 break;
             case "run-animation":
                 changeMessageBox("select starting node");
+                resetInput();
+                this.selectedEdgeId = null;
                 this.network.resetToIdle();
                 break;
             case "animation-running":
@@ -64,6 +69,7 @@ export class BFSController {
                 this.animation.start();
                 break;
         }
+        resetInput();
     }
     selectNodeHandle(id: number): void {
         if (this.canvasState !== "run-animation") return;
@@ -71,11 +77,25 @@ export class BFSController {
         const states = this.algorithm.Run(this.startingNodeId);
         this.animation.setAnimationStates(states);
         this.changeCanvasState("animation-running");
-        
+    }
+    selectEdgeHandle(id: number): void {
+        if ( this.canvasState === "animation-running" || this.canvasState === "run-animation" )return;
+        if (this.canvasState !== "idle") return;
+        makeVisible(inputGroup);
+        this.selectedEdgeId = id;
+        label.textContent = `Change weight of the selected edge`;
+        weightInput.value = `${this.network.getEdgeWeight( this.selectedEdgeId! )}`;
+    }
+    canvasBlankClickHandle(): void {
+        resetInput();
     }
     private setUpNetworkEventListeners(): void {
         this.selectNodeHandle = this.selectNodeHandle.bind(this);
+        this.selectEdgeHandle = this.selectEdgeHandle.bind(this);
+        this.canvasBlankClickHandle = this.canvasBlankClickHandle.bind(this);
+        this.network.onSelectEdge(this.selectEdgeHandle);
         this.network.onSelectNode(this.selectNodeHandle);
+        this.network.onCanvasBlankClick(this.canvasBlankClickHandle);
     }
     private setUpUiEventListeners(): void {
         uploadGraphInput?.addEventListener("change", async () => {
@@ -85,7 +105,7 @@ export class BFSController {
             try{
                 const json = await JSON.parse(text);
                 if(!isPreset(json))throw new Error("wrong graph format");
-                if(!json.info.edgesToWay || json.info.weighted)throw new Error("the graph is not suitable for the algorithm")
+                if(!json.info.edgesToWay || !json.info.weighted)throw new Error("the graph is not suitable for the algorithm")
                 this.network.loadPreset(json);
             }catch(e:any){
                 //should update this for a nice error message for the user
@@ -100,6 +120,7 @@ export class BFSController {
         addEdgeButton?.addEventListener("click", () => {
             this.changeCanvasState("add-edge-mode");
         });
+
         addNodeButton?.addEventListener("click", () => {
             this.changeCanvasState("add-node-mode");
         });
@@ -113,6 +134,11 @@ export class BFSController {
 
         runAnimationButton?.addEventListener("click", () => {
             this.changeCanvasState("run-animation");
+        });
+        weightInput.addEventListener("input", () => {
+            const newValue = Number.parseInt(weightInput.value);
+            const selectedElementId = this.selectedEdgeId!;
+            this.network.updateEdge({ id: selectedElementId, weight: newValue, });
         });
         resetButton?.addEventListener("click", () => {
             this.animation.resetAnimation();
@@ -144,7 +170,7 @@ export class BFSController {
         });
         presetInput?.addEventListener("input", () => {
             if(presetInput!.value !== "load a graph" && this.canvasState !== "run-animation" && this.canvasState !== "animation-running"){
-                const request = new Request(`./graph_presets/bfs/${presetInput!.value}.json`);
+                const request = new Request(`./graph_presets/prim/${presetInput!.value}.json`);
                 fetch(request)
                     .then((res) => {
                         return res.json();

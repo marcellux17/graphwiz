@@ -1,7 +1,7 @@
-import { Edge, WeightedGraph } from "../datastructures/Graph";
-import { animationEdgeInformation, animationNodeInformation, animationState} from "../types/animation";
-import { DisjointSet } from "../datastructures/DisjointSet";
-import { Queue } from "../datastructures/Queue";
+import { Edge, WeightedGraph } from "../../datastructures/Graph";
+import { animationEdgeInformation, animationNodeInformation, animationState} from "../../types/animation";
+import { DisjointSet } from "../../datastructures/DisjointSet";
+import { Queue } from "../../datastructures/Queue";
 
 export default class Kruskal{
     private graph:WeightedGraph;

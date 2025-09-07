@@ -1,25 +1,23 @@
-import { Animation } from "../animation/Animation";
-import { WeightedGraph } from "../datastructures/Graph";
-import { playBox, pauseButton, playButton, startingNodeInfo, destinationNodeInfo, pathInfoBox, inputGroup, label, weightInput, speedRangeInput, speedInfo, backButton, forwardButton, resetButton, runAnimationButton, escapeModeButton, deleteModeButton, addNodeButton, addEdgeButton, presetInput, algorithmInformationBox, speedBox, downloadGraphButton, uploadGraphInput, } from "../dom/elements";
-import { changeMessageBox, makeInvisible, makeVisible, resetInput, } from "../dom/helpers";
-import { Network } from "../network/Network";
-import { isPreset } from "../types/preset";
-import Dijkstra from "./DijkstraAlgorithm";
+import { Animation } from "../../animation/Animation";
+import { Graph } from "../../datastructures/Graph";
+import { playBox, pauseButton, playButton, speedRangeInput, speedInfo, backButton, forwardButton, resetButton, runAnimationButton, escapeModeButton, deleteModeButton, addNodeButton, addEdgeButton, presetInput, algorithmInformationBox, speedBox, downloadGraphButton, uploadGraphInput, } from "../../dom/elements";
+import { changeMessageBox, makeInvisible, makeVisible, } from "../../dom/helpers";
+import { Network } from "../../network/Network";
+import { isPreset } from "../../types/preset";
+import DFS from "./DFSAlgorithm";
 
 type canvasState = "add-edge-mode" | "idle" | "delete" | "add-node-mode" | "run-animation" | "step-by-step" | "animation-running";
-export class DijkstraController {
+export class DFSController {
     private network: Network;
-    private selectedEdgeId: number | null = null;
     private startingNodeId: number | null = null;
-    private destinationNodeId: number | null = null;
     private canvasState: canvasState = "idle"; //aka no mode is selected
-    private algorithm: Dijkstra;
     private animation: Animation;
+    private algorithm: DFS;
     constructor() {
-        const graph = new WeightedGraph();
-        this.network = new Network(graph, false, true);
-        this.algorithm = new Dijkstra(graph);
+        const graph = new Graph();
+        this.network = new Network(graph, false, true, false);
         this.animation = new Animation(this.network);
+        this.algorithm = new DFS(graph);
         this.setUpNetworkEventListeners();
         this.setUpUiEventListeners();
     }
@@ -29,9 +27,7 @@ export class DijkstraController {
         this.canvasState = newState;
         switch (newState) {
             case "add-edge-mode":
-                changeMessageBox(
-                    "to create an edge click and drag from one node to the other"
-                );
+                changeMessageBox( "to create an edge click and drag from one node to the other" );
                 this.network.addEdgeModeOn();
                 break;
             case "add-node-mode":
@@ -49,19 +45,12 @@ export class DijkstraController {
                     makeInvisible(speedBox);
                 }
                 this.startingNodeId = null;
-                this.destinationNodeId = null;
-                startingNodeInfo!.textContent = "start: ";
-                destinationNodeInfo!.textContent = "dest: ";
                 changeMessageBox( "idle mode (click on edges to modify weights)" );
-                makeInvisible(pathInfoBox);
                 makeInvisible(playBox);
                 this.network.resetToIdle();
                 break;
             case "run-animation":
                 changeMessageBox("select starting node");
-                makeVisible(pathInfoBox);
-                resetInput();
-                this.selectedEdgeId = null;
                 this.network.resetToIdle();
                 break;
             case "animation-running":
@@ -75,49 +64,17 @@ export class DijkstraController {
                 this.animation.start();
                 break;
         }
-        resetInput();
     }
     selectNodeHandle(id: number): void {
         if (this.canvasState !== "run-animation") return;
-        if (this.startingNodeId === null) {
-            this.startingNodeId = id;
-            changeMessageBox("choose destination node");
-            startingNodeInfo!.textContent = `start: ${this.network.getLabelOfNode( this.startingNodeId! )}`;
-            return;
-        }
-        this.destinationNodeId = id;
-        if (this.destinationNodeId === this.startingNodeId) {
-            changeMessageBox("choose destination node");
-            return;
-        }
-        const connected = this.network.areConnected( this.startingNodeId!, this.destinationNodeId! );
-        if (!connected) {
-            changeMessageBox( "no path from starting node to destination node, choose another destination node" );
-            return;
-        }
-        destinationNodeInfo!.textContent = `dest: ${this.network.getLabelOfNode( this.destinationNodeId! )}`;
-        const states = this.algorithm.Run( this.startingNodeId!, this.destinationNodeId! );
+        this.startingNodeId = id;
+        const states = this.algorithm.Run(this.startingNodeId);
         this.animation.setAnimationStates(states);
-        this.changeCanvasState("animation-running");
-    }
-    selectEdgeHandle(id: number): void {
-        if ( this.canvasState === "animation-running" || this.canvasState === "run-animation" )return;
-        if (this.canvasState !== "idle") return;
-        makeVisible(inputGroup);
-        this.selectedEdgeId = id;
-        label.textContent = `Change weight of the selected edge`;
-        weightInput.value = `${this.network.getEdgeWeight( this.selectedEdgeId! )}`;
-    }
-    canvasBlankClickHandle(): void {
-        resetInput();
+        this.changeCanvasState("animation-running");  
     }
     private setUpNetworkEventListeners(): void {
         this.selectNodeHandle = this.selectNodeHandle.bind(this);
-        this.selectEdgeHandle = this.selectEdgeHandle.bind(this);
-        this.canvasBlankClickHandle = this.canvasBlankClickHandle.bind(this);
-        this.network.onSelectEdge(this.selectEdgeHandle);
         this.network.onSelectNode(this.selectNodeHandle);
-        this.network.onCanvasBlankClick(this.canvasBlankClickHandle);
     }
     private setUpUiEventListeners(): void {
         uploadGraphInput?.addEventListener("change", async () => {
@@ -127,7 +84,7 @@ export class DijkstraController {
             try{
                 const json = await JSON.parse(text);
                 if(!isPreset(json))throw new Error("wrong graph format");
-                if(!json.info.edgesToWay || !json.info.weighted)throw new Error("the graph is not suitable for the algorithm")
+                if(!json.info.edgesToWay || json.info.weighted)throw new Error("the graph is not suitable for the algorithm")
                 this.network.loadPreset(json);
             }catch(e:any){
                 //should update this for a nice error message for the user
@@ -155,11 +112,6 @@ export class DijkstraController {
 
         runAnimationButton?.addEventListener("click", () => {
             this.changeCanvasState("run-animation");
-        });
-        weightInput.addEventListener("input", () => {
-            const newValue = Number.parseInt(weightInput.value);
-            const selectedElementId = this.selectedEdgeId!;
-            this.network.updateEdge({ id: selectedElementId, weight: newValue, });
         });
         resetButton?.addEventListener("click", () => {
             this.animation.resetAnimation();
@@ -191,7 +143,7 @@ export class DijkstraController {
         });
         presetInput?.addEventListener("input", () => {
             if(presetInput!.value !== "load a graph" && this.canvasState !== "run-animation" && this.canvasState !== "animation-running"){
-                const request = new Request(`./graph_presets/dijkstra/${presetInput!.value}.json`);
+                const request = new Request(`./graph_presets/dfs/${presetInput!.value}.json`);
                 fetch(request)
                     .then((res) => {
                         return res.json();

@@ -1,16 +1,23 @@
-import { animationEdgeInformation, animationNodeInformation, animationState} from "../types/animation";
-import { Graph } from "../datastructures/Graph";
-import { Queue } from "../datastructures/Queue";
+import { animationEdgeInformation, animationNodeInformation, animationState} from "../../types/animation";
+import { Graph } from "../../datastructures/Graph";
 
-export default class BFS{
+export default class DFS{
     private graph:Graph;
     constructor(graph: Graph){
         this.graph = graph;
     }
+
     private markNodeAsVisited(state: animationState, nodeId: number): animationState {
         const newState = JSON.parse(JSON.stringify(state));
         if (newState.nodes[nodeId]) {
             newState.nodes[nodeId].state = "visitedNode";
+        }
+        return newState;
+    }
+    private markNodeAsInStack(state: animationState, nodeId: number): animationState {
+        const newState = JSON.parse(JSON.stringify(state));
+        if (newState.nodes[nodeId]) {
+            newState.nodes[nodeId].state = "inStack";
         }
         return newState;
     }
@@ -21,13 +28,7 @@ export default class BFS{
         }
         return newState;
     }
-    private markNodeAsInQueue(state: animationState, nodeId: number): animationState {
-        const newState = JSON.parse(JSON.stringify(state));
-        if (newState.nodes[nodeId]) {
-            newState.nodes[nodeId].state = "inQueue";
-        }
-        return newState;
-    }
+
     private markEdgeAsNormal(state: animationState, edgeId: number): animationState {
         const newState = JSON.parse(JSON.stringify(state));
         if (newState.edges[edgeId]) {
@@ -35,6 +36,7 @@ export default class BFS{
         }
         return newState;
     }
+
     private createInitialState(): animationState {
         const nodeList = this.graph.getNodeList();
         const edgeList = this.graph.getEdgeList();
@@ -60,77 +62,81 @@ export default class BFS{
 
         return { nodes, edges };
     }
-    private getLabelsForQueueRepresentation(ids: number[]):string[]{
+    private getLabelsForStackRepresentation(ids: number[]):string[]{
         return ids.map(id => this.graph.getLabelOfNode(id));
     }
     Run(from: number): animationState[] {
         const animationStates: animationState[] = [];
         const nodes = this.graph.getNodeList();
-        const queue = new Queue<number>(nodes.length);
-        const visited = Array(nodes.length).fill(false);
-
+        const visited:boolean[] = Array(nodes.length).fill(false);
+        //code
+        const stack:number[] = [];
+        stack.push(from);
+        visited[from] = true;
         let currentState = this.createInitialState();
-        currentState = this.markNodeAsVisited(currentState, from);
+        currentState = this.markNodeAsInStack(currentState, from);
         currentState.algorithmInfobox = {
-            information: `Starting node has been put in queue to run bfs.`
+            information: "Putting the starting node in stack for dfs to run.",
+            dataStructure: {
+                type: "stack",
+                ds: this.getLabelsForStackRepresentation(stack)
+            }
         }
         animationStates.push(currentState);
-
-        visited[from] = true;
-        queue.enqueue(from);
-        while(!queue.isEmpty()){
-            currentState = JSON.parse(JSON.stringify(currentState));
+        while(stack.length > 0){
+            currentState = JSON.parse(JSON.stringify(currentState))
             currentState.algorithmInfobox = {
-            information: `Selecting node from queue.<hr>calling Dequeue()`,
+                information: `Pop() method called on stack to retrieve top element.`,
                 dataStructure: {
-                    type: "queue",
-                    ds: this.getLabelsForQueueRepresentation(queue.toArray())
+                    type: "stack",
+                    ds: this.getLabelsForStackRepresentation(stack)
                 }
             }
             animationStates.push(currentState);
-            const currentNodeId = queue.dequeue();
+            const currentNodeId = stack.pop();
             currentState = this.markNodeAsVisited(currentState, currentNodeId!);
             currentState.algorithmInfobox = {
-            information: `Selecting node from queue: (${this.graph.getLabelOfNode(currentNodeId!)}).`,
+                information: `Pop() method called on stack to retrieve top element: (${this.graph.getLabelOfNode(currentNodeId!)}).`,
                 dataStructure: {
-                    type: "queue",
-                    ds: this.getLabelsForQueueRepresentation(queue.toArray())
+                    type: "stack",
+                    ds: this.getLabelsForStackRepresentation(stack)
                 }
             }
             animationStates.push(currentState);
             const adjacencyList = this.graph.getNode(currentNodeId!).getAdjacencyList();
-            for(let i = 0; i < nodes.length; i++){
+            for(let i = 0; i < adjacencyList.length; i++){
                 if(adjacencyList[i] !== -1){
                     currentState = this.markEdgeAsSelected(currentState, adjacencyList[i]);
                     currentState.algorithmInfobox = {
-                        information: `Checking whether neighbour has been visited yet or in queue.`,
+                        information: `Checking if neighbour of the current node is already in stack or has been visited.`,
                         dataStructure: {
-                                type: "queue",
-                                ds: this.getLabelsForQueueRepresentation(queue.toArray())
-                            }
-                    };
+                            type: "stack",
+                            ds: this.getLabelsForStackRepresentation(stack)
+                        }
+                    }
                     animationStates.push(currentState);
                     if(!visited[i]){
+                        stack.push(i);
                         visited[i] = true;
-                        queue.enqueue(i);
-                        currentState = this.markNodeAsInQueue(currentState, i);
+                        currentState = this.markNodeAsInStack(currentState, i);
                         currentState.algorithmInfobox = {
-                            information: `neighbour of ${this.graph.getLabelOfNode(currentNodeId!)} hasn't yet been visited and currently not in queue.<hr>putting it in queue.`,
+                            information: `Node (${this.graph.getLabelOfNode(i)}) hasn't been visited and not in stack:<br>pushing it onto the stack.`,
                             dataStructure: {
-                                type: "queue",
-                                ds: this.getLabelsForQueueRepresentation(queue.toArray())
+                                type: "stack",
+                                ds: this.getLabelsForStackRepresentation(stack)
                             }
                         }
                         animationStates.push(currentState);
                     }
-                    currentState = this.markEdgeAsNormal(currentState, adjacencyList[i]);
+                    currentState = this.markEdgeAsNormal(currentState, adjacencyList[i])
                 }
             }
         }
         currentState.algorithmInfobox = {
-            information: `Algorithm finished running!<hr> All nodes reachable from starting node have been visited since the queue is empty!`
+            information: `Algorithm finished running!<hr> All nodes reachable from starting node have been visited since the stack is empty!`
         }
         animationStates.push(currentState);
         return animationStates;
     }
+        
 }

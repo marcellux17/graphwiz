@@ -1,9 +1,9 @@
-import { Animation } from "../animation/Animation";
-import { WeightedGraph } from "../datastructures/Graph";
-import { playBox, pauseButton, playButton, startingNodeInfo, destinationNodeInfo, pathInfoBox, speedRangeInput, speedInfo, backButton, forwardButton, resetButton, runAnimationButton, escapeModeButton, deleteModeButton, addNodeButton, addEdgeButton, presetInput, speedBox, algorithmInformationBox, downloadGraphButton, uploadGraphInput, } from "../dom/elements";
-import { changeMessageBox, makeInvisible, makeVisible} from "../dom/helpers";
-import { Network } from "../network/Network";
-import { isPreset } from "../types/preset";
+import { Animation } from "../../animation/Animation";
+import { WeightedGraph } from "../../datastructures/Graph";
+import { playBox, pauseButton, playButton, startingNodeInfo, destinationNodeInfo, pathInfoBox, speedRangeInput, speedInfo, backButton, forwardButton, resetButton, runAnimationButton, escapeModeButton, deleteModeButton, addNodeButton, addEdgeButton, presetInput, speedBox, algorithmInformationBox, downloadGraphButton, uploadGraphInput, } from "../../dom/elements";
+import { changeMessageBox, makeInvisible, makeVisible} from "../../dom/helpers";
+import { Network } from "../../network/Network";
+import { isPreset } from "../../types/preset";
 import AStar from "./AStarAlgorithm";
 
 type canvasState = "add-edge-mode" | "idle" | "delete" | "add-node-mode" | "run-animation" | "step-by-step" | "animation-running";

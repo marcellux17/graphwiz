@@ -1,23 +1,24 @@
-import { Animation } from "../animation/Animation";
-import { WeightedGraph } from "../datastructures/Graph";
-import { playBox, pauseButton, playButton, inputGroup, label, weightInput, speedRangeInput, speedInfo, backButton, forwardButton, resetButton, runAnimationButton, escapeModeButton, deleteModeButton, addNodeButton, addEdgeButton, presetInput, algorithmInformationBox, speedBox, downloadGraphButton, uploadGraphInput, } from "../dom/elements";
-import { changeMessageBox, makeInvisible, makeVisible, resetInput, } from "../dom/helpers";
-import { Network } from "../network/Network";
-import { isPreset } from "../types/preset";
-import Prim from "./PrimAlgorithm";
+import { Animation } from "../../animation/Animation";
+import { WeightedGraph } from "../../datastructures/Graph";
+import { playBox, pauseButton, playButton, startingNodeInfo, destinationNodeInfo, pathInfoBox, inputGroup, label, weightInput, speedRangeInput, speedInfo, backButton, forwardButton, resetButton, runAnimationButton, escapeModeButton, deleteModeButton, addNodeButton, addEdgeButton, presetInput, algorithmInformationBox, speedBox, downloadGraphButton, uploadGraphInput, } from "../../dom/elements";
+import { changeMessageBox, makeInvisible, makeVisible, resetInput, } from "../../dom/helpers";
+import { Network } from "../../network/Network";
+import { isPreset } from "../../types/preset";
+import Dijkstra from "./DijkstraAlgorithm";
 
 type canvasState = "add-edge-mode" | "idle" | "delete" | "add-node-mode" | "run-animation" | "step-by-step" | "animation-running";
-export class PrimController {
+export class DijkstraController {
     private network: Network;
     private selectedEdgeId: number | null = null;
     private startingNodeId: number | null = null;
+    private destinationNodeId: number | null = null;
     private canvasState: canvasState = "idle"; //aka no mode is selected
-    private algorithm: Prim;
+    private algorithm: Dijkstra;
     private animation: Animation;
     constructor() {
         const graph = new WeightedGraph();
         this.network = new Network(graph, false, true);
-        this.algorithm = new Prim(graph);
+        this.algorithm = new Dijkstra(graph);
         this.animation = new Animation(this.network);
         this.setUpNetworkEventListeners();
         this.setUpUiEventListeners();
@@ -48,12 +49,17 @@ export class PrimController {
                     makeInvisible(speedBox);
                 }
                 this.startingNodeId = null;
+                this.destinationNodeId = null;
+                startingNodeInfo!.textContent = "start: ";
+                destinationNodeInfo!.textContent = "dest: ";
                 changeMessageBox( "idle mode (click on edges to modify weights)" );
+                makeInvisible(pathInfoBox);
                 makeInvisible(playBox);
                 this.network.resetToIdle();
                 break;
             case "run-animation":
                 changeMessageBox("select starting node");
+                makeVisible(pathInfoBox);
                 resetInput();
                 this.selectedEdgeId = null;
                 this.network.resetToIdle();
@@ -73,8 +79,24 @@ export class PrimController {
     }
     selectNodeHandle(id: number): void {
         if (this.canvasState !== "run-animation") return;
-        this.startingNodeId = id;
-        const states = this.algorithm.Run(this.startingNodeId);
+        if (this.startingNodeId === null) {
+            this.startingNodeId = id;
+            changeMessageBox("choose destination node");
+            startingNodeInfo!.textContent = `start: ${this.network.getLabelOfNode( this.startingNodeId! )}`;
+            return;
+        }
+        this.destinationNodeId = id;
+        if (this.destinationNodeId === this.startingNodeId) {
+            changeMessageBox("choose destination node");
+            return;
+        }
+        const connected = this.network.areConnected( this.startingNodeId!, this.destinationNodeId! );
+        if (!connected) {
+            changeMessageBox( "no path from starting node to destination node, choose another destination node" );
+            return;
+        }
+        destinationNodeInfo!.textContent = `dest: ${this.network.getLabelOfNode( this.destinationNodeId! )}`;
+        const states = this.algorithm.Run( this.startingNodeId!, this.destinationNodeId! );
         this.animation.setAnimationStates(states);
         this.changeCanvasState("animation-running");
     }
@@ -120,7 +142,6 @@ export class PrimController {
         addEdgeButton?.addEventListener("click", () => {
             this.changeCanvasState("add-edge-mode");
         });
-
         addNodeButton?.addEventListener("click", () => {
             this.changeCanvasState("add-node-mode");
         });
@@ -170,7 +191,7 @@ export class PrimController {
         });
         presetInput?.addEventListener("input", () => {
             if(presetInput!.value !== "load a graph" && this.canvasState !== "run-animation" && this.canvasState !== "animation-running"){
-                const request = new Request(`./graph_presets/prim/${presetInput!.value}.json`);
+                const request = new Request(`./graph_presets/dijkstra/${presetInput!.value}.json`);
                 fetch(request)
                     .then((res) => {
                         return res.json();

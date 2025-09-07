@@ -1,34 +1,37 @@
-import { Animation } from "../animation/Animation";
-import { WeightedGraph } from "../datastructures/Graph";
-import { playBox, pauseButton, playButton, startingNodeInfo, destinationNodeInfo, pathInfoBox, inputGroup, label, weightInput, speedRangeInput, speedInfo, backButton, forwardButton, resetButton, runAnimationButton, escapeModeButton, deleteModeButton, addNodeButton, addEdgeButton, presetInput, algorithmInformationBox, speedBox, downloadGraphButton, uploadGraphInput, } from "../dom/elements";
-import { changeMessageBox, makeInvisible, makeVisible, resetInput, } from "../dom/helpers";
-import { Network } from "../network/Network";
-import { isPreset } from "../types/preset";
-import Kruskal from "./KruskalAlgorithm";
+import { Animation } from "../../animation/Animation";
+import { WeightedGraph } from "../../datastructures/Graph";
+import { playBox, pauseButton, playButton, startingNodeInfo, destinationNodeInfo, pathInfoBox, inputGroup, label, weightInput, speedRangeInput, speedInfo, backButton, forwardButton, resetButton, runAnimationButton, escapeModeButton, deleteModeButton, addNodeButton, addEdgeButton, presetInput, algorithmInformationBox, speedBox, downloadGraphButton, uploadGraphInput, } from "../../dom/elements";
+import { changeMessageBox, makeInvisible, makeVisible, resetInput, } from "../../dom/helpers";
+import { Network } from "../../network/Network";
+import { isPreset } from "../../types/preset";
+import BellmanFord from "./BellmanFordAlgorithm";
 
-type canvasState = "add-edge-mode" | "idle" | "delete" | "add-node-mode" | "step-by-step" | "animation-running" | "run-animation";
-export class KruskalController {
+type canvasState = "add-edge-mode" | "idle" | "delete" | "add-node-mode" | "run-animation" | "step-by-step" | "animation-running";
+export class BellmanFordController {
     private network: Network;
     private selectedEdgeId: number | null = null;
-    private componentNodeId: number | null = null;
+    private startingNodeId: number | null = null;
+    private destinationNodeId: number | null = null;
     private canvasState: canvasState = "idle"; //aka no mode is selected
-    private algorithm: Kruskal;
     private animation: Animation;
+    private algorithm: BellmanFord
     constructor() {
         const graph = new WeightedGraph();
-        this.network = new Network(graph, false, true);
-        this.algorithm = new Kruskal(graph);
+        this.network = new Network(graph, false, false, true);
         this.animation = new Animation(this.network);
+        this.algorithm = new BellmanFord(graph);
         this.setUpNetworkEventListeners();
         this.setUpUiEventListeners();
     }
     changeCanvasState(newState: canvasState): void {
-        if ( this.canvasState === "animation-running" && newState !== "idle") return;
+        if ( (this.canvasState === "run-animation" || this.canvasState === "animation-running") && newState !== "idle" && newState !== "animation-running" ) return;
         const prevCanvasState = this.canvasState;
         this.canvasState = newState;
         switch (newState) {
             case "add-edge-mode":
-                changeMessageBox( "to create an edge click and drag from one node to the other" );
+                changeMessageBox(
+                    "to create an edge click and drag from one node to the other"
+                );
                 this.network.addEdgeModeOn();
                 break;
             case "add-node-mode":
@@ -39,24 +42,26 @@ export class KruskalController {
                 changeMessageBox("select an element to delete");
                 this.network.deleteElementModeOn();
                 break;
-            case "run-animation":
-                changeMessageBox("select a node from a component");
-                resetInput();
-                this.selectedEdgeId = null;
-                this.network.resetToIdle();
-                break;
             case "idle":
-                if (prevCanvasState === "animation-running" ) {
+                if ( prevCanvasState === "run-animation" || prevCanvasState === "animation-running" ) {
                     this.animation.escapeAnimation();
                     makeInvisible(algorithmInformationBox);
                     makeInvisible(speedBox);
-                    this.componentNodeId = null;
                 }
+                this.startingNodeId = null;
+                this.destinationNodeId = null;
                 startingNodeInfo!.textContent = "start: ";
                 destinationNodeInfo!.textContent = "dest: ";
                 changeMessageBox( "idle mode (click on edges to modify weights)" );
                 makeInvisible(pathInfoBox);
                 makeInvisible(playBox);
+                this.network.resetToIdle();
+                break;
+            case "run-animation":
+                changeMessageBox("select starting node");
+                makeVisible(pathInfoBox);
+                resetInput();
+                this.selectedEdgeId = null;
                 this.network.resetToIdle();
                 break;
             case "animation-running":
@@ -74,14 +79,37 @@ export class KruskalController {
     }
     selectNodeHandle(id: number): void {
         if (this.canvasState !== "run-animation") return;
-        this.componentNodeId = id;
-        console.log("it ran")
-        const states = this.algorithm.Run(this.componentNodeId);
+        if (this.startingNodeId === null) {
+            this.startingNodeId = id;
+            changeMessageBox("choose destination node");
+            startingNodeInfo!.textContent = `start: ${this.network.getLabelOfNode( this.startingNodeId! )}`;
+            return;
+        }
+        this.destinationNodeId = id;
+        if (this.destinationNodeId === this.startingNodeId) {
+            changeMessageBox("choose destination node");
+            return;
+        }
+        const connected = this.network.areConnected( this.startingNodeId!, this.destinationNodeId! );
+        if (!connected) {
+            changeMessageBox( "no path from starting node to destination node, choose another destination node" );
+            return;
+        }
+        destinationNodeInfo!.textContent = `dest: ${this.network.getLabelOfNode( this.destinationNodeId! )}`;
+        const states = this.algorithm.Run( this.startingNodeId!, this.destinationNodeId! );
+        if(states.length === 0){
+            changeMessageBox( "graph contains negative cycle(s), change graph to run algorithm" );
+            setTimeout(() => {
+                this.changeCanvasState("idle");
+            }, 1500);
+            return;
+        }
         this.animation.setAnimationStates(states);
         this.changeCanvasState("animation-running");
     }
     selectEdgeHandle(id: number): void {
-        if ( this.canvasState === "animation-running" || this.canvasState !== "idle")return;
+        if ( this.canvasState === "animation-running" || this.canvasState === "run-animation" )return;
+        if (this.canvasState !== "idle") return;
         makeVisible(inputGroup);
         this.selectedEdgeId = id;
         label.textContent = `Change weight of the selected edge`;
@@ -91,8 +119,8 @@ export class KruskalController {
         resetInput();
     }
     private setUpNetworkEventListeners(): void {
-        this.selectEdgeHandle = this.selectEdgeHandle.bind(this);
         this.selectNodeHandle = this.selectNodeHandle.bind(this);
+        this.selectEdgeHandle = this.selectEdgeHandle.bind(this);
         this.canvasBlankClickHandle = this.canvasBlankClickHandle.bind(this);
         this.network.onSelectEdge(this.selectEdgeHandle);
         this.network.onSelectNode(this.selectNodeHandle);
@@ -106,7 +134,7 @@ export class KruskalController {
             try{
                 const json = await JSON.parse(text);
                 if(!isPreset(json))throw new Error("wrong graph format");
-                if(!json.info.edgesToWay || !json.info.weighted)throw new Error("the graph is not suitable for the algorithm")
+                if(json.info.edgesToWay || !json.info.weighted)throw new Error("the graph is not suitable for the algorithm")
                 this.network.loadPreset(json);
             }catch(e:any){
                 //should update this for a nice error message for the user
@@ -121,6 +149,7 @@ export class KruskalController {
         addEdgeButton?.addEventListener("click", () => {
             this.changeCanvasState("add-edge-mode");
         });
+
         addNodeButton?.addEventListener("click", () => {
             this.changeCanvasState("add-node-mode");
         });
@@ -169,8 +198,8 @@ export class KruskalController {
             this.animation.setAnimationSpeedChange(1000 / newspeed);
         });
         presetInput?.addEventListener("input", () => {
-            if(presetInput!.value !== "load a graph" && this.canvasState !== "animation-running"){
-                const request = new Request(`./graph_presets/kruskal/${presetInput!.value}.json`);
+            if(presetInput!.value !== "load a graph" && this.canvasState !== "run-animation" && this.canvasState !== "animation-running"){
+                const request = new Request(`./graph_presets/bellmanford/${presetInput!.value}.json`);
                 fetch(request)
                     .then((res) => {
                         return res.json();

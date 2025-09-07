@@ -1,28 +1,29 @@
-import { Animation } from "../animation/Animation";
-import { Graph } from "../datastructures/Graph";
-import { playBox, pauseButton, playButton, speedRangeInput, speedInfo, backButton, forwardButton, resetButton, runAnimationButton, escapeModeButton, deleteModeButton, addNodeButton, addEdgeButton, presetInput, algorithmInformationBox, speedBox, downloadGraphButton, uploadGraphInput, } from "../dom/elements";
-import { changeMessageBox, makeInvisible, makeVisible, } from "../dom/helpers";
-import { Network } from "../network/Network";
-import { isPreset } from "../types/preset";
-import DFS from "./DFSAlgorithm";
+import { Animation } from "../../animation/Animation";
+import { WeightedGraph } from "../../datastructures/Graph";
+import { playBox, pauseButton, playButton, startingNodeInfo, destinationNodeInfo, pathInfoBox, inputGroup, label, weightInput, speedRangeInput, speedInfo, backButton, forwardButton, resetButton, runAnimationButton, escapeModeButton, deleteModeButton, addNodeButton, addEdgeButton, presetInput, algorithmInformationBox, speedBox, downloadGraphButton, uploadGraphInput, } from "../../dom/elements";
+import { changeMessageBox, makeInvisible, makeVisible, resetInput, } from "../../dom/helpers";
+import { Network } from "../../network/Network";
+import { isPreset } from "../../types/preset";
+import Kruskal from "./KruskalAlgorithm";
 
-type canvasState = "add-edge-mode" | "idle" | "delete" | "add-node-mode" | "run-animation" | "step-by-step" | "animation-running";
-export class DFSController {
+type canvasState = "add-edge-mode" | "idle" | "delete" | "add-node-mode" | "step-by-step" | "animation-running" | "run-animation";
+export class KruskalController {
     private network: Network;
-    private startingNodeId: number | null = null;
+    private selectedEdgeId: number | null = null;
+    private componentNodeId: number | null = null;
     private canvasState: canvasState = "idle"; //aka no mode is selected
+    private algorithm: Kruskal;
     private animation: Animation;
-    private algorithm: DFS;
     constructor() {
-        const graph = new Graph();
-        this.network = new Network(graph, false, true, false);
+        const graph = new WeightedGraph();
+        this.network = new Network(graph, false, true);
+        this.algorithm = new Kruskal(graph);
         this.animation = new Animation(this.network);
-        this.algorithm = new DFS(graph);
         this.setUpNetworkEventListeners();
         this.setUpUiEventListeners();
     }
     changeCanvasState(newState: canvasState): void {
-        if ( (this.canvasState === "run-animation" || this.canvasState === "animation-running") && newState !== "idle" && newState !== "animation-running" ) return;
+        if ( this.canvasState === "animation-running" && newState !== "idle") return;
         const prevCanvasState = this.canvasState;
         this.canvasState = newState;
         switch (newState) {
@@ -38,19 +39,24 @@ export class DFSController {
                 changeMessageBox("select an element to delete");
                 this.network.deleteElementModeOn();
                 break;
+            case "run-animation":
+                changeMessageBox("select a node from a component");
+                resetInput();
+                this.selectedEdgeId = null;
+                this.network.resetToIdle();
+                break;
             case "idle":
-                if ( prevCanvasState === "run-animation" || prevCanvasState === "animation-running" ) {
+                if (prevCanvasState === "animation-running" ) {
                     this.animation.escapeAnimation();
                     makeInvisible(algorithmInformationBox);
                     makeInvisible(speedBox);
+                    this.componentNodeId = null;
                 }
-                this.startingNodeId = null;
+                startingNodeInfo!.textContent = "start: ";
+                destinationNodeInfo!.textContent = "dest: ";
                 changeMessageBox( "idle mode (click on edges to modify weights)" );
+                makeInvisible(pathInfoBox);
                 makeInvisible(playBox);
-                this.network.resetToIdle();
-                break;
-            case "run-animation":
-                changeMessageBox("select starting node");
                 this.network.resetToIdle();
                 break;
             case "animation-running":
@@ -64,17 +70,33 @@ export class DFSController {
                 this.animation.start();
                 break;
         }
+        resetInput();
     }
     selectNodeHandle(id: number): void {
         if (this.canvasState !== "run-animation") return;
-        this.startingNodeId = id;
-        const states = this.algorithm.Run(this.startingNodeId);
+        this.componentNodeId = id;
+        console.log("it ran")
+        const states = this.algorithm.Run(this.componentNodeId);
         this.animation.setAnimationStates(states);
-        this.changeCanvasState("animation-running");  
+        this.changeCanvasState("animation-running");
+    }
+    selectEdgeHandle(id: number): void {
+        if ( this.canvasState === "animation-running" || this.canvasState !== "idle")return;
+        makeVisible(inputGroup);
+        this.selectedEdgeId = id;
+        label.textContent = `Change weight of the selected edge`;
+        weightInput.value = `${this.network.getEdgeWeight( this.selectedEdgeId! )}`;
+    }
+    canvasBlankClickHandle(): void {
+        resetInput();
     }
     private setUpNetworkEventListeners(): void {
+        this.selectEdgeHandle = this.selectEdgeHandle.bind(this);
         this.selectNodeHandle = this.selectNodeHandle.bind(this);
+        this.canvasBlankClickHandle = this.canvasBlankClickHandle.bind(this);
+        this.network.onSelectEdge(this.selectEdgeHandle);
         this.network.onSelectNode(this.selectNodeHandle);
+        this.network.onCanvasBlankClick(this.canvasBlankClickHandle);
     }
     private setUpUiEventListeners(): void {
         uploadGraphInput?.addEventListener("change", async () => {
@@ -84,7 +106,7 @@ export class DFSController {
             try{
                 const json = await JSON.parse(text);
                 if(!isPreset(json))throw new Error("wrong graph format");
-                if(!json.info.edgesToWay || json.info.weighted)throw new Error("the graph is not suitable for the algorithm")
+                if(!json.info.edgesToWay || !json.info.weighted)throw new Error("the graph is not suitable for the algorithm")
                 this.network.loadPreset(json);
             }catch(e:any){
                 //should update this for a nice error message for the user
@@ -112,6 +134,11 @@ export class DFSController {
 
         runAnimationButton?.addEventListener("click", () => {
             this.changeCanvasState("run-animation");
+        });
+        weightInput.addEventListener("input", () => {
+            const newValue = Number.parseInt(weightInput.value);
+            const selectedElementId = this.selectedEdgeId!;
+            this.network.updateEdge({ id: selectedElementId, weight: newValue, });
         });
         resetButton?.addEventListener("click", () => {
             this.animation.resetAnimation();
@@ -142,8 +169,8 @@ export class DFSController {
             this.animation.setAnimationSpeedChange(1000 / newspeed);
         });
         presetInput?.addEventListener("input", () => {
-            if(presetInput!.value !== "load a graph" && this.canvasState !== "run-animation" && this.canvasState !== "animation-running"){
-                const request = new Request(`./graph_presets/dfs/${presetInput!.value}.json`);
+            if(presetInput!.value !== "load a graph" && this.canvasState !== "animation-running"){
+                const request = new Request(`./graph_presets/kruskal/${presetInput!.value}.json`);
                 fetch(request)
                     .then((res) => {
                         return res.json();
