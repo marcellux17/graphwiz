@@ -1,4 +1,4 @@
-import { animationEdgeInformation, animationNodeInformation, animationState} from "../animation/types";
+import { animationEdgeInformation, animationNodeInformation, animationState} from "../types/animation";
 import { Graph } from "../datastructures/Graph";
 
 export default class DFS{

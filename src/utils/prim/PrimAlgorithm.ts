@@ -1,5 +1,5 @@
 import { WeightedGraph } from "../datastructures/Graph";
-import { animationEdgeInformation, animationNodeInformation, animationState} from "../animation/types";
+import { animationEdgeInformation, animationNodeInformation, animationState} from "../types/animation";
 import { MinPriorityQueue, Queue } from "../datastructures/Queue";
 export default class Prim{
     private graph:WeightedGraph;

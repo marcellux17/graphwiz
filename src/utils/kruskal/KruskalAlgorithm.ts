@@ -1,5 +1,5 @@
 import { Edge, WeightedGraph } from "../datastructures/Graph";
-import { animationEdgeInformation, animationNodeInformation, animationState} from "../animation/types";
+import { animationEdgeInformation, animationNodeInformation, animationState} from "../types/animation";
 import { DisjointSet } from "../datastructures/DisjointSet";
 import { Queue } from "../datastructures/Queue";
 

@@ -1,26 +1,9 @@
 import { Graph, WeightedGraph, Node, Edge } from "../datastructures/Graph";
 import { algorithmInformationBox, canvas, editingPanel } from "../dom/elements";
 import { saveAs } from "file-saver"
+import { Preset, presetEdge, presetNode } from "../types/preset";
 
-type Preset = {
-    info: {
-        weighted: boolean;
-        edgesToWay: boolean;
-    };
-    nodes: presetNode[];
-    edges: presetEdge[];
-};
-type presetNode = {
-    id: number;
-    x: number;
-    y: number;
-    color: string;
-};
-type presetEdge = {
-    from: number;
-    to: number;
-    weight?: number;
-}
+
 type networkMode = "addEdgeMode" | "addNodeMode" | "idle" | "delete" | "disabled";
 export class Network{
     private ctx:CanvasRenderingContext2D = canvas.getContext("2d")!;

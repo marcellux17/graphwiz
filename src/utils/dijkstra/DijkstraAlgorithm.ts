@@ -1,6 +1,6 @@
 import { Node, WeightedGraph } from "../datastructures/Graph";
 import { MinPriorityQueue } from "../datastructures/Queue.ts";
-import { algorithmInfoBoxState, animationEdgeInformation, animationNodeInformation, animationState} from "../animation/types";
+import { algorithmInfoBoxState, animationEdgeInformation, animationNodeInformation, animationState} from "../types/animation";
 
 export default class Dijkstra{
     private graph:WeightedGraph;

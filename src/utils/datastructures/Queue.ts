@@ -65,7 +65,7 @@ export class Queue<T> {
         return result;
     }
 }
-export type QueueElement = {
+type QueueElement = {
     id: number, 
     value: number
 }

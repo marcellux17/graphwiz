@@ -1,6 +1,6 @@
 import { Node, WeightedGraph } from "../datastructures/Graph";
 import { MinPriorityQueue } from "../datastructures/Queue";
-import { algorithmInfoBoxState, animationEdgeInformation, animationNodeInformation, animationState} from "../animation/types";
+import { algorithmInfoBoxState, animationEdgeInformation, animationNodeInformation, animationState} from "../types/animation";
 
 export default class AStar{
     private graph:WeightedGraph;

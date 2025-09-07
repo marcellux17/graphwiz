@@ -1,5 +1,5 @@
 import { Node, WeightedGraph } from "../datastructures/Graph";
-import { animationEdgeInformation, animationNodeInformation, animationState} from "../animation/types";
+import { animationEdgeInformation, animationNodeInformation, animationState} from "../types/animation";
 
 export default class BellmanFord{
     private graph:WeightedGraph;
