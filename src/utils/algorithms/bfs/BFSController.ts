@@ -6,7 +6,7 @@ import { Network } from "../../network/Network";
 import { isPreset } from "../../types/preset";
 import BFS from "./BFSAlgorithm";
 
-type canvasState = "add-edge-mode" | "idle" | "delete" | "add-node-mode" | "run-animation" | "step-by-step" | "animation-running";
+type canvasState = "add-edge-mode" | "idle" | "delete" | "add-node-mode" | "pre-animation" | "step-by-step" | "animation-running";
 export class BFSController {
     private network: Network;
     private startingNodeId: number | null = null;
@@ -22,9 +22,14 @@ export class BFSController {
         this.setUpUiEventListeners();
     }
     changeCanvasState(newState: canvasState): void {
-        if ( (this.canvasState === "run-animation" || this.canvasState === "animation-running") && newState !== "idle" && newState !== "animation-running" ) return;
-        const prevCanvasState = this.canvasState;
-        this.canvasState = newState;
+        if ( (this.canvasState === "pre-animation" || this.canvasState === "animation-running") && newState !== "pre-animation" && newState !== "animation-running" ){
+            this.animation.escapeAnimation();
+            makeInvisible(algorithmInformationBox);
+            makeInvisible(speedBox);
+            makeInvisible(playBox);
+            this.startingNodeId = null;
+        }
+        if(this.canvasState === "animation-running" && newState === "pre-animation")return;
         switch (newState) {
             case "add-edge-mode":
                 changeMessageBox( "to create an edge click and drag from one node to the other" );
@@ -39,17 +44,10 @@ export class BFSController {
                 this.network.deleteElementModeOn();
                 break;
             case "idle":
-                if ( prevCanvasState === "run-animation" || prevCanvasState === "animation-running" ) {
-                    this.animation.escapeAnimation();
-                    makeInvisible(algorithmInformationBox);
-                    makeInvisible(speedBox);
-                }
-                this.startingNodeId = null;
-                changeMessageBox( "idle mode (click on edges to modify weights)" );
-                makeInvisible(playBox);
+                changeMessageBox( "idle mode" );
                 this.network.resetToIdle();
                 break;
-            case "run-animation":
+            case "pre-animation":
                 changeMessageBox("select starting node");
                 this.network.resetToIdle();
                 break;
@@ -64,9 +62,10 @@ export class BFSController {
                 this.animation.start();
                 break;
         }
+        this.canvasState = newState;
     }
     selectNodeHandle(id: number): void {
-        if (this.canvasState !== "run-animation") return;
+        if (this.canvasState !== "pre-animation") return;
         this.startingNodeId = id;
         const states = this.algorithm.Run(this.startingNodeId);
         this.animation.setAnimationStates(states);
@@ -93,7 +92,7 @@ export class BFSController {
             }
         })
         downloadGraphButton?.addEventListener("click", () => {
-            if(this.canvasState !== "run-animation" && this.canvasState !== "animation-running"){
+            if(this.canvasState !== "pre-animation" && this.canvasState !== "animation-running"){
                 this.network.saveGraphToJSON();
             }
         })
@@ -112,7 +111,7 @@ export class BFSController {
         });
 
         runAnimationButton?.addEventListener("click", () => {
-            this.changeCanvasState("run-animation");
+            this.changeCanvasState("pre-animation");
         });
         resetButton?.addEventListener("click", () => {
             this.animation.resetAnimation();
@@ -143,7 +142,7 @@ export class BFSController {
             this.animation.setAnimationSpeedChange(1000 / newspeed);
         });
         presetInput?.addEventListener("input", () => {
-            if(presetInput!.value !== "load a graph" && this.canvasState !== "run-animation" && this.canvasState !== "animation-running"){
+            if(presetInput!.value !== "load a graph" && this.canvasState !== "pre-animation" && this.canvasState !== "animation-running"){
                 const request = new Request(`./graph_presets/bfs/${presetInput!.value}.json`);
                 fetch(request)
                     .then((res) => {
