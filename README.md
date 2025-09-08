@@ -7,17 +7,19 @@ I hope you enjoy learning about these cool graph algorithms as much as I enjoyed
 
 # Features
 ## Adding nodes
-https://github.com/user-attachments/assets/b060d0c1-7ebf-4060-b80d-cbcbfabc2b4f
+https://github.com/user-attachments/assets/dc1c4fcc-b2d5-4948-9d5f-fddfbd1c8188
 ## Adding edges
-https://github.com/user-attachments/assets/8616eb04-95d1-410e-8818-67eee7024d98
-## Node dragging
-https://github.com/user-attachments/assets/48741094-65b4-4cae-b7ef-898ae1b4396e
-## Deletion of nodes/edges
-https://github.com/user-attachments/assets/8976e397-e50b-4ff9-9287-55c9b730a06d
+https://github.com/user-attachments/assets/ee640ddf-e4a3-43f8-a6c2-2873bfceaac4
+## Move nodes around
+https://github.com/user-attachments/assets/d592cc79-7ac5-4ab3-84e4-208244641a39
+## Delete nodes and edges
+https://github.com/user-attachments/assets/d7ac01b1-8c51-4e5b-bea7-fabb67d3ef9a
 ## Zoom and pan
-https://github.com/user-attachments/assets/78ef2073-8671-45a4-a326-18ce35e21a7a
-## Animation
-https://github.com/user-attachments/assets/f0cbc524-d6cc-4a85-9b9d-ee96eda3b836
+https://github.com/user-attachments/assets/c669d80f-8e7b-4aba-a674-cf135fe22e1e
+## Upload/download graphs you have created
+https://github.com/user-attachments/assets/11e90d26-c281-44d5-bdfe-19d039afdb99
+## Algorithms step by step
+https://github.com/user-attachments/assets/88953f06-24ad-4cb7-809d-14a7357e608c
 
 ## Algorithms Implemented
 
