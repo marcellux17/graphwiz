@@ -16,7 +16,7 @@ export class KruskalController {
     private animation: Animation;
     constructor() {
         const graph = new WeightedGraph();
-        this.network = new Network(graph, false, true);
+        this.network = new Network(graph, true);
         this.algorithm = new Kruskal(graph);
         this.animation = new Animation(this.network);
         this.setUpNetworkEventListeners();

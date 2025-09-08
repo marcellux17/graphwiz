@@ -36,7 +36,7 @@ export class Network{
     private edgesTwoWay:boolean;
     private negativeEdges: boolean;
 
-    constructor(graph: Graph, euclideanWeights: boolean, edgesTwoWay: boolean = false, negativeEdges: boolean = false) {
+    constructor(graph: Graph,edgesTwoWay: boolean = false, euclideanWeights: boolean = false, negativeEdges: boolean = false) {
         this.graph = graph;
         this.euclideanWeights = euclideanWeights;
         this.edgesTwoWay = edgesTwoWay;

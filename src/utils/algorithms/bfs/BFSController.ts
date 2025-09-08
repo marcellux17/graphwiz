@@ -15,7 +15,7 @@ export class BFSController {
     private algorithm: BFS;
     constructor() {
         const graph = new Graph();
-        this.network = new Network(graph, false, true, false);
+        this.network = new Network(graph, true);
         this.animation = new Animation(this.network);
         this.algorithm = new BFS(graph);
         this.setUpNetworkEventListeners();
