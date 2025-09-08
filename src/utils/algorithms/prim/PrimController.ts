@@ -96,10 +96,11 @@ export class PrimController {
     }
     private setUpUiEventListeners(): void {
         uploadGraphInput?.addEventListener("change", async () => {
+            if(this.canvasState === "pre-animation" || this.canvasState === "animation-running")return;
             const file = uploadGraphInput!.files![0];
-            if(file.type !== "application/json")return;
-            const text = await file.text();
+            if(!file || file.type !== "application/json")return;
             try{
+                const text = await file.text();
                 const json = await JSON.parse(text);
                 if(!isPreset(json))throw new Error("wrong graph format");
                 if(!json.info.edgesToWay || !json.info.weighted)throw new Error("the graph is not suitable for the algorithm")
