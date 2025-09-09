@@ -70,7 +70,7 @@ export default class BFS{
         const visited = Array(nodes.length).fill(false);
 
         let currentState = this.createInitialState();
-        currentState = this.markNodeAsVisited(currentState, from);
+        currentState = this.markNodeAsInQueue(currentState, from);
         currentState.algorithmInfobox = {
             information: `Starting node has been put in queue to run bfs.`
         }
