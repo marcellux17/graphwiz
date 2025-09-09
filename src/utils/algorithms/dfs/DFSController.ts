@@ -64,7 +64,7 @@ export class DFSController {
         }
         this.canvasState = newState;
     }
-    selectNodeHandle(id: number): void {
+    selectNodeHandle = (id: number): void => {
         if (this.canvasState !== "pre-animation") return;
         this.startingNodeId = id;
         const states = this.algorithm.Run(this.startingNodeId);

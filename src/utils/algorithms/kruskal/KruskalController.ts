@@ -68,7 +68,7 @@ export class KruskalController {
         this.canvasState = newState;
         resetInput();
     }
-    selectNodeHandle(id: number): void {
+    selectNodeHandle = (id: number): void => {
         if (this.canvasState !== "pre-animation") return;
         this.componentNodeId = id;
         console.log("it ran")
@@ -76,20 +76,17 @@ export class KruskalController {
         this.animation.setAnimationStates(states);
         this.changeCanvasState("animation-running");
     }
-    selectEdgeHandle(id: number): void {
+    selectEdgeHandle = (id: number): void => {
         if ( this.canvasState === "animation-running" || this.canvasState !== "idle")return;
         makeVisible(inputGroup);
         this.selectedEdgeId = id;
         label.textContent = `Change weight of the selected edge`;
         weightInput.value = `${this.network.getEdgeWeight( this.selectedEdgeId! )}`;
     }
-    canvasBlankClickHandle(): void {
+    canvasBlankClickHandle = (): void => {
         resetInput();
     }
     private setUpNetworkEventListeners(): void {
-        this.selectEdgeHandle = this.selectEdgeHandle.bind(this);
-        this.selectNodeHandle = this.selectNodeHandle.bind(this);
-        this.canvasBlankClickHandle = this.canvasBlankClickHandle.bind(this);
         this.network.onSelectEdge(this.selectEdgeHandle);
         this.network.onSelectNode(this.selectNodeHandle);
         this.network.onCanvasBlankClick(this.canvasBlankClickHandle);

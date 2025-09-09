@@ -64,7 +64,7 @@ export class BFSController {
         }
         this.canvasState = newState;
     }
-    selectNodeHandle(id: number): void {
+    selectNodeHandle= (id: number): void =>{
         if (this.canvasState !== "pre-animation") return;
         this.startingNodeId = id;
         const states = this.algorithm.Run(this.startingNodeId);
@@ -73,7 +73,6 @@ export class BFSController {
         
     }
     private setUpNetworkEventListeners(): void {
-        this.selectNodeHandle = this.selectNodeHandle.bind(this);
         this.network.onSelectNode(this.selectNodeHandle);
     }
     private setUpUiEventListeners(): void {

@@ -74,7 +74,7 @@ export class DijkstraController {
         this.canvasState = newState;
         resetInput();
     }
-    selectNodeHandle(id: number): void {
+    selectNodeHandle = (id: number): void => {
         if (this.canvasState !== "pre-animation") return;
         if (this.startingNodeId === null) {
             this.startingNodeId = id;
@@ -97,7 +97,7 @@ export class DijkstraController {
         this.animation.setAnimationStates(states);
         this.changeCanvasState("animation-running");
     }
-    selectEdgeHandle(id: number): void {
+    selectEdgeHandle = (id: number): void =>{
         if ( this.canvasState === "animation-running" || this.canvasState === "pre-animation" )return;
         if (this.canvasState !== "idle") return;
         makeVisible(inputGroup);
@@ -105,13 +105,10 @@ export class DijkstraController {
         label.textContent = `Change weight of the selected edge`;
         weightInput.value = `${this.network.getEdgeWeight( this.selectedEdgeId! )}`;
     }
-    canvasBlankClickHandle(): void {
+    canvasBlankClickHandle = (): void => {
         resetInput();
     }
     private setUpNetworkEventListeners(): void {
-        this.selectNodeHandle = this.selectNodeHandle.bind(this);
-        this.selectEdgeHandle = this.selectEdgeHandle.bind(this);
-        this.canvasBlankClickHandle = this.canvasBlankClickHandle.bind(this);
         this.network.onSelectEdge(this.selectEdgeHandle);
         this.network.onSelectNode(this.selectNodeHandle);
         this.network.onCanvasBlankClick(this.canvasBlankClickHandle);

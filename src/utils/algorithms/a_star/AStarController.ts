@@ -74,7 +74,7 @@ export class AStarController {
         this.canvasState = newState;
 
     }
-    selectNodeHandle(id: number): void {
+    selectNodeHandle = (id: number): void => {
         if (this.canvasState !== "pre-animation") return;
         if (this.startingNodeId === null) {
             this.startingNodeId = id;
@@ -98,7 +98,6 @@ export class AStarController {
         this.changeCanvasState("animation-running");
     }
     private setUpNetworkEventListeners(): void {
-        this.selectNodeHandle = this.selectNodeHandle.bind(this);
         this.network.onSelectNode(this.selectNodeHandle);
     }
     private setUpUiEventListeners(): void {
