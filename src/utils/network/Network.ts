@@ -51,7 +51,8 @@ export class Network{
     saveGraphToJSON():void{
         const jsonOjbect:Preset = {info: {
             weighted: this.graph instanceof WeightedGraph,
-            edgesToWay: this.edgesTwoWay
+            edgesTwoWay: this.edgesTwoWay,
+            scale: this.scale
         }, nodes: [], edges: []};
         const nodes = this.graph.getNodeList();
         for(let nodeId = 0; nodeId < nodes.length; nodeId++){
@@ -219,12 +220,12 @@ export class Network{
         this.graph.resetGraphToOriginalVisual();
     }
     loadPreset(preset: Preset): void {
-        this.scale = 1;
-        this.nodeSize = 30;
+        this.scale = preset.info.scale;
+        this.nodeSize = 30*this.scale;
         this.graph.clearGraph();
         this.nodeIds = [];
         for (const node of preset.nodes) {
-            this.graph.addNodeFromPreset(node.id, node.x, node.y, node.color);
+            this.graph.addExistingNode(node.id, node.x, node.y, node.color);
             this.nodeIds.push(node.id);
         }
         for (const edge of preset.edges) {

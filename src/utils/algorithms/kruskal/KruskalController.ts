@@ -100,7 +100,7 @@ export class KruskalController {
                 const text = await file.text();
                 const json = await JSON.parse(text);
                 if(!isPreset(json))throw new Error("wrong graph format");
-                if(!json.info.edgesToWay || !json.info.weighted)throw new Error("the graph is not suitable for the algorithm")
+                if(!json.info.edgesTwoWay || !json.info.weighted)throw new Error("the graph is not suitable for the algorithm")
                 this.network.loadPreset(json);
             }catch(e:any){
                 //should update this for a nice error message for the user

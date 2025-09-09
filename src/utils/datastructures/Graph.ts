@@ -21,7 +21,7 @@ export class Graph {
         this.numberOfNodes++;
         return idx;
     }
-    addNodeFromPreset(id: number, x: number, y: number, color: string): void {
+    addExistingNode(id: number, x: number, y: number, color: string): void {
         const label = `${this.i++}`;
         const node = new Node(label, id);
         node.color = color;
