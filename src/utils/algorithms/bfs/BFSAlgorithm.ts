@@ -88,7 +88,8 @@ export default class BFS{
                 }
             }
             animationStates.push(currentState);
-            const currentNodeId = queue.dequeue();
+            const currentNodeId = queue.dequeue()!;
+            const currentNode = this.graph.getNode(currentNodeId)!;
             currentState = this.markNodeAsVisited(currentState, currentNodeId!);
             currentState.algorithmInfobox = {
             information: `Selecting node from queue: (${this.graph.getLabelOfNode(currentNodeId!)}).`,
@@ -98,10 +99,10 @@ export default class BFS{
                 }
             }
             animationStates.push(currentState);
-            const adjacencyList = this.graph.getNode(currentNodeId!)!.getAdjacencyList();
-            for(let i = 0; i < nodes.length; i++){
-                if(adjacencyList[i] !== -1){
-                    currentState = this.markEdgeAsSelected(currentState, adjacencyList[i]);
+            for(let nodeId = 0; nodeId < nodes.length; nodeId++){
+                if(currentNode.hasNeighbour(nodeId)){
+                    const edgeId = currentNode.getEdgeIdConnectingToNeihgbour(nodeId)
+                    currentState = this.markEdgeAsSelected(currentState, edgeId);
                     currentState.algorithmInfobox = {
                         information: `Checking whether neighbour has been visited yet or in queue.`,
                         dataStructure: {
@@ -110,10 +111,10 @@ export default class BFS{
                             }
                     };
                     animationStates.push(currentState);
-                    if(!visited[i]){
-                        visited[i] = true;
-                        queue.enqueue(i);
-                        currentState = this.markNodeAsInQueue(currentState, i);
+                    if(!visited[nodeId]){
+                        visited[nodeId] = true;
+                        queue.enqueue(nodeId);
+                        currentState = this.markNodeAsInQueue(currentState, nodeId);
                         currentState.algorithmInfobox = {
                             information: `neighbour of ${this.graph.getLabelOfNode(currentNodeId!)} hasn't yet been visited and currently not in queue.<hr>putting it in queue.`,
                             dataStructure: {
@@ -123,7 +124,7 @@ export default class BFS{
                         }
                         animationStates.push(currentState);
                     }
-                    currentState = this.markEdgeAsNormal(currentState, adjacencyList[i]);
+                    currentState = this.markEdgeAsNormal(currentState, edgeId);
                 }
             }
         }

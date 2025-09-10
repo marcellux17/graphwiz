@@ -10,6 +10,9 @@ export class Graph {
         this.nodes = Array(200).fill(null);
         this.edges = Array(200).fill(null);
     }
+    getNodesListLength():number{
+        return this.nodes.length;
+    }
     getNumberOfNodes():number{
         return this.numberOfNodes;
     }
@@ -50,7 +53,7 @@ export class Graph {
     }
 
     removeEdge(from: number, to: number, twoWay: boolean = true) {
-        const edgeId = this.nodes[from]!.getAdjacencyList()[to];
+        const edgeId = this.nodes[from]!.getEdgeIdConnectingToNeihgbour(to);
         if (edgeId === -1) return;
         this.nodes[from]!.removeNeighbour(to);
         if(twoWay){
@@ -61,37 +64,33 @@ export class Graph {
     deleteNode(id: number): void {
         const node = this.nodes[id];
         if (!node) return;
-        const adjacencyList = node.getAdjacencyList();
-        for (let i = 0; i < adjacencyList.length; i++) {
-            if(this.nodes[i] !== null && this.nodes[i]?.hasNeighbour(id)){
-                const edgeId = this.nodes[i]!.getAdjacencyList()[id];
+        for (let nodeId = 0; nodeId < this.nodes.length; nodeId++) {
+            if(this.nodes[nodeId] !== null && this.nodes[nodeId]!.hasNeighbour(id)){
+                const edgeId = this.nodes[nodeId]!.getEdgeIdConnectingToNeihgbour(id);
                 this.edges[edgeId] = null;
-                this.nodes[i]!.removeNeighbour(id);
+                this.nodes[nodeId]!.removeNeighbour(id);
             }
-            if(adjacencyList[i] !== -1){
-                this.edges[adjacencyList[i]] = null;
+            if(node.hasNeighbour(nodeId)){
+                this.edges[node.getEdgeIdConnectingToNeihgbour(nodeId)] = null;
             }
         }
         
         this.nodes[id] = null;
         this.numberOfNodes--;
     }
-    getEdgeListOfNode(nodeId: number): number[] {
-        const node = this.nodes[nodeId];
+    getEdgeListOfNode(id: number): number[] {
+        const node = this.nodes[id];
         if (!node) return [];
 
-        const adjacencyList = node.getAdjacencyList();
         const edges: number[] = [];
 
-        for (let i = 0; i < adjacencyList.length; i++) {
-            const edgeId = adjacencyList[i];
-            if (edgeId !== -1) {
-                edges.push(edgeId);
-            }else if(this.nodes[i] !== null){
-                const adjacencyListOfNeighbour = this.nodes[i]!.getAdjacencyList();
-                const edgeIdOfNeighbour = adjacencyListOfNeighbour[nodeId]
-                if(edgeIdOfNeighbour !== -1){
-                    edges.push(edgeIdOfNeighbour)
+        for (let nodeId = 0; nodeId < this.nodes.length; nodeId++) {
+            if (node.hasNeighbour(nodeId)) {
+                edges.push(node.getEdgeIdConnectingToNeihgbour(nodeId));
+            }else if(this.nodes[nodeId] !== null){
+                const neighbourNode = this.nodes[nodeId]!;
+                if(neighbourNode.hasNeighbour(nodeId)){
+                    edges.push(neighbourNode.getEdgeIdConnectingToNeihgbour(id));
                 }
             }
         }
@@ -118,9 +117,9 @@ export class Graph {
         node.x = x;
         node.y = y;
     }
-    edgeHasAPair(edge: Edge){
+    edgeHasAPair(edge: Edge):boolean{
         const toNode = this.nodes[edge.getTo()]!;
-        return toNode.getAdjacencyList()[edge.getFrom()] !== -1;
+        return toNode.hasNeighbour(edge.getFrom());
     }
     areConnected(startId: number, targetId: number): boolean {
         if (startId === targetId) return true;
@@ -133,12 +132,11 @@ export class Graph {
         while (!queue.isEmpty()) {
             const currentId = queue.dequeue()!;
             const currentNode = this.nodes[currentId]!;
-            const adjacencyList = currentNode.getAdjacencyList();
-            for (let i = 0; i < adjacencyList.length; i++) {
-                if (currentNode.hasNeighbour(i) && !visited[i]) {
-                    if (i === targetId) return true;
-                    visited[i] = true;
-                    queue.enqueue(i);
+            for (let nodeId = 0; nodeId < this.nodes.length; nodeId++) {
+                if (currentNode.hasNeighbour(nodeId) && !visited[nodeId]) {
+                    if (nodeId === targetId) return true;
+                    visited[nodeId] = true;
+                    queue.enqueue(nodeId);
                 }
             }
         }
@@ -243,8 +241,8 @@ export class Node {
     getId(): number {
         return this.id;
     }
-    getAdjacencyList(): number[] {
-        return this.adjacencyList;
+    getEdgeIdConnectingToNeihgbour(neighbourId: number):number{
+        return this.adjacencyList[neighbourId];
     }
     removeNeighbour(neighborId: number): void {
         this.adjacencyList[neighborId] = -1;

@@ -73,14 +73,14 @@ export default class Kruskal{
         visited[nodeId] = true;
         while(!queue.isEmpty()){
             const currentNodeId = queue.dequeue()!;
-            const adjacencyList = this.graph.getNode(currentNodeId)!.getAdjacencyList();
-            for(let neighbourId = 0; neighbourId < adjacencyList.length; neighbourId++){
-                const edgeId = adjacencyList[neighbourId];
-                if(edgeId !== -1 && !visited[neighbourId]){
-                    queue.enqueue(neighbourId)
-                    visited[neighbourId] = true;
+            const currentNode = this.graph.getNode(currentNodeId)!;
+            for(let id = 0; id < this.graph.getNodesListLength(); id++){
+                const edgeId = currentNode.getEdgeIdConnectingToNeihgbour(id);
+                if(currentNode.hasNeighbour(id) && !visited[id]){
+                    queue.enqueue(id)
+                    visited[id] = true;
                 }
-                if(edgeId !== -1 && edges[edgeId] === null){
+                if(currentNode.hasNeighbour(id) && edges[edgeId] === null){
                     edges[edgeId] = this.graph.getEdge(edgeId)!;
                 }
             }

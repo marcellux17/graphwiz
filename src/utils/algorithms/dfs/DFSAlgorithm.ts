@@ -94,6 +94,7 @@ export default class DFS{
             }
             animationStates.push(currentState);
             const currentNodeId = stack.pop()!;
+            const currentNode = this.graph.getNode(currentNodeId)!;
             currentState = this.markNodeAsVisited(currentState, currentNodeId!);
             currentState.algorithmInfobox = {
                 information: `Pop() method called on stack to retrieve top element: (${this.graph.getLabelOfNode(currentNodeId!)}).`,
@@ -103,10 +104,10 @@ export default class DFS{
                 }
             }
             animationStates.push(currentState);
-            const adjacencyList = this.graph.getNode(currentNodeId)!.getAdjacencyList();
-            for(let i = 0; i < adjacencyList.length; i++){
-                if(adjacencyList[i] !== -1){
-                    currentState = this.markEdgeAsSelected(currentState, adjacencyList[i]);
+            for(let nodeId = 0; nodeId < this.graph.getNodesListLength(); nodeId++){
+                if(currentNode.hasNeighbour(nodeId)){
+                    const edgeId = currentNode.getEdgeIdConnectingToNeihgbour(nodeId)
+                    currentState = this.markEdgeAsSelected(currentState, edgeId);
                     currentState.algorithmInfobox = {
                         information: `Checking if neighbour of the current node is already in stack or has been visited.`,
                         dataStructure: {
@@ -115,12 +116,12 @@ export default class DFS{
                         }
                     }
                     animationStates.push(currentState);
-                    if(!visited[i]){
-                        stack.push(i);
-                        visited[i] = true;
-                        currentState = this.markNodeAsInStack(currentState, i);
+                    if(!visited[nodeId]){
+                        stack.push(nodeId);
+                        visited[nodeId] = true;
+                        currentState = this.markNodeAsInStack(currentState, nodeId);
                         currentState.algorithmInfobox = {
-                            information: `Node (${this.graph.getLabelOfNode(i)}) hasn't been visited and not in stack:<br>pushing it onto the stack.`,
+                            information: `Node (${this.graph.getLabelOfNode(nodeId)}) hasn't been visited and not in stack:<br>pushing it onto the stack.`,
                             dataStructure: {
                                 type: "stack",
                                 ds: this.getLabelsForStackRepresentation(stack)
@@ -128,7 +129,7 @@ export default class DFS{
                         }
                         animationStates.push(currentState);
                     }
-                    currentState = this.markEdgeAsNormal(currentState, adjacencyList[i])
+                    currentState = this.markEdgeAsNormal(currentState, edgeId)
                 }
             }
         }

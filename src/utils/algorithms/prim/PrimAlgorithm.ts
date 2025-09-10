@@ -83,16 +83,16 @@ export default class Prim{
         bfsQueue.enqueue(from);
         while(!bfsQueue.isEmpty()){
             const currentNodeId = bfsQueue.dequeue()!;
+            const currentNode = this.graph.getNode(currentNodeId)!;
             if(currentNodeId === from){
                 returnQueue.insert({id: currentNodeId, value: 0});
             }else{
                 returnQueue.insert({id: currentNodeId, value: Infinity});
             }
-            const adjacencyList = this.graph.getNode(currentNodeId)!.getAdjacencyList();
-            for(let neighbourId = 0; neighbourId < adjacencyList.length; neighbourId++){
-                if(adjacencyList[neighbourId] !== -1 && !visited[neighbourId]){
-                    bfsQueue.enqueue(neighbourId);
-                    visited[neighbourId] = true;
+            for(let nodeid = 0; nodeid < this.graph.getNodesListLength(); nodeid++){
+                if(currentNode.hasNeighbour(nodeid) && !visited[nodeid]){
+                    bfsQueue.enqueue(nodeid);
+                    visited[nodeid] = true;
                 }
             }
         }
@@ -125,6 +125,7 @@ export default class Prim{
             }
             animationStates.push(currentState);
             const currentElement = priorityQueue.extractMin()!;
+            const currentNode = this.graph.getNode(currentElement.id)!;
             currentState = this.markNodeAsPartOfPath(currentState, currentElement.id);
             if(edgesConnectingNodesToMST[currentElement.id] !== -1){
                 const edgeId = edgesConnectingNodesToMST[currentElement.id];
@@ -137,10 +138,9 @@ export default class Prim{
             }
             animationStates.push(currentState);
             MST[currentElement!.id] = true;
-            const adjacencyList = this.graph.getNode(currentElement.id)!.getAdjacencyList();
-            for(let neighbourId = 0; neighbourId < adjacencyList.length; neighbourId++){
-                const edgeId = adjacencyList[neighbourId];
-                if(edgeId !== -1){
+            for(let nodeId = 0; nodeId < this.graph.getNodesListLength(); nodeId++){
+                if(currentNode.hasNeighbour(nodeId)){
+                    const edgeId = currentNode.getEdgeIdConnectingToNeihgbour(nodeId);
                     componentEdgeIds[edgeId] = true;
                     const w = this.graph.getEdge(edgeId)!.getWeight()!;
                     currentState = this.markEdgeAsSelected(currentState, edgeId);
@@ -148,12 +148,12 @@ export default class Prim{
                         information: "Checking whether the adjacent node is already in the MST. And if so, whether the weight of the edge connecting it to the current node is smaller the one previously set."
                     };
                     animationStates.push(currentState);
-                    if(!MST[neighbourId]){
-                        const currentCost = priorityQueue.get(neighbourId)!.value
+                    if(!MST[nodeId]){
+                        const currentCost = priorityQueue.get(nodeId)!.value
                         if(w < currentCost){
-                            priorityQueue.update(neighbourId, w);
-                            edgesConnectingNodesToMST[neighbourId] = edgeId;
-                            currentState = this.updateNodeLabel(currentState, neighbourId, `${this.graph.getLabelOfNode(neighbourId)}(${w})`)
+                            priorityQueue.update(nodeId, w);
+                            edgesConnectingNodesToMST[nodeId] = edgeId;
+                            currentState = this.updateNodeLabel(currentState, nodeId, `${this.graph.getLabelOfNode(nodeId)}(${w})`)
                             currentState.algorithmInfobox = {
                                 information: `We can improve the cost of connecting the adjacent node to the MST.<hr>
                                 ${w} < ${currentCost == Infinity ? `∞`: currentCost}`
@@ -166,14 +166,14 @@ export default class Prim{
                             };
                             animationStates.push(currentState);
                         }
-                        currentState = this.markEdgeAsNormal(currentState, adjacencyList[neighbourId])
+                        currentState = this.markEdgeAsNormal(currentState, edgeId)
                     }else{
                         const from = this.graph.getEdge(edgeId)!.getFrom();
                         const to = this.graph.getEdge(edgeId)!.getTo();
                         if( edgesConnectingNodesToMST[to] === edgeId || edgesConnectingNodesToMST[from] === edgeId){
-                            currentState = this.markEdgeAsPartOfPath(currentState, adjacencyList[neighbourId]);
+                            currentState = this.markEdgeAsPartOfPath(currentState, edgeId);
                         }else{
-                            currentState = this.markEdgeAsNormal(currentState, adjacencyList[neighbourId])
+                            currentState = this.markEdgeAsNormal(currentState, edgeId)
                         }
                         currentState.algorithmInfobox = {
                             information: "Adjacent node is already in the MST. We don't do anything with it."

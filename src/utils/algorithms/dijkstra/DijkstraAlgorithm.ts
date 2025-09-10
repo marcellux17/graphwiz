@@ -23,7 +23,7 @@ export default class Dijkstra{
             const nextNodeId = previous[currentNodeId];
             newState = this.markNodeAsPartOfPath(newState, currentNodeId);
             if (nextNodeId !== -1) {
-                const edgeId = currentNode.getAdjacencyList()[nextNodeId];
+                const edgeId = currentNode.getEdgeIdConnectingToNeihgbour(nextNodeId);
                 newState = this.markEdgeAsPartOfPath(newState, edgeId)
                 currentNode = this.graph.getNode(nextNodeId);
             } else {
@@ -147,12 +147,11 @@ export default class Dijkstra{
         while (currentNode.id !== to) {
             const node = this.graph.getNode(currentNode.id)!;
             let previousEdgeId:number|null = null;
-            const adjacencyList = node.getAdjacencyList();
-            for(let neighbourId = 0; neighbourId < adjacencyList.length; neighbourId++){
+            for(let neighbourId = 0; neighbourId < this.graph.getNodesListLength(); neighbourId++){
                 if(previousEdgeId !== null){
                     currentState = this.markEdgeAsNormal(currentState, previousEdgeId);
                 }
-                const edgeIdConnectedToNeighbour = adjacencyList[neighbourId];
+                const edgeIdConnectedToNeighbour = this.graph.getNode(currentNode.id)!.getEdgeIdConnectingToNeihgbour(neighbourId);
                 if(edgeIdConnectedToNeighbour === -1){
                     continue;
                 }
