@@ -17,7 +17,7 @@ export class BellmanFordController {
     private algorithm: BellmanFord
     constructor() {
         const graph = new WeightedGraph();
-        this.network = new Network(graph,true);
+        this.network = new Network(graph, false, false, true);
         this.animation = new Animation(this.network);
         this.algorithm = new BellmanFord(graph);
         this.setUpNetworkEventListeners();
