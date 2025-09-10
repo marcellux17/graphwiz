@@ -103,7 +103,7 @@ export class Graph {
         return this.nodes[id]!.label;
     }
 
-    getNode(id: number): Node {
+    getNode(id: number): (Node | null) {
         return this.nodes[id]!;
     }
 

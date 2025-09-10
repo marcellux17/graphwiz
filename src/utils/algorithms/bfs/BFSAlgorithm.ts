@@ -98,7 +98,7 @@ export default class BFS{
                 }
             }
             animationStates.push(currentState);
-            const adjacencyList = this.graph.getNode(currentNodeId!).getAdjacencyList();
+            const adjacencyList = this.graph.getNode(currentNodeId!)!.getAdjacencyList();
             for(let i = 0; i < nodes.length; i++){
                 if(adjacencyList[i] !== -1){
                     currentState = this.markEdgeAsSelected(currentState, adjacencyList[i]);

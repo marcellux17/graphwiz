@@ -145,7 +145,7 @@ export default class Dijkstra{
         }
         animationStates.push(currentState);
         while (currentNode.id !== to) {
-            const node = this.graph.getNode(currentNode.id);
+            const node = this.graph.getNode(currentNode.id)!;
             let previousEdgeId:number|null = null;
             const adjacencyList = node.getAdjacencyList();
             for(let neighbourId = 0; neighbourId < adjacencyList.length; neighbourId++){

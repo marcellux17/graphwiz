@@ -88,7 +88,7 @@ export default class Prim{
             }else{
                 returnQueue.insert({id: currentNodeId, value: Infinity});
             }
-            const adjacencyList = this.graph.getNode(currentNodeId).getAdjacencyList();
+            const adjacencyList = this.graph.getNode(currentNodeId)!.getAdjacencyList();
             for(let neighbourId = 0; neighbourId < adjacencyList.length; neighbourId++){
                 if(adjacencyList[neighbourId] !== -1 && !visited[neighbourId]){
                     bfsQueue.enqueue(neighbourId);
@@ -137,7 +137,7 @@ export default class Prim{
             }
             animationStates.push(currentState);
             MST[currentElement!.id] = true;
-            const adjacencyList = this.graph.getNode(currentElement.id).getAdjacencyList();
+            const adjacencyList = this.graph.getNode(currentElement.id)!.getAdjacencyList();
             for(let neighbourId = 0; neighbourId < adjacencyList.length; neighbourId++){
                 const edgeId = adjacencyList[neighbourId];
                 if(edgeId !== -1){

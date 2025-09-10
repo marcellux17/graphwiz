@@ -93,7 +93,7 @@ export default class DFS{
                 }
             }
             animationStates.push(currentState);
-            const currentNodeId = stack.pop();
+            const currentNodeId = stack.pop()!;
             currentState = this.markNodeAsVisited(currentState, currentNodeId!);
             currentState.algorithmInfobox = {
                 information: `Pop() method called on stack to retrieve top element: (${this.graph.getLabelOfNode(currentNodeId!)}).`,
@@ -103,7 +103,7 @@ export default class DFS{
                 }
             }
             animationStates.push(currentState);
-            const adjacencyList = this.graph.getNode(currentNodeId!).getAdjacencyList();
+            const adjacencyList = this.graph.getNode(currentNodeId)!.getAdjacencyList();
             for(let i = 0; i < adjacencyList.length; i++){
                 if(adjacencyList[i] !== -1){
                     currentState = this.markEdgeAsSelected(currentState, adjacencyList[i]);

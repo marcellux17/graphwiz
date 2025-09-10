@@ -192,7 +192,7 @@ export class Network{
     }
     updateNodes(nodes: { id: number; color?: string; label?: string }[]): void {
         nodes.forEach(node => {
-            const nodeToModify = this.graph.getNode(node.id);
+            const nodeToModify = this.graph.getNode(node.id)!;
             if (!nodeToModify) return;
 
             if (node.color !== undefined) {
@@ -205,7 +205,7 @@ export class Network{
         this.drawCanvas();
     }
     updateNode(node: { id: number; color?: string; label?: string }): void {
-        const nodeToModify = this.graph.getNode(node.id);
+        const nodeToModify = this.graph.getNode(node.id)!;
         if (!nodeToModify) return;
 
         if (node.color !== undefined) {
@@ -241,7 +241,7 @@ export class Network{
         if (this.scale < 0.5) return;
         this.scale *= 1 - this.scaleFactor;
         for (const nodeId of this.nodeIds) {
-            const node = this.graph.getNode(nodeId);
+            const node = this.graph.getNode(nodeId)!;
             node.x! = node.x! * (1 - this.scaleFactor);
             node.y! = node.y! * (1 - this.scaleFactor);
         }
@@ -249,7 +249,7 @@ export class Network{
     }
     private setCanvasScale(newScale: number): void {
         for (const nodeId of this.nodeIds) {
-            const node = this.graph.getNode(nodeId);
+            const node = this.graph.getNode(nodeId)!;
             node.x! = (node.x! * newScale) / this.scale;
             node.y! = (node.y! * newScale) / this.scale;
         }
@@ -259,7 +259,7 @@ export class Network{
     private canvasScaleUp(): void {
         this.scale *= 1 + this.scaleFactor;
         for (const nodeId of this.nodeIds) {
-            const node = this.graph.getNode(nodeId);
+            const node = this.graph.getNode(nodeId)!;
             node.x! = node.x! * (1 + this.scaleFactor);
             node.y! = node.y! * (1 + this.scaleFactor);
         }
@@ -267,7 +267,7 @@ export class Network{
     }
     private hitNode( x: number, y: number ): { node: Node | null; index: number } {
         for (let j = this.nodeIds.length - 1; j >= 0; j--) {
-            let node: Node = this.graph.getNode(this.nodeIds[j]);
+            let node: Node = this.graph.getNode(this.nodeIds[j])!;
             if ((node.x! - x) ** 2 + (node.y! - y) ** 2 < this.nodeSize ** 2) {
                 return { node, index: j };
             }
@@ -313,7 +313,7 @@ export class Network{
     private drawNodes(): void {
         for (const id of this.nodeIds) {
             if(id !== this.firstNode?.getId()){
-                this.drawNode(this.graph.getNode(id));
+                this.drawNode(this.graph.getNode(id)!);
             }
         }
     }
@@ -362,8 +362,8 @@ export class Network{
         this.drawText(node.x!, node.y!, `${node.label}`, 17, "arial", "black");
     }
     private drawEdge(edge: Edge): void {
-        const fromNode = this.graph.getNode(edge.getFrom());
-        const toNode = this.graph.getNode(edge.getTo());
+        const fromNode = this.graph.getNode(edge.getFrom())!;
+        const toNode = this.graph.getNode(edge.getTo())!;
         const fromX = fromNode.x!;
         const fromY = fromNode.y!;
         const toX = toNode.x!;
@@ -459,10 +459,10 @@ export class Network{
     private hitEdge(x: number, y: number): Edge | null {
         for (const edge of this.graph.getEdgeList()) {
             if (edge) {
-                const fromNode = this.graph.getNode(edge.getFrom());
+                const fromNode = this.graph.getNode(edge.getFrom())!;
                 const fromX = fromNode.x!;
                 const fromY = fromNode.y!;
-                const toNode = this.graph.getNode(edge.getTo());
+                const toNode = this.graph.getNode(edge.getTo())!;
                 const toX = toNode.x!;
                 const toY = toNode.y!;
                 const hasAPair = this.graph.edgeHasAPair(edge)
@@ -558,8 +558,8 @@ export class Network{
     private updateEuclideanDistancesOfDraggedNode(): void {
         for (const edgeId of this.graph.getEdgeListOfNode( this.draggedNode!.getId() )) {
             const edge = this.graph.getEdge(edgeId)!;
-            const fromNode = this.graph.getNode(edge.getFrom());
-            const toNode = this.graph.getNode(edge.getTo());
+            const fromNode = this.graph.getNode(edge.getFrom())!;
+            const toNode = this.graph.getNode(edge.getTo())!;
             edge.setWeight(Math.floor( this.measureDistance( fromNode.x!, fromNode.y!, toNode.x!, toNode.y! ) / 10 ));
         }
     }
@@ -569,7 +569,7 @@ export class Network{
         let minY = Infinity;
         let maxY = -Infinity;
         for (const nodeId of this.nodeIds) {
-            const node = this.graph.getNode(nodeId);
+            const node = this.graph.getNode(nodeId)!;
             if (node.x! < minX) {
                 minX = node.x!;
             } else if (node.x! > maxX) {
