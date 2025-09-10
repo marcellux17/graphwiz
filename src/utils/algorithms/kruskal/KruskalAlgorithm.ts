@@ -81,7 +81,7 @@ export default class Kruskal{
                     visited[neighbourId] = true;
                 }
                 if(edgeId !== -1 && edges[edgeId] === null){
-                    edges[edgeId] = this.graph.getEdge(edgeId);
+                    edges[edgeId] = this.graph.getEdge(edgeId)!;
                 }
             }
         }

@@ -129,7 +129,7 @@ export default class Prim{
             if(edgesConnectingNodesToMST[currentElement.id] !== -1){
                 const edgeId = edgesConnectingNodesToMST[currentElement.id];
                 currentState = this.markEdgeAsPartOfPath(currentState, edgeId)
-                res += this.graph.getEdge(edgeId).getWeight()!;
+                res += this.graph.getEdge(edgeId)!.getWeight()!;
                 mstEdges[edgeId] = true;
             }
             currentState.algorithmInfobox = {
@@ -142,7 +142,7 @@ export default class Prim{
                 const edgeId = adjacencyList[neighbourId];
                 if(edgeId !== -1){
                     componentEdgeIds[edgeId] = true;
-                    const w = this.graph.getEdge(edgeId).getWeight()!;
+                    const w = this.graph.getEdge(edgeId)!.getWeight()!;
                     currentState = this.markEdgeAsSelected(currentState, edgeId);
                     currentState.algorithmInfobox = {
                         information: "Checking whether the adjacent node is already in the MST. And if so, whether the weight of the edge connecting it to the current node is smaller the one previously set."
@@ -168,8 +168,8 @@ export default class Prim{
                         }
                         currentState = this.markEdgeAsNormal(currentState, adjacencyList[neighbourId])
                     }else{
-                        const from = this.graph.getEdge(edgeId).getFrom();
-                        const to = this.graph.getEdge(edgeId).getTo();
+                        const from = this.graph.getEdge(edgeId)!.getFrom();
+                        const to = this.graph.getEdge(edgeId)!.getTo();
                         if( edgesConnectingNodesToMST[to] === edgeId || edgesConnectingNodesToMST[from] === edgeId){
                             currentState = this.markEdgeAsPartOfPath(currentState, adjacencyList[neighbourId]);
                         }else{

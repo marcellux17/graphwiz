@@ -107,8 +107,8 @@ export class Graph {
         return this.nodes[id]!;
     }
 
-    getEdge(id: number): Edge {
-        return this.edges[id]!;
+    getEdge(id: number): (Edge|null) {
+        return this.edges[id];
     }
     getNodeList(): (Node | null)[] {
         return this.nodes;

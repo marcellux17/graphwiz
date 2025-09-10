@@ -162,7 +162,7 @@ export class Network{
         this.drawCanvas();
     }
     updateEdge(edge :{id: number, color?: string, weight?: number, width?: number}):void{
-        const edgeToModified = this.graph.getEdge(edge.id);
+        const edgeToModified = this.graph.getEdge(edge.id)!;
         if(edge.color){
             edgeToModified.color = edge.color;
         }
@@ -176,7 +176,7 @@ export class Network{
     }
     updateEdges(edges: {id: number, color?: string, weight?: number, width?: number}[]): void {
         edges.forEach(edge => {
-            const edgeToModify = this.graph.getEdge(edge.id);
+            const edgeToModify = this.graph.getEdge(edge.id)!;
             if (!edgeToModify) return;
             if (edge.color !== undefined) {
                 edgeToModify.color = edge.color;
@@ -557,7 +557,7 @@ export class Network{
     }
     private updateEuclideanDistancesOfDraggedNode(): void {
         for (const edgeId of this.graph.getEdgeListOfNode( this.draggedNode!.getId() )) {
-            const edge = this.graph.getEdge(edgeId);
+            const edge = this.graph.getEdge(edgeId)!;
             const fromNode = this.graph.getNode(edge.getFrom());
             const toNode = this.graph.getNode(edge.getTo());
             edge.setWeight(Math.floor( this.measureDistance( fromNode.x!, fromNode.y!, toNode.x!, toNode.y! ) / 10 ));
