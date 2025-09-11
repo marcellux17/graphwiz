@@ -76,11 +76,11 @@ export default class Kruskal{
             const currentNode = this.graph.getNode(currentNodeId)!;
             for(let id = 0; id < this.graph.getNodeList().length; id++){
                 const edgeId = currentNode.getEdgeIdConnectingToNeihgbour(id);
-                if(currentNode.hasNeighbour(id) && !visited[id]){
+                if(currentNode.hasEdgeToNode(id) && !visited[id]){
                     queue.enqueue(id)
                     visited[id] = true;
                 }
-                if(currentNode.hasNeighbour(id) && edges[edgeId] === null){
+                if(currentNode.hasEdgeToNode(id) && edges[edgeId] === null){
                     edges[edgeId] = this.graph.getEdge(edgeId)!;
                 }
             }

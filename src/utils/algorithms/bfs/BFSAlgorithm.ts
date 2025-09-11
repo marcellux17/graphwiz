@@ -100,7 +100,7 @@ export default class BFS{
             }
             animationStates.push(currentState);
             for(let nodeId = 0; nodeId < nodes.length; nodeId++){
-                if(currentNode.hasNeighbour(nodeId)){
+                if(currentNode.hasEdgeToNode(nodeId)){
                     const edgeId = currentNode.getEdgeIdConnectingToNeihgbour(nodeId)
                     currentState = this.markEdgeAsSelected(currentState, edgeId);
                     currentState.algorithmInfobox = {

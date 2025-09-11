@@ -41,7 +41,7 @@ export class Graph {
     }
     addEdge(from: number, to: number, twoWay: boolean = true): number | undefined {
         if (from === to) return;
-        if (this.nodes[from]!.hasNeighbour(to)) return;
+        if (this.nodes[from]!.hasEdgeToNode(to)) return;
 
         let idx = this.edges.findIndex((e) => e === null);
         if (idx === -1) {
@@ -68,12 +68,12 @@ export class Graph {
         const node = this.nodes[id];
         if (!node) return;
         for (let nodeId = 0; nodeId < this.nodes.length; nodeId++) {
-            if(this.nodes[nodeId] !== null && this.nodes[nodeId]!.hasNeighbour(id)){
+            if(this.nodes[nodeId] !== null && this.nodes[nodeId]!.hasEdgeToNode(id)){
                 const edgeId = this.nodes[nodeId]!.getEdgeIdConnectingToNeihgbour(id);
                 this.edges[edgeId] = null;
                 this.nodes[nodeId]!.removeNeighbour(id);
             }
-            if(node.hasNeighbour(nodeId)){
+            if(node.hasEdgeToNode(nodeId)){
                 this.edges[node.getEdgeIdConnectingToNeihgbour(nodeId)] = null;
             }
         }
@@ -88,11 +88,11 @@ export class Graph {
         const edges: number[] = [];
 
         for (let nodeId = 0; nodeId < this.nodes.length; nodeId++) {
-            if (node.hasNeighbour(nodeId)) {
+            if (node.hasEdgeToNode(nodeId)) {
                 edges.push(node.getEdgeIdConnectingToNeihgbour(nodeId));
             }else if(this.nodes[nodeId] !== null){
                 const neighbourNode = this.nodes[nodeId]!;
-                if(neighbourNode.hasNeighbour(nodeId)){
+                if(neighbourNode.hasEdgeToNode(nodeId)){
                     edges.push(neighbourNode.getEdgeIdConnectingToNeihgbour(id));
                 }
             }
@@ -119,7 +119,7 @@ export class Graph {
     }
     edgeHasAPair(edge: Edge):boolean{
         const toNode = this.nodes[edge.getTo()]!;
-        return toNode.hasNeighbour(edge.getFrom());
+        return toNode.hasEdgeToNode(edge.getFrom());
     }
     areConnected(startId: number, targetId: number): boolean {
         if (startId === targetId) return true;
@@ -133,7 +133,7 @@ export class Graph {
             const currentId = queue.dequeue()!;
             const currentNode = this.nodes[currentId]!;
             for (let nodeId = 0; nodeId < this.nodes.length; nodeId++) {
-                if (currentNode.hasNeighbour(nodeId) && !visited[nodeId]) {
+                if (currentNode.hasEdgeToNode(nodeId) && !visited[nodeId]) {
                     if (nodeId === targetId) return true;
                     visited[nodeId] = true;
                     queue.enqueue(nodeId);
@@ -175,7 +175,7 @@ export class WeightedGraph extends Graph {
 
     override addEdge( from: number, to: number,twoWay: boolean = true , weight: number = 1): number | undefined {
         if (from === to) return;
-        if (this.nodes[from]!.hasNeighbour(to)) return;
+        if (this.nodes[from]!.hasEdgeToNode(to)) return;
 
         let idx = this.edges.findIndex((e) => e === null);
         if (idx === -1) {
@@ -250,7 +250,7 @@ export class Node {
     addNeighbour(neighborId: number, edgeId: number): void {
         this.adjacencyList[neighborId] = edgeId;
     }
-    hasNeighbour(id: number): boolean {
+    hasEdgeToNode(id: number): boolean {
         return this.adjacencyList[id] !== -1;
     }
     reset(): void {
