@@ -28,8 +28,8 @@ export class Animation {
     private normalEdgeColor = "black";
     private queueNodeColor = "#2e77ffff";
     private stackNodeColor = "#2e77ffff";
-    private deselectedEdgeColor = "#d1d1d1ff";
-    private deselectedNodeColor = "#d1d1d1ff";
+    private deselectedEdgeColor = "#e4e4e4ff";
+    private deselectedNodeColor = "#e4e4e4ff";
     private selectedEdgeColor = "blue";
     private visitedNodeColor = "orange";
     private animationPhase: animationPhase = "running";
