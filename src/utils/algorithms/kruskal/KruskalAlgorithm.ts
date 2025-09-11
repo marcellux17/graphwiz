@@ -32,7 +32,7 @@ export default class Kruskal extends Algorithm{
         }
         return edges;
     }
-    Run(nodeId: number): animationState[] {
+    run(nodeId: number): animationState[] {
         const animationStates: animationState[] = [];
         const componentEdges = this.findComponentEdgeList(nodeId);
         const sortedEdges = componentEdges.sort((a, b) => {

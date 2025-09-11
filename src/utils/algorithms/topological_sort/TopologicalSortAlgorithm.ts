@@ -10,7 +10,7 @@ export default class TopologicalSort extends Algorithm{
     private getLabelsForQueueRepresentation(ids: number[]):string[]{
         return ids.map(id => this.graph.getLabelOfNode(id));
     }
-    Run(): animationState[] {
+    run(): animationState[] {
         const animationStates: animationState[] = [];
         const queue = new Queue<number>(this.graph.getNodeList().length);
         let numberOfNodesToBeprocessed = 0;

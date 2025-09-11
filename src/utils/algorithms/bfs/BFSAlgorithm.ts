@@ -10,7 +10,7 @@ export default class BFS extends Algorithm{
     private getLabelsForQueueRepresentation(ids: number[]):string[]{
         return ids.map(id => this.graph.getLabelOfNode(id));
     }
-    Run(from: number): animationState[] {
+    run(from: number): animationState[] {
         const animationStates: animationState[] = [];
         const nodes = this.graph.getNodeList();
         const queue = new Queue<number>(nodes.length);

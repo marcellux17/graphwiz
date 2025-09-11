@@ -93,7 +93,7 @@ export class DijkstraController {
             return;
         }
         destinationNodeInfo!.textContent = `dest: ${this.network.getLabelOfNode( this.destinationNodeId! )}`;
-        const states = this.algorithm.Run( this.startingNodeId!, this.destinationNodeId! );
+        const states = this.algorithm.run( this.startingNodeId!, this.destinationNodeId! );
         this.animation.setAnimationStates(states);
         this.changeCanvasState("animation-running");
     }

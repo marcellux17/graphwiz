@@ -9,7 +9,7 @@ export default class DFS extends Algorithm{
     private getLabelsForStackRepresentation(ids: number[]):string[]{
         return ids.map(id => this.graph.getLabelOfNode(id));
     }
-    Run(from: number): animationState[] {
+    run(from: number): animationState[] {
         const animationStates: animationState[] = [];
         const nodes = this.graph.getNodeList();
         const visited:boolean[] = Array(nodes.length).fill(false);

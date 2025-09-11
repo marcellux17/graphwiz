@@ -72,7 +72,7 @@ export class KruskalController {
         if (this.canvasState !== "pre-animation") return;
         this.componentNodeId = id;
         console.log("it ran")
-        const states = this.algorithm.Run(this.componentNodeId);
+        const states = this.algorithm.run(this.componentNodeId);
         this.animation.setAnimationStates(states);
         this.changeCanvasState("animation-running");
     }

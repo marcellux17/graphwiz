@@ -55,7 +55,7 @@ export class TopologicalSortController {
                     }, 1500);
                     break;
                 }
-                const states = this.algorithm.Run();
+                const states = this.algorithm.run();
                 if(states.length === 0){
                     changeMessageBox("Graph contains cycle(s). Remove them to run algorithm.");
                     setTimeout(() => {

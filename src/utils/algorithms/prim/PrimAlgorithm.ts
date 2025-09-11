@@ -54,7 +54,7 @@ export default class Prim extends Algorithm{
         return returnQueue;
 
     }
-    Run(from: number): animationState[] {
+    run(from: number): animationState[] {
         const animationStates: animationState[] = [];
         const priorityQueue = this.fillQueue(from);
         const nodes = this.graph.getNodeList();

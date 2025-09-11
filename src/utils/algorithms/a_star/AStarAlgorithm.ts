@@ -72,7 +72,7 @@ export default class AStar extends Algorithm{
     private getLabelsForQueueRepresentation(ids: number[]):string[]{
         return ids.map(id => this.graph.getLabelOfNode(id));
     }
-    Run(from: number, to: number): animationState[] {
+    run(from: number, to: number): animationState[] {
         const animationStates: animationState[] = [];
         const nodeList = this.graph.getNodeList();
         const estimatedDistances = new MinPriorityQueue(nodeList.length); //estimated distances

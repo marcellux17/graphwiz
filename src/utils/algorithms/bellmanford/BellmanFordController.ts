@@ -93,7 +93,7 @@ export class BellmanFordController {
             return;
         }
         destinationNodeInfo!.textContent = `dest: ${this.network.getLabelOfNode( this.destinationNodeId! )}`;
-        const states = this.algorithm.Run( this.startingNodeId!, this.destinationNodeId! );
+        const states = this.algorithm.run( this.startingNodeId!, this.destinationNodeId! );
         if(states.length === 0){
             changeMessageBox( "graph contains negative cycle(s), change graph to run algorithm" );
             setTimeout(() => {

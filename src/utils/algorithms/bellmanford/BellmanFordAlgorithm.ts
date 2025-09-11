@@ -50,7 +50,7 @@ export default class BellmanFord extends Algorithm{
 
         return { nodes, edges };
     }
-    Run(from: number, to:number): animationState[] {
+    run(from: number, to:number): animationState[] {
         const animationStates: animationState[] = [];
         const nodeList = this.graph.getNodeList();
         const currentEstimate = Array(nodeList.length).fill(Infinity);

@@ -103,5 +103,5 @@ export default abstract class Algorithm{
 
         return { nodes, edges };
     }
-    abstract Run(..._args: any[]):animationState[];
+    abstract run(..._args: any[]):animationState[];
 }
