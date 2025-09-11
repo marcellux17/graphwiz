@@ -1,11 +1,11 @@
 import { Node, WeightedGraph } from "../../datastructures/Graph.ts";
 import { MinPriorityQueue } from "../../datastructures/Queue.ts";
 import { algorithmInfoBoxState, animationEdgeInformation, animationNodeInformation, animationState} from "../../types/animation.ts";
+import Algorithm from "../Algorithm.ts";
 
-export default class Dijkstra{
-    private graph:WeightedGraph;
+export default class Dijkstra extends Algorithm{
     constructor(graph: WeightedGraph){
-        this.graph = graph;
+        super(graph)
     }
     private createPathHighLightState(state: animationState, from: number,to: number, previous: number[]): animationState {
         let newState = state;
@@ -32,55 +32,7 @@ export default class Dijkstra{
         }
         return newState;
     }
-    private markNodeAsVisited(state: animationState, nodeId: number): animationState {
-        const newState = JSON.parse(JSON.stringify(state));
-        if (newState.nodes[nodeId]) {
-            newState.nodes[nodeId].state = "visitedNode";
-        }
-        return newState;
-    }
-
-    private markEdgeAsSelected(state: animationState, edgeId: number): animationState {
-        const newState = JSON.parse(JSON.stringify(state));
-        if (newState.edges[edgeId]) {
-            newState.edges[edgeId].state = "selectedEdge";
-        }
-        return newState;
-    }
-
-    private markEdgeAsPartOfPath(state: animationState, edgeId: number): animationState {
-        const newState = JSON.parse(JSON.stringify(state));
-        if (newState.edges[edgeId]) {
-            newState.edges[edgeId].state = "partOfPath";
-        }
-        return newState;
-    }
-
-    private markNodeAsPartOfPath(state: animationState, nodeId: number): animationState {
-        const newState = JSON.parse(JSON.stringify(state));
-        if (newState.nodes[nodeId]) {
-            newState.nodes[nodeId].state = "partOfPath";
-        }
-        return newState;
-    }
-
-    private markEdgeAsNormal(state: animationState, edgeId: number): animationState {
-        const newState = JSON.parse(JSON.stringify(state));
-        if (newState.edges[edgeId]) {
-            newState.edges[edgeId].state = "normal";
-        }
-        return newState;
-    }
-
-    private updateNodeLabel(state: animationState, nodeId: number, newLabel: string): animationState {
-        const newState = JSON.parse(JSON.stringify(state));
-        if (newState.nodes[nodeId]) {
-            newState.nodes[nodeId].label = newLabel;
-        }
-        return newState;
-    }
-
-    private createInitialState(from: number): animationState {
+    override createInitialState(from: number): animationState {
         const nodeList = this.graph.getNodeList();
         const edgeList = this.graph.getEdgeList();
         const nodes: (animationNodeInformation | null)[] = Array(nodeList.length).fill(null);
