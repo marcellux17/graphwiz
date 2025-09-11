@@ -72,6 +72,13 @@ export default abstract class Algorithm{
         }
         return newState;
     }
+    protected markNodeAsDeselected(state: animationState, nodeId: number): animationState {
+        const newState = JSON.parse(JSON.stringify(state));
+        if (newState.nodes[nodeId]) {
+            newState.nodes[nodeId].state = "deselectedNode";
+        }
+        return newState;
+    }
     protected createInitialState(..._args: any[]): animationState {
         const nodeList = this.graph.getNodeList();
         const edgeList = this.graph.getEdgeList();

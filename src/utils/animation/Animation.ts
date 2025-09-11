@@ -29,6 +29,7 @@ export class Animation {
     private queueNodeColor = "#2e77ffff";
     private stackNodeColor = "#2e77ffff";
     private deselectedEdgeColor = "#d1d1d1ff";
+    private deselectedNodeColor = "#d1d1d1ff";
     private selectedEdgeColor = "blue";
     private visitedNodeColor = "orange";
     private animationPhase: animationPhase = "running";
@@ -138,6 +139,9 @@ export class Animation {
                     break;
                 case "inStack":
                     color = this.stackNodeColor;
+                    break;
+                case "deselectedNode":
+                    color = this.deselectedNodeColor;
                     break;
                 default: 
                     color = this.normalNodeColor;

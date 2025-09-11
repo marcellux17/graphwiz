@@ -237,6 +237,9 @@ export class Network{
         }
         this.fitGraphIntoAnimationSpace();
     }
+    getNumberOfNodes():number{
+        return this.graph.getNumberOfNodes();
+    }
     private canvasScaleDown(): void {
         if (this.scale < 0.5) return;
         this.scale *= 1 - this.scaleFactor;

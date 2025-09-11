@@ -14,7 +14,7 @@ export type animationEdgeInformation = {
     id: number;
 }
 export type edgeState = "selectedEdge" | "visitedEdge" | "partOfPath" | "normal" | "deselectedEdge";
-export type nodeState = "visitedNode" | "inQueue" | "partOfPath" | "inStack" | "normal";
+export type nodeState = "visitedNode" | "inQueue" | "partOfPath" | "inStack" | "normal" | "deselectedNode";
 export type algorithmInfoBoxState = {
     information?: string; //information to display in the algorithm-information-box: describes what's happening inside the algorithm
     dataStructure?: {

@@ -48,6 +48,23 @@ export class TopologicalSortController {
             case "pre-animation":
                 resetInput();
                 this.network.resetToIdle();
+                if(this.network.getNumberOfNodes() === 0){
+                    changeMessageBox("no nodes to run algorithm on.");
+                    setTimeout(() => {
+                        this.changeCanvasState("idle");
+                    }, 1500);
+                    break;
+                }
+                const states = this.algorithm.Run();
+                if(states.length === 0){
+                    changeMessageBox("Graph contains cycle(s). Remove them to run algorithm.");
+                    setTimeout(() => {
+                        this.changeCanvasState("idle");
+                    }, 1500);
+                    break;
+                }
+                this.animation.setAnimationStates(states);
+                this.changeCanvasState("animation-running");
                 break;
             case "animation-running":
                 makeVisible(playBox);
@@ -72,7 +89,7 @@ export class TopologicalSortController {
                 const text = await file.text();
                 const json = await JSON.parse(text);
                 if(!isPreset(json))throw new Error("wrong graph format");
-                if(json.info.edgesToWay || !json.info.weighted)throw new Error("the graph is not suitable for the algorithm")
+                if(json.info.edgesTwoWay || !json.info.weighted)throw new Error("the graph is not suitable for the algorithm")
                 this.network.loadPreset(json);
             }catch(e:any){
                 //should update this for a nice error message for the user
