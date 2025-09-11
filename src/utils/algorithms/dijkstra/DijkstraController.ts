@@ -56,7 +56,6 @@ export class DijkstraController {
             case "pre-animation":
                 changeMessageBox("select starting node");
                 makeVisible(pathInfoBox);
-                resetInput();
                 this.selectedEdgeId = null;
                 this.network.resetToIdle();
                 break;

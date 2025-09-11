@@ -46,7 +46,6 @@ export class KruskalController {
                 break;
             case "pre-animation":
                 changeMessageBox("select a node from a component");
-                resetInput();
                 this.selectedEdgeId = null;
                 this.network.resetToIdle();
                 break;

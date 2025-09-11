@@ -50,7 +50,6 @@ export class PrimController {
                 break;
             case "pre-animation":
                 changeMessageBox("select starting node");
-                resetInput();
                 this.selectedEdgeId = null;
                 this.network.resetToIdle();
                 break;

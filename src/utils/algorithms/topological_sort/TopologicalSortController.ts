@@ -1,7 +1,7 @@
 import { Animation } from "../../animation/Animation";
 import { Graph } from "../../datastructures/Graph";
 import { playBox, pauseButton, playButton, weightInput, speedRangeInput, speedInfo, backButton, forwardButton, resetButton, runAnimationButton, escapeModeButton, deleteModeButton, addNodeButton, addEdgeButton, presetInput, algorithmInformationBox, speedBox, downloadGraphButton, uploadGraphInput, } from "../../dom/elements";
-import { changeMessageBox, makeInvisible, makeVisible, resetInput, } from "../../dom/helpers";
+import { changeMessageBox, makeInvisible, makeVisible } from "../../dom/helpers";
 import { Network } from "../../network/Network";
 import { isPreset } from "../../types/preset";
 import TopologicalSort from "./TopologicalSortAlgorithm";
@@ -46,7 +46,6 @@ export class TopologicalSortController {
                 this.network.resetToIdle();
                 break;
             case "pre-animation":
-                resetInput();
                 this.network.resetToIdle();
                 if(this.network.getNumberOfNodes() === 0){
                     changeMessageBox("no nodes to run algorithm on.");
@@ -78,7 +77,6 @@ export class TopologicalSortController {
                 break;
         }
         this.canvasState = newState;
-        resetInput();
     }
     private setUpUiEventListeners(): void {
         uploadGraphInput?.addEventListener("change", async () => {
