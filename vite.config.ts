@@ -12,7 +12,8 @@ export default defineConfig({
         kruskal: 'kruskal.html',
         prim: 'prim.html',
         a_star: 'a_star.html',
-        bellman: 'bellman_ford.html'
+        bellman: 'bellman_ford.html',
+        topological_sort: 'topological_sort.html'
       }
     }
   }
