@@ -42,7 +42,7 @@ export class TopologicalSortController {
                 this.network.deleteElementModeOn();
                 break;
             case "idle":
-                changeMessageBox( "idle mode (click on edges to modify weights)" );
+                changeMessageBox( "idle mode" );
                 this.network.resetToIdle();
                 break;
             case "pre-animation":
