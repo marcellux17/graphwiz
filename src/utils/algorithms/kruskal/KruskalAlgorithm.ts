@@ -74,7 +74,7 @@ export default class Kruskal{
         while(!queue.isEmpty()){
             const currentNodeId = queue.dequeue()!;
             const currentNode = this.graph.getNode(currentNodeId)!;
-            for(let id = 0; id < this.graph.getNodesListLength(); id++){
+            for(let id = 0; id < this.graph.getNodeList().length; id++){
                 const edgeId = currentNode.getEdgeIdConnectingToNeihgbour(id);
                 if(currentNode.hasNeighbour(id) && !visited[id]){
                     queue.enqueue(id)

@@ -33,8 +33,11 @@ export class Graph {
         this.nodes[id] = node;
         this.numberOfNodes++;
     }
-    getEdgeList(): (Edge | null)[] {
+    getEdgeList(): ReadonlyArray<Edge | null>{
         return this.edges;
+    }
+    getNodeList(): ReadonlyArray<Node | null>{
+        return this.nodes;
     }
     addEdge(from: number, to: number, twoWay: boolean = true): number | undefined {
         if (from === to) return;
@@ -108,9 +111,6 @@ export class Graph {
 
     getEdge(id: number): (Edge|null) {
         return this.edges[id];
-    }
-    getNodeList(): (Node | null)[] {
-        return this.nodes;
     }
     setNodeCoordinates(id: number, x: number, y: number): void {
         const node = this.nodes[id]!;

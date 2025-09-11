@@ -177,7 +177,7 @@ export default class AStar{
         while (currentNode.id !== to) {
             const node = this.graph.getNode(currentNode.id)!;
             let previousEdgeId:number|null = null;
-            for(let neighbourId = 0; neighbourId < this.graph.getNodesListLength(); neighbourId++){
+            for(let neighbourId = 0; neighbourId < this.graph.getNodeList().length; neighbourId++){
                 if(previousEdgeId !== null){
                     currentState = this.markEdgeAsNormal(currentState, previousEdgeId);
                 }

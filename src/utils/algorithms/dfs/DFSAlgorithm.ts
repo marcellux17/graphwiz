@@ -104,7 +104,7 @@ export default class DFS{
                 }
             }
             animationStates.push(currentState);
-            for(let nodeId = 0; nodeId < this.graph.getNodesListLength(); nodeId++){
+            for(let nodeId = 0; nodeId < this.graph.getNodeList().length; nodeId++){
                 if(currentNode.hasNeighbour(nodeId)){
                     const edgeId = currentNode.getEdgeIdConnectingToNeihgbour(nodeId)
                     currentState = this.markEdgeAsSelected(currentState, edgeId);

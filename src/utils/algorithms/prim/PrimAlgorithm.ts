@@ -89,7 +89,7 @@ export default class Prim{
             }else{
                 returnQueue.insert({id: currentNodeId, value: Infinity});
             }
-            for(let nodeid = 0; nodeid < this.graph.getNodesListLength(); nodeid++){
+            for(let nodeid = 0; nodeid < this.graph.getNodeList().length; nodeid++){
                 if(currentNode.hasNeighbour(nodeid) && !visited[nodeid]){
                     bfsQueue.enqueue(nodeid);
                     visited[nodeid] = true;
@@ -138,7 +138,7 @@ export default class Prim{
             }
             animationStates.push(currentState);
             MST[currentElement!.id] = true;
-            for(let nodeId = 0; nodeId < this.graph.getNodesListLength(); nodeId++){
+            for(let nodeId = 0; nodeId < this.graph.getNodeList().length; nodeId++){
                 if(currentNode.hasNeighbour(nodeId)){
                     const edgeId = currentNode.getEdgeIdConnectingToNeihgbour(nodeId);
                     componentEdgeIds[edgeId] = true;
