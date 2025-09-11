@@ -10,9 +10,6 @@ export class Graph {
         this.nodes = Array(200).fill(null);
         this.edges = Array(200).fill(null);
     }
-    getNodesListLength():number{
-        return this.nodes.length;
-    }
     getNumberOfNodes():number{
         return this.numberOfNodes;
     }
