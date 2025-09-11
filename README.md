@@ -30,7 +30,7 @@ https://github.com/user-attachments/assets/88953f06-24ad-4cb7-809d-14a7357e608c
 - Bellman-Ford
 - Prim's Algorithm
 - Kruskal's Algorithm
-- Topological Sort(Kahn's Algorithm)
+- Topological Sort (Kahn's Algorithm)
 
 # Installation
 Graphwiz is built with Vite. To run it locally:
