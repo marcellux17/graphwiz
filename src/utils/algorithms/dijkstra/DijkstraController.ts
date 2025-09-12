@@ -184,7 +184,10 @@ export class DijkstraController {
             this.animation.setAnimationSpeedChange(1000 / newspeed);
         });
         presetInput?.addEventListener("input", () => {
-            if(presetInput!.value !== "load a graph" && this.canvasState !== "pre-animation" && this.canvasState !== "animation-running"){
+            if(presetInput!.value !== "load a graph"){
+                if(this.canvasState === "pre-animation" || this.canvasState === "animation-running"){
+                    this.changeCanvasState("idle");
+                }
                 const request = new Request(`./graph_presets/dijkstra/${presetInput!.value}.json`);
                 fetch(request)
                     .then((res) => {
