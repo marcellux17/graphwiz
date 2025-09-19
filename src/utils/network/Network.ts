@@ -536,8 +536,8 @@ export class Network{
         const length = Math.sqrt(directionVectorX**2+directionVectorY**2);
         directionVectorX = directionVectorX/length;
         directionVectorY = directionVectorY/length;
-        const x = circleCenterX+directionVectorX*(radius+15);
-        const y = circleCenterY+directionVectorY*(radius+15);
+        const x = circleCenterX+directionVectorX*(radius+15*this.scale);
+        const y = circleCenterY+directionVectorY*(radius+15*this.scale);
         this.drawText(x, y, `${weight}`, 17, "arial", color? color: "black")
     }
     private drawWeightToHalfLine( x1: number, y1: number, x2: number, y2: number, weight: number, color?: string ): void {
@@ -554,8 +554,8 @@ export class Network{
             normalVectorX *= -1;
             normalVectorY *= -1;
         }
-        const x = halfLineX + normalVectorX * 15;
-        const y = halfLineY + normalVectorY * 15;
+        const x = halfLineX + (normalVectorX * 15*this.scale);
+        const y = halfLineY + (normalVectorY * 15*this.scale);
         this.drawText(x, y, `${weight}`, 17, "arial", color? color: "black");
     }
     private updateEuclideanDistancesOfDraggedNode(): void {
