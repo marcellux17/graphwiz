@@ -334,7 +334,7 @@ export class Network{
     }
     private drawLine(fromX: number, fromY: number, toX: number, toY: number, lineWidth: number, color: string):void{
         this.ctx.beginPath();
-        this.ctx.lineWidth = lineWidth;
+        this.ctx.lineWidth = lineWidth*this.scale;
         this.ctx.strokeStyle = color;
         this.ctx.moveTo(this.offsetX + fromX, this.offsetY + fromY);
         this.ctx.lineTo(this.offsetX + toX, this.offsetY + toY);
@@ -343,7 +343,7 @@ export class Network{
     }
     private drawArc(x:number, y:number, radius: number, startingAngle: number, endAngle: number, contour: string, lineWidth: number,color?: string):void{
         this.ctx.beginPath();
-        this.ctx.lineWidth = lineWidth;
+        this.ctx.lineWidth = lineWidth*this.scale;
         this.ctx.strokeStyle = contour;
         this.ctx.arc(this.offsetX + x, this.offsetY + y, radius, startingAngle, endAngle);
         this.ctx.stroke();
