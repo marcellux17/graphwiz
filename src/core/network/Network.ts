@@ -451,9 +451,11 @@ export class Network{
         }
         const normalVX = directionVectorY;
         const noramlVY = -directionVectorX;
+        const triangleHeight = 15*this.scale;
+        const halfBaseLength = 8*this.scale;
         this.ctx.beginPath();
-        this.ctx.moveTo(this.offsetX+(x-directionVectorX*15)+normalVX*8,this.offsetY+(y-directionVectorY*15)+noramlVY*8);
-        this.ctx.lineTo(this.offsetX+(x-directionVectorX*15)-normalVX*8,this.offsetY+(y-directionVectorY*15)-noramlVY*8)
+        this.ctx.moveTo(this.offsetX+(x-directionVectorX*triangleHeight)+normalVX*halfBaseLength,this.offsetY+(y-directionVectorY*triangleHeight)+noramlVY*halfBaseLength);
+        this.ctx.lineTo(this.offsetX+(x-directionVectorX*triangleHeight)-normalVX*halfBaseLength,this.offsetY+(y-directionVectorY*triangleHeight)-noramlVY*halfBaseLength)
         this.ctx.lineTo(this.offsetX+x, this.offsetY+y)
         this.ctx.closePath();
         this.ctx.fillStyle = color;
