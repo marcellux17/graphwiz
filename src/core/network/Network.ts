@@ -17,6 +17,7 @@ export class Network{
     private mousePositionX = 0;
     private mousePositionY = 0;
     private nodeSize = 30;
+    private nodeContourWidth = 4;
     private nodeIds:number[] = [];
     private mouseNodecenterVectorX = 0;
     private mouseNodecenterVectorY = 0;
@@ -271,7 +272,7 @@ export class Network{
     private hitNode( x: number, y: number ): { node: Node | null; index: number } {
         for (let j = this.nodeIds.length - 1; j >= 0; j--) {
             let node: Node = this.graph.getNode(this.nodeIds[j])!;
-            if ((node.x! - x) ** 2 + (node.y! - y) ** 2 < this.nodeSize ** 2) {
+            if ((node.x! - x) ** 2 + (node.y! - y) ** 2 < (this.nodeSize+(this.nodeContourWidth*this.scale/2)) ** 2) {
                 return { node, index: j };
             }
         }
@@ -361,7 +362,7 @@ export class Network{
         this.ctx.fillText(text, this.offsetX+x, this.offsetY+y);
     }
     private drawNode(node: Node): void {
-        this.drawArc(node.x!, node.y!, this.nodeSize, 0, Math.PI*2,"black",4, node.color ? node.color : "white")
+        this.drawArc(node.x!, node.y!, this.nodeSize, 0, Math.PI*2,"black",this.nodeContourWidth, node.color ? node.color : "white")
         this.drawText(node.x!, node.y!, `${node.label}`, 17, "arial", "black");
     }
     private drawEdge(edge: Edge): void {
@@ -379,8 +380,8 @@ export class Network{
                 const lengthOfEdge = this.measureDistance(fromX, fromY, toX, toY);
                 let edgeVectorNormalizedX = (toX-fromX)/lengthOfEdge;
                 let edgeVectorNormalizedY = (toY-fromY)/lengthOfEdge;
-                edgeVectorNormalizedX *=(lengthOfEdge-this.nodeSize-2)//-2 is for the node outline
-                edgeVectorNormalizedY *=(lengthOfEdge-this.nodeSize-2)//-2 is for the node outline
+                edgeVectorNormalizedX *=(lengthOfEdge-this.nodeSize-(this.nodeContourWidth*this.scale)/2)
+                edgeVectorNormalizedY *=(lengthOfEdge-this.nodeSize-(this.nodeContourWidth*this.scale)/2)
                 this.drawTriangleTo(fromX+edgeVectorNormalizedX, fromY+edgeVectorNormalizedY, edgeVectorNormalizedX, edgeVectorNormalizedY, edge.color, true);
             }
         }else{
@@ -471,18 +472,18 @@ export class Network{
                 const toX = toNode.x!;
                 const toY = toNode.y!;
                 const hasAPair = this.graph.edgeHasAPair(edge)
-                if(hasAPair && this.checkIfOnArc(x, y, fromX, fromY, toX, toY)){
+                if(hasAPair && this.checkIfOnArc(x, y, fromX, fromY, toX, toY, edge.width)){
                     return edge;
                 }
-                if((this.edgesTwoWay || !hasAPair) && this.checkIfOnLine(x, y, fromX, fromY, toX, toY)){
+                if((this.edgesTwoWay || !hasAPair) && this.checkIfOnLine(x, y, fromX, fromY, toX, toY, edge.width)){
                     return edge;
                 }
             }
         }
         return null;
     }
-    private checkIfOnArc(x: number, y: number, fromX: number, fromY: number, toX: number, toY: number):boolean{
-        let treshold = 4;
+    private checkIfOnArc(x: number, y: number, fromX: number, fromY: number, toX: number, toY: number, arcWidth: number):boolean{
+        let threshold = ((arcWidth)/2)*this.scale+this.scale;
         const lengthOfEdge = this.measureDistance(fromX, fromY, toX, toY);
         let edgeVectorNormalizedX = (toX-fromX)/lengthOfEdge;
         let edgeVectorNormalizedY = (toY-fromY)/lengthOfEdge;
@@ -516,10 +517,10 @@ export class Network{
         const referencePointX = circleCenterX + circleCenterMouseVnormalizedX*radius;
         const referencePointY = circleCenterY + circleCenterMouseVnormalizedY*radius;
 
-        return this.measureDistance(referencePointX, referencePointY, x, y) < treshold && betweenAngles;       
+        return this.measureDistance(referencePointX, referencePointY, x, y) < threshold && betweenAngles;       
     }
-    private checkIfOnLine( x: number, y: number, x1: number, y1: number, x2: number, y2: number ): boolean {
-        let threshold = 4;
+    private checkIfOnLine( x: number, y: number, x1: number, y1: number, x2: number, y2: number, lineWidth: number ): boolean {
+        let threshold = ((lineWidth)/2)*this.scale+this.scale;
         const xDiff = x2 - x1;
         const yDiff = y2 - y1;
         const lenSq = xDiff * xDiff + yDiff * yDiff;
@@ -586,7 +587,7 @@ export class Network{
                 maxY = node.y!;
             }
         }
-        return { topLeftX: minX - this.nodeSize, topLeftY: minY - this.nodeSize, width: maxX - minX + this.nodeSize * 2, height: maxY - minY + this.nodeSize * 2, };
+        return { topLeftX: minX - (this.nodeSize*this.scale)-this.nodeContourWidth*this.scale/2, topLeftY: minY - (this.nodeSize*this.scale) - this.nodeContourWidth*this.scale/2, width: maxX - minX + (this.nodeSize*this.scale) * 2 + this.nodeContourWidth*this.scale, height: maxY - minY + (this.nodeSize*this.scale) * 2 + this.nodeContourWidth*this.scale };
     }
     private wheelEventHandler = (e: WheelEvent): void => {
         e.preventDefault();
