@@ -222,7 +222,6 @@ export class Network{
     }
     loadPreset(preset: Preset): void {
         this.scale = preset.info.scale;
-        this.nodeSize = 30*this.scale;
         this.graph.clearGraph();
         this.nodeIds = [];
         for (const node of preset.nodes) {
@@ -249,7 +248,6 @@ export class Network{
             node.x! = node.x! * (1 - this.scaleFactor);
             node.y! = node.y! * (1 - this.scaleFactor);
         }
-        this.nodeSize *= 1 - this.scaleFactor;
     }
     private setCanvasScale(newScale: number): void {
         for (const nodeId of this.nodeIds) {
@@ -257,7 +255,6 @@ export class Network{
             node.x! = (node.x! * newScale) / this.scale;
             node.y! = (node.y! * newScale) / this.scale;
         }
-        this.nodeSize = (this.nodeSize * newScale) / this.scale;
         this.scale = newScale;
     }
     private canvasScaleUp(): void {
@@ -267,12 +264,11 @@ export class Network{
             node.x! = node.x! * (1 + this.scaleFactor);
             node.y! = node.y! * (1 + this.scaleFactor);
         }
-        this.nodeSize *= 1 + this.scaleFactor;
     }
     private hitNode( x: number, y: number ): { node: Node | null; index: number } {
         for (let j = this.nodeIds.length - 1; j >= 0; j--) {
             let node: Node = this.graph.getNode(this.nodeIds[j])!;
-            if ((node.x! - x) ** 2 + (node.y! - y) ** 2 < (this.nodeSize+(this.nodeContourWidth*this.scale/2)) ** 2) {
+            if ((node.x! - x) ** 2 + (node.y! - y) ** 2 < (this.nodeSize*this.scale+(this.nodeContourWidth*this.scale/2)) ** 2) {
                 return { node, index: j };
             }
         }
@@ -298,14 +294,14 @@ export class Network{
         const length = this.measureDistance(x1, y1, x2, y2);
         const normalizedMouseNodeVectorX = (x2 - x1) / length;
         const normalizedMouseNodeVectorY = (y2 - y1) / length;
-        const startingX = x1 + normalizedMouseNodeVectorX * this.nodeSize + normalizedMouseNodeVectorX * 2;
-        const startingY = y1 + normalizedMouseNodeVectorY * this.nodeSize + normalizedMouseNodeVectorY * 2;
+        const startingX = x1 + normalizedMouseNodeVectorX * (this.nodeSize*this.scale) + normalizedMouseNodeVectorX * (this.nodeContourWidth*this.scale/2);
+        const startingY = y1 + normalizedMouseNodeVectorY * (this.nodeSize*this.scale) + normalizedMouseNodeVectorY * (this.nodeContourWidth*this.scale/2);
         this.drawLine(startingX, startingY, x2, y2, 2, "black");
         if(!this.edgesTwoWay){
-            this.drawTriangleTo(x2+normalizedMouseNodeVectorX*2, y2+normalizedMouseNodeVectorY*2, normalizedMouseNodeVectorX, normalizedMouseNodeVectorY, "black", false);
+            this.drawTriangleTo(x2, y2, normalizedMouseNodeVectorX, normalizedMouseNodeVectorY, "black", false);
             return;
         }
-        this.drawArc(x2, y2, 3, 0, Math.PI*2, "black", 2, "red")
+        this.drawArc(x2, y2, 3*this.scale, 0, Math.PI*2, "black", 2, "red")
     }
     private drawEdges(): void {
         for (const edge of this.graph.getEdgeList()) {
@@ -362,7 +358,7 @@ export class Network{
         this.ctx.fillText(text, this.offsetX+x, this.offsetY+y);
     }
     private drawNode(node: Node): void {
-        this.drawArc(node.x!, node.y!, this.nodeSize, 0, Math.PI*2,"black",this.nodeContourWidth, node.color ? node.color : "white")
+        this.drawArc(node.x!, node.y!, this.nodeSize*this.scale, 0, Math.PI*2,"black",this.nodeContourWidth, node.color ? node.color : "white")
         this.drawText(node.x!, node.y!, `${node.label}`, 17, "arial", "black");
     }
     private drawEdge(edge: Edge): void {
@@ -380,8 +376,8 @@ export class Network{
                 const lengthOfEdge = this.measureDistance(fromX, fromY, toX, toY);
                 let edgeVectorNormalizedX = (toX-fromX)/lengthOfEdge;
                 let edgeVectorNormalizedY = (toY-fromY)/lengthOfEdge;
-                edgeVectorNormalizedX *=(lengthOfEdge-this.nodeSize-(this.nodeContourWidth*this.scale)/2)
-                edgeVectorNormalizedY *=(lengthOfEdge-this.nodeSize-(this.nodeContourWidth*this.scale)/2)
+                edgeVectorNormalizedX *=(lengthOfEdge-(this.nodeSize*this.scale)-(this.nodeContourWidth*this.scale)/2)
+                edgeVectorNormalizedY *=(lengthOfEdge-(this.nodeSize*this.scale)-(this.nodeContourWidth*this.scale)/2)
                 this.drawTriangleTo(fromX+edgeVectorNormalizedX, fromY+edgeVectorNormalizedY, edgeVectorNormalizedX, edgeVectorNormalizedY, edge.color, true);
             }
         }else{
