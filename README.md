@@ -15,7 +15,7 @@ https://github.com/user-attachments/assets/d592cc79-7ac5-4ab3-84e4-208244641a39
 ## Delete nodes and edges
 https://github.com/user-attachments/assets/d7ac01b1-8c51-4e5b-bea7-fabb67d3ef9a
 ## Zoom and pan
-https://github.com/user-attachments/assets/c669d80f-8e7b-4aba-a674-cf135fe22e1e
+https://github.com/user-attachments/assets/6ce997b6-62a0-4dc6-8d9d-1085aa8e3389
 ## Upload/download graphs you have created
 https://github.com/user-attachments/assets/11e90d26-c281-44d5-bdfe-19d039afdb99
 ## Algorithms step by step
