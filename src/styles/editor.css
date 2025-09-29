@@ -15,7 +15,7 @@ html {
     top: 5px;
     left: 5px;
     z-index: 5;
-    font-size: 1.2rem;
+    font-size: 19px;
 }
 body {
     position: relative;
@@ -46,9 +46,9 @@ body {
 }
 #modify-graph button,
 select, #graph-upload {
-    padding: 0.5em 1.5em;
+    padding: 8px 12px;
     box-sizing: border-box;
-    font-size: 1.1rem;
+    font-size: 17px;
     border-radius: 5px;
     border: transparent;
     background-color: var(--main-color);
@@ -85,10 +85,9 @@ select, #graph-upload {
 #change-data {
     display: flex;
     flex-direction: column;
-    font-size: 1rem;
 }
 #change-data input {
-    font-size: 1rem;
+    font-size: 16px;
     border: solid 2px #000000;
     border-radius: 3px;
     color: #000000;
@@ -187,7 +186,7 @@ button {
     display: flex;
     flex-direction: column;
     text-align: left;
-    font-size: 1.2rem;
+    font-size: 19px;
 }
 #path-info.hide {
     display: none;
@@ -204,7 +203,7 @@ button {
     display: none;
 }
 #algorithm-info {
-    font-size: 0.7rem;
+    font-size: 12px;
     width: 100%;
     height: 70vh;
     border-radius: 3px;
@@ -269,7 +268,7 @@ button {
     text-align: center;
 }
 #info-text{
-    font-size: 0.9rem;
+    font-size: 14px;
     min-height: 30%;
     text-wrap: wrap;
 }
@@ -287,14 +286,12 @@ button {
     flex-shrink: 0;
 }
 #queue-label {
-    font-size: 0.65rem;
     margin-top: 5px;
     display: flex;
     justify-content: space-between;
     width: 100%;
 }
 #stack-label {
-    font-size: 0.65rem;
     margin-top: 5px;
     display: flex;
     justify-content: center;
@@ -319,7 +316,7 @@ button {
     height: 100vh;
     background-color: var(--main-color);
     color: white;
-    font-size: 0.8rem;
+    font-size: 14px;
 }
 @media (max-width: 850px), (max-height: 400px) {
     #screen-size-warning {
