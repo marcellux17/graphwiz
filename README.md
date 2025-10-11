@@ -1,5 +1,5 @@
 # Graphwiz
-My purpose with this small project was purely educational:
+My purpose with this project was purely educational:
 I wanted to learn and experiment with TypeScript and also practice my algorithmic skills. I used OOP methodology for clarity and modularity.
 This project is by no means perfect and can be improved in many ways - both in terms of code clarity and performance.
 
