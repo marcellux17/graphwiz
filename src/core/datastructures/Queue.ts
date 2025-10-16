@@ -97,7 +97,7 @@ export class MinPriorityQueue {
         this.size--;
         return min;
     }
-    update(id: number, newValue: any): void {
+    update(id: number, newValue: number): void {
         let index = -1;
         for (let i = 0; i < this.size; i++) {
             if (this.arr[i]!.id === id) {
