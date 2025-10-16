@@ -153,7 +153,9 @@ export default class AStar extends Algorithm{
 
                     currentState = this.updateNodeLabel(currentState, neighbourId, `${this.graph.getLabelOfNode(neighbourId)}(${gThroughCurrent + this.heuristics[neighbourId]})`)
                     currentState.algorithmInfobox = {
-                        information: `distance through current node < current smallest distance to neighbour<br> (${gThroughCurrent} < ${gScores[neighbourId] == Infinity ? "∞": gScores[neighbourId]})`,
+                        information: `distance through current node < current smallest distance to neighbour<br> (${gThroughCurrent} < ${gScores[neighbourId] == Infinity ? "∞": gScores[neighbourId]})
+                        <br>update the value held by the node to the new f(x) = g(x) + h(x)
+                        <br>update the value held by the node to: ${gThroughCurrent} + ${this.heuristics[neighbourId]} = ${gThroughCurrent + this.heuristics[neighbourId]}`,
                         dataStructure: {
                             type: "priority-queue",
                             ds: this.getLabelsForQueueRepresentation(fScores.toArray())
