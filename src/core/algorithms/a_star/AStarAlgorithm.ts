@@ -4,10 +4,10 @@ import { algorithmInfoBoxState, animationEdgeInformation, animationNodeInformati
 import Algorithm from "../Algorithm";
 
 export default class AStar extends Algorithm{
-    private distanceTable: (number |null)[];//idx: nodeId, element: distance to destination node
+    private heuristics: (number |null)[];//idx: nodeId, element: distance to destination node
     constructor(graph: WeightedGraph){
         super(graph);
-        this.distanceTable = Array(this.graph.getNodeList().length).fill(null);
+        this.heuristics = Array(this.graph.getNodeList().length).fill(null);
     }
     private createPathHighLightState(state: animationState, from: number,to: number, previous:number[]): animationState {
         let newState = state;
@@ -62,12 +62,12 @@ export default class AStar extends Algorithm{
         const nodes = this.graph.getNodeList();
         for(let nodeId = 0; nodeId < nodes.length; nodeId++){
             if(nodes[nodeId] !== null){
-                this.distanceTable[nodeId] = this.measureDistance(nodes[to]!, nodes[nodeId]!);
+                this.heuristics[nodeId] = this.measureDistance(nodes[to]!, nodes[nodeId]!);
             }
         }
     }
     private measureDistance(nodeA: Node, nodeB: Node):number{
-        return Math.floor(Math.sqrt((nodeA.x!-nodeB.x!)**2+(nodeA.y!-nodeB.y!)**2)/10);
+        return Math.floor(Math.sqrt((nodeA.x!-nodeB.x!)**2+(nodeA.y!-nodeB.y!)**2)/10);//weights of the graph are calculated by this function as well
     }
     private getLabelsForQueueRepresentation(ids: number[]):string[]{
         return ids.map(id => this.graph.getLabelOfNode(id));
@@ -75,29 +75,23 @@ export default class AStar extends Algorithm{
     run(from: number, to: number): animationState[] {
         const animationStates: animationState[] = [];
         const nodeList = this.graph.getNodeList();
-        const estimatedDistances = new MinPriorityQueue(nodeList.length); //estimated distances
+        const fScores = new MinPriorityQueue(nodeList.length); //fScores
+        const gScores = new Array(nodeList.length).fill(Infinity);//gScores: 
         const visited:boolean[] = Array(nodeList.length).fill(false);
         const previousNode:number[] = Array(nodeList.length).fill(-1);
         this.measureDistancesFromAllNodesToDestinationNode(to);
-        
+        gScores[from] = 0;
         this.graph.getNodeList().forEach((node) => {
-            if (node && node.getId() !== from) {
-                estimatedDistances.insert({
-                    id: node.getId(),
-                    value: Infinity
-                });
-            } else if(node){
-                estimatedDistances.insert({
-                    id: node.getId(),
-                    value: this.distanceTable[node.getId()]!,
-                });
+            if (node) {
+                const f = (node.getId() === from ? 0 : Infinity) + this.heuristics[node.getId()]!;
+                fScores.insert({ id: node.getId(), value: f });
             }
         });
         let currentState = this.createInitialState(from);
         currentState.algorithmInfobox = {
-            information: `We assign each node a value of ∞, except for the starting node which will get a value of 0. It denotes the shortest distance known from the source node.
+            information: `We assign each node a value of ∞, except for the starting node which will get a value of 0. It denotes the distance from the starting node plus the heuristic estimate.
             Inside the loop we retrieve the element that has the smallest possible value of g(x) + h(x). With the retrieval the the shortest distance to the node is finalized.
-            We also check if a shorter distance is possible through the current node to the adjacent node. If so we update the priority-queue. We repeat this until the destination node is retrieved.
+            We also check if a shorter distance is possible through the current node to the adjacent nodes. If so we update the priority-queue. We repeat this until the destination node is retrieved.
             <hr>
             h(x): heuristic, in our case its euclidean distance<br>
             g(x): shortest distance known from source node`
@@ -109,12 +103,12 @@ export default class AStar extends Algorithm{
             information: "Selecting node from priority queue with the smallest distance",
             dataStructure: {
                 type: "priority-queue",
-                ds: this.getLabelsForQueueRepresentation(estimatedDistances.toArray())
+                ds: this.getLabelsForQueueRepresentation(fScores.toArray())
             }
         }
         animationStates.push(currentState);
         
-        let currentNode = estimatedDistances.extractMin()!;
+        let currentNode = fScores.extractMin()!;
         visited[currentNode.id] = true;
         
         currentState = this.markNodeAsVisited(currentState, currentNode.id);
@@ -122,14 +116,16 @@ export default class AStar extends Algorithm{
             information: "Node with the smallest g(x) + h(x) selected from priority queue.",
             dataStructure: {
                 type: "priority-queue",
-                ds: this.getLabelsForQueueRepresentation(estimatedDistances.toArray())
+                ds: this.getLabelsForQueueRepresentation(fScores.toArray())
             }
         }
         animationStates.push(currentState);
+
         while (currentNode.id !== to) {
             const node = this.graph.getNode(currentNode.id)!;
             let previousEdgeId:number|null = null;
             for(let neighbourId = 0; neighbourId < this.graph.getNodeList().length; neighbourId++){
+                if(visited[neighbourId])continue;
                 if(previousEdgeId !== null){
                     currentState = this.markEdgeAsNormal(currentState, previousEdgeId);
                 }
@@ -137,49 +133,49 @@ export default class AStar extends Algorithm{
                 if(edgeIdConnectedToNeighbour === -1){
                     continue;
                 }
-                if (!visited[neighbourId]) {
-                    const heuristicDistanceFromNeighbourToDest = this.distanceTable[neighbourId]!;
-                    const heuristicDistanceFromCurrentToDest = this.distanceTable[currentNode.id]!;
+                const edgeW = this.graph.getEdge(edgeIdConnectedToNeighbour)!.getWeight()!;
+                const gThroughCurrent = gScores[currentNode.id] + edgeW;
 
-                    const weightOfEdge = this.graph.getEdge(edgeIdConnectedToNeighbour)!.getWeight()!;
-                    const estimatedDistance = estimatedDistances.get(neighbourId)!.value - heuristicDistanceFromNeighbourToDest;
-                    const distanceThroughCurrentWithoutHeur = currentNode.value - heuristicDistanceFromCurrentToDest;
-                    const distanceThroughCurrentNode =  distanceThroughCurrentWithoutHeur+ weightOfEdge;
-                    currentState = this.markEdgeAsSelected(currentState, edgeIdConnectedToNeighbour)
+                currentState = this.markEdgeAsSelected(currentState, edgeIdConnectedToNeighbour)
+                currentState.algorithmInfobox = {
+                    information: `Checking for adjacent nodes if the distance through the node currently being visited is smaller than the distance previously set:<br> 
+                    <br>${gScores[currentNode.id]} + ${edgeW} < ? ${gScores[neighbourId] == Infinity ? "∞": gScores[neighbourId]}`,
+                    dataStructure: {
+                        type: "priority-queue",
+                        ds: this.getLabelsForQueueRepresentation(fScores.toArray())
+                    }
+                }
+                animationStates.push(currentState);
+
+                if (gThroughCurrent< gScores[neighbourId]) {
+
+                    previousNode[neighbourId] = currentNode.id;
+
+                    currentState = this.updateNodeLabel(currentState, neighbourId, `${this.graph.getLabelOfNode(neighbourId)}(${gThroughCurrent + this.heuristics[neighbourId]})`)
                     currentState.algorithmInfobox = {
-                        information: `Checking for adjacent nodes if the distance through the node currently being visited is smaller than the distance previously set:<br> 
-                        <br>${distanceThroughCurrentWithoutHeur} + ${weightOfEdge} < ? ${estimatedDistance == Infinity ? "∞": estimatedDistance}`,
+                        information: `distance through current node < current smallest distance to neighbour<br> (${gThroughCurrent} < ${gScores[neighbourId] == Infinity ? "∞": gScores[neighbourId]})`,
                         dataStructure: {
                             type: "priority-queue",
-                            ds: this.getLabelsForQueueRepresentation(estimatedDistances.toArray())
+                            ds: this.getLabelsForQueueRepresentation(fScores.toArray())
                         }
-                    }
+                    };
                     animationStates.push(currentState);
-                    if (distanceThroughCurrentNode < estimatedDistance) {
-                        previousNode[neighbourId] = currentNode.id;
-                        currentState = this.updateNodeLabel(currentState, neighbourId, `${this.graph.getLabelOfNode(neighbourId)}(${distanceThroughCurrentNode})`)
-                        currentState.algorithmInfobox = {
-                            information: `distance through current node < current smallest distance to neighbour<br> (${distanceThroughCurrentNode} < ${estimatedDistance == Infinity ? "∞": estimatedDistance})`,
-                            dataStructure: {
-                                type: "priority-queue",
-                                ds: this.getLabelsForQueueRepresentation(estimatedDistances.toArray())
-                            }
-                        };
-                        animationStates.push(currentState);
-                        estimatedDistances.update(neighbourId, distanceThroughCurrentNode+heuristicDistanceFromNeighbourToDest);
-                    }else{
-                        currentState = JSON.parse(JSON.stringify(currentState));
-                        currentState.algorithmInfobox = {
-                            information: `distance through current node > current smallest distance to neighbour<hr> no updates`,
-                            dataStructure: {
-                                type: "priority-queue",
-                                ds: this.getLabelsForQueueRepresentation(estimatedDistances.toArray())
-                            }
-                        };
-                        animationStates.push(currentState);
-                    }
-                    previousEdgeId = edgeIdConnectedToNeighbour;
+
+                    gScores[neighbourId] = gThroughCurrent;
+                    fScores.update(neighbourId, gThroughCurrent+this.heuristics[neighbourId]);
+                }else{
+                    currentState = JSON.parse(JSON.stringify(currentState));
+                    currentState.algorithmInfobox = {
+                        information: `distance through current node > current smallest distance to neighbour<hr> no updates`,
+                        dataStructure: {
+                            type: "priority-queue",
+                            ds: this.getLabelsForQueueRepresentation(fScores.toArray())
+                        }
+                    };
+                    animationStates.push(currentState);
                 }
+                previousEdgeId = edgeIdConnectedToNeighbour;
+                
             }
             if(previousEdgeId !== null){
                 currentState = this.markEdgeAsNormal(currentState, previousEdgeId);
@@ -192,17 +188,17 @@ export default class AStar extends Algorithm{
                 g(x): shortest distance known from source node`,
                 dataStructure: {
                     type: "priority-queue",
-                    ds: this.getLabelsForQueueRepresentation(estimatedDistances.toArray())
+                    ds: this.getLabelsForQueueRepresentation(fScores.toArray())
                 }
             };
             animationStates.push(currentState);
-            currentNode = estimatedDistances.extractMin()!;
+            currentNode = fScores.extractMin()!;
             currentState = this.markNodeAsVisited(currentState, currentNode.id);
             currentState.algorithmInfobox = {
                 information: "Node with the smallest g(x) + h(x) selected from priority queue.",
                 dataStructure: {
                     type: "priority-queue",
-                    ds: this.getLabelsForQueueRepresentation(estimatedDistances.toArray())
+                    ds: this.getLabelsForQueueRepresentation(fScores.toArray())
                 }
             };
             animationStates.push(currentState);
