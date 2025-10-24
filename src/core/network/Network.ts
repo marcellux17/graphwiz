@@ -267,7 +267,7 @@ export class Network{
     }
     private hitNode( x: number, y: number ): { node: Node | null; index: number } {
         for (let j = this.nodeIds.length - 1; j >= 0; j--) {
-            let node: Node = this.graph.getNode(this.nodeIds[j])!;
+            const node: Node = this.graph.getNode(this.nodeIds[j])!;
             if ((node.x! - x) ** 2 + (node.y! - y) ** 2 < (this.nodeSize*this.scale+(this.nodeContourWidth*this.scale/2)) ** 2) {
                 return { node, index: j };
             }
@@ -392,8 +392,8 @@ export class Network{
     }
     private drawCurvedEdge(fromX:number, fromY:number, toX:number, toY:number, width: number, color: string, weight?: number):void{
         const lengthOfEdge = this.measureDistance(fromX, fromY, toX, toY);
-        let edgeVectorNormalizedX = (toX-fromX)/lengthOfEdge;
-        let edgeVectorNormalizedY = (toY-fromY)/lengthOfEdge;
+        const edgeVectorNormalizedX = (toX-fromX)/lengthOfEdge;
+        const edgeVectorNormalizedY = (toY-fromY)/lengthOfEdge;
         let edgeVectorNormalVX = -edgeVectorNormalizedY;
         let edgeVectorNormalVY = edgeVectorNormalizedX;
         const edgeCenterX = (fromX+toX)/2;
@@ -479,13 +479,13 @@ export class Network{
         return null;
     }
     private checkIfOnArc(x: number, y: number, fromX: number, fromY: number, toX: number, toY: number, arcWidth: number):boolean{
-        let threshold = ((arcWidth)/2)*this.scale+this.scale;
+        const threshold = ((arcWidth)/2)*this.scale+this.scale;
         const lengthOfEdge = this.measureDistance(fromX, fromY, toX, toY);
-        let edgeVectorNormalizedX = (toX-fromX)/lengthOfEdge;
-        let edgeVectorNormalizedY = (toY-fromY)/lengthOfEdge;
+        const edgeVectorNormalizedX = (toX-fromX)/lengthOfEdge;
+        const edgeVectorNormalizedY = (toY-fromY)/lengthOfEdge;
 
-        let edgeVectorNormalVX = -edgeVectorNormalizedY;
-        let edgeVectorNormalVY = edgeVectorNormalizedX;
+        const edgeVectorNormalVX = -edgeVectorNormalizedY;
+        const edgeVectorNormalVY = edgeVectorNormalizedX;
 
         const edgeCenterX = (fromX+toX)/2;
         const edgeCenterY = (fromY+toY)/2;
@@ -499,8 +499,8 @@ export class Network{
         const mouseAngle = this.getAngleNormalized(circleCenterMouseVX, -circleCenterMouseVY);
         const angleA = this.getAngleNormalized(fromX-circleCenterX, -(fromY-circleCenterY));
         const angleB = this.getAngleNormalized(toX-circleCenterX, -(toY-circleCenterY));
-        let startAngle = Math.min(angleA, angleB);
-        let endAngle = Math.max(angleA, angleB);
+        const startAngle = Math.min(angleA, angleB);
+        const endAngle = Math.max(angleA, angleB);
         let betweenAngles = mouseAngle > startAngle && mouseAngle < endAngle;
         if(endAngle-startAngle > Math.PI){
             betweenAngles = !betweenAngles;
@@ -516,7 +516,7 @@ export class Network{
         return this.measureDistance(referencePointX, referencePointY, x, y) < threshold && betweenAngles;       
     }
     private checkIfOnLine( x: number, y: number, x1: number, y1: number, x2: number, y2: number, lineWidth: number ): boolean {
-        let threshold = ((lineWidth)/2)*this.scale+this.scale;
+        const threshold = ((lineWidth)/2)*this.scale+this.scale;
         const xDiff = x2 - x1;
         const yDiff = y2 - y1;
         const lenSq = xDiff * xDiff + yDiff * yDiff;
@@ -544,7 +544,7 @@ export class Network{
         const halfLineY = (y1 + y2) / 2;
         let lineVectorX = x1 - x2;
         let lineVectorY = y1 - y2;
-        let length = this.measureDistance(x1, y1, x2, y2);
+        const length = this.measureDistance(x1, y1, x2, y2);
         lineVectorX = lineVectorX / length;
         lineVectorY = lineVectorY / length;
         let normalVectorX = -lineVectorY;
@@ -590,8 +590,8 @@ export class Network{
         if (this.mode == "disabled") return;
         this.mousePositionX = e.x;
         this.mousePositionY = e.y;
-        let canvasMouseX = this.screenToCanvasX(this.mousePositionX);
-        let canvasMouseY = this.screenToCanvasY(this.mousePositionY);
+        const canvasMouseX = this.screenToCanvasX(this.mousePositionX);
+        const canvasMouseY = this.screenToCanvasY(this.mousePositionY);
         if (0 < e.deltaY) {
             this.canvasScaleDown();
             this.offsetY += this.canvasToScreenY(canvasMouseY * this.scaleFactor) - this.offsetY;
