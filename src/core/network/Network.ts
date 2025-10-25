@@ -298,7 +298,7 @@ export class Network{
         const startingY = y1 + normalizedMouseNodeVectorY * (this.nodeSize*this.scale) + normalizedMouseNodeVectorY * (this.nodeContourWidth*this.scale/2);
         this.drawLine(startingX, startingY, x2, y2, 2, "black");
         if(!this.edgesTwoWay){
-            this.drawTriangleTo(x2, y2, normalizedMouseNodeVectorX, normalizedMouseNodeVectorY, "black", false);
+            this.drawTriangleTo(x2, y2, normalizedMouseNodeVectorX, normalizedMouseNodeVectorY, "black");
             return;
         }
         this.drawArc(x2, y2, 3*this.scale, 0, Math.PI*2, "black", 2, "red")
@@ -378,7 +378,7 @@ export class Network{
                 let edgeVectorNormalizedY = (toY-fromY)/lengthOfEdge;
                 edgeVectorNormalizedX *=(lengthOfEdge-(this.nodeSize*this.scale)-(this.nodeContourWidth*this.scale)/2)
                 edgeVectorNormalizedY *=(lengthOfEdge-(this.nodeSize*this.scale)-(this.nodeContourWidth*this.scale)/2)
-                this.drawTriangleTo(fromX+edgeVectorNormalizedX, fromY+edgeVectorNormalizedY, edgeVectorNormalizedX, edgeVectorNormalizedY, edge.color, true);
+                this.drawTriangleTo(fromX+edgeVectorNormalizedX, fromY+edgeVectorNormalizedY, edgeVectorNormalizedX, edgeVectorNormalizedY, edge.color);
             }
         }else{
             this.drawStraightEdge(fromX, fromY, toX, toY, edge.width, edge.color, edge.getWeight())
@@ -420,7 +420,7 @@ export class Network{
         this.drawArc(circleCenterX, circleCenterY, radius, startAngle, endAngle, color, width);
         edgeVectorNormalVX *= -1;
         edgeVectorNormalVY *= -1;
-        this.drawTriangleTo(circleCenterX+edgeVectorNormalVX*radius, circleCenterY+edgeVectorNormalVY*radius, edgeVectorNormalizedX, edgeVectorNormalizedY, color, false);
+        this.drawTriangleTo(circleCenterX+edgeVectorNormalVX*radius, circleCenterY+edgeVectorNormalVY*radius, edgeVectorNormalizedX, edgeVectorNormalizedY, color);
         if(this.graph instanceof WeightedGraph){
             this.drawWeightToArcMiddle(circleCenterX, circleCenterY, radius, edgeCenterX-circleCenterX, edgeCenterY-circleCenterY, weight!, color);
         }
@@ -440,12 +440,11 @@ export class Network{
         const angle = Math.atan(Math.abs(vectorY/vectorX));
         return vectorY < 0 ? Math.PI-angle: Math.PI+angle;
     }
-    private drawTriangleTo(x:number, y:number, directionVectorX:number, directionVectorY:number, color: string, normalize: boolean):void{
+    private drawTriangleTo(x:number, y:number, directionVectorX:number, directionVectorY:number, color: string):void{
         const lenghthOfV = Math.sqrt(directionVectorX**2 + directionVectorY**2);
-        if(normalize){
-            directionVectorX = directionVectorX/lenghthOfV;
-            directionVectorY = directionVectorY/lenghthOfV;
-        }
+        directionVectorX = directionVectorX/lenghthOfV;
+        directionVectorY = directionVectorY/lenghthOfV;
+        
         const normalVX = directionVectorY;
         const noramlVY = -directionVectorX;
         const triangleHeight = 15*this.scale;
