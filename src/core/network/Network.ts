@@ -19,8 +19,8 @@ export class Network{
     private nodeSize = 30;
     private nodeContourWidth = 4;
     private nodeIds:number[] = [];
-    private mouseNodecenterVectorX = 0;
-    private mouseNodecenterVectorY = 0;
+    private mouseNodeCenterVectorX = 0;
+    private mouseNodeCenterVectorY = 0;
     private nodeDragging = false;
     private draggedNode:Node|null = null;
     private dpr:number = 1;
@@ -132,34 +132,34 @@ export class Network{
     fitGraphIntoAnimationSpace():void{
         const algorithmInfoBoxOffsetX = algorithmInformationBox!.clientWidth === 0? 50: algorithmInformationBox!.clientWidth;
         let {topLeftX, topLeftY, width, height} = this.measureGraphRectangle();
-        const animationSpaceWidth = this.canvasWidth-algorithmInfoBoxOffsetX-70;
-        const animationSpaceHeight = this.canvasHeight-100;
+        const animationSpaceWidth = this.canvasWidth - algorithmInfoBoxOffsetX - 70;
+        const animationSpaceHeight = this.canvasHeight - 100;
         if(width/animationSpaceWidth > 1){
-            let newScale = animationSpaceWidth/width;
+            let newScale = animationSpaceWidth / width;
             topLeftX *= newScale
             topLeftY *= newScale
             height *= newScale
             width *=newScale
             if(height/animationSpaceHeight > 1){
-                newScale *= animationSpaceHeight/height
-                topLeftX *= animationSpaceHeight/height
-                topLeftY *= animationSpaceHeight/height
-                width *= animationSpaceHeight/height
-                height *= animationSpaceHeight/height
+                newScale *= animationSpaceHeight / height
+                topLeftX *= animationSpaceHeight / height
+                topLeftY *= animationSpaceHeight / height
+                width *= animationSpaceHeight / height
+                height *= animationSpaceHeight / height
             }
-            this.setCanvasScale(this.scale*newScale);
-        }else if(height/animationSpaceHeight > 1){
-            this.setCanvasScale(this.scale*(animationSpaceHeight/height))
-            topLeftX *= animationSpaceHeight/height
-            topLeftY *= animationSpaceHeight/height
-            width *=animationSpaceHeight/height
-            height *= animationSpaceHeight/height
+            this.setCanvasScale(this.scale * newScale);
+        }else if(height / animationSpaceHeight > 1){
+            this.setCanvasScale(this.scale * (animationSpaceHeight / height))
+            topLeftX *= animationSpaceHeight / height
+            topLeftY *= animationSpaceHeight / height
+            width *= animationSpaceHeight / height
+            height *= animationSpaceHeight / height
         }
         
-        const fittedTopX = algorithmInfoBoxOffsetX+50;
-        const fittedTopY = (this.canvasHeight-height)/2;
-        this.offsetX = fittedTopX-topLeftX;
-        this.offsetY = fittedTopY-topLeftY;
+        const fittedTopX = algorithmInfoBoxOffsetX + 50;
+        const fittedTopY = (this.canvasHeight - height) / 2;
+        this.offsetX = fittedTopX - topLeftX;
+        this.offsetY = fittedTopY - topLeftY;
         this.drawCanvas();
     }
     updateEdge(edge :{id: number, color?: string, weight?: number, width?: number}):void{
@@ -268,7 +268,7 @@ export class Network{
     private hitNode( x: number, y: number ): { node: Node | null; index: number } {
         for (let j = this.nodeIds.length - 1; j >= 0; j--) {
             const node: Node = this.graph.getNode(this.nodeIds[j])!;
-            if ((node.x! - x) ** 2 + (node.y! - y) ** 2 < (this.nodeSize*this.scale+(this.nodeContourWidth*this.scale/2)) ** 2) {
+            if ((node.x! - x) ** 2 + (node.y! - y) ** 2 < (this.nodeSize * this.scale + (this.nodeContourWidth * this.scale / 2)) ** 2) {
                 return { node, index: j };
             }
         }
@@ -292,16 +292,16 @@ export class Network{
         const x2 = this.screenToCanvasX(this.mousePositionX);
         const y2 = this.screenToCanvasY(this.mousePositionY);
         const length = this.measureDistance(x1, y1, x2, y2);
-        const normalizedMouseNodeVectorX = (x2 - x1) / length;
-        const normalizedMouseNodeVectorY = (y2 - y1) / length;
-        const startingX = x1 + normalizedMouseNodeVectorX * (this.nodeSize*this.scale) + normalizedMouseNodeVectorX * (this.nodeContourWidth*this.scale/2);
-        const startingY = y1 + normalizedMouseNodeVectorY * (this.nodeSize*this.scale) + normalizedMouseNodeVectorY * (this.nodeContourWidth*this.scale/2);
+        const mouseNodeVectorNormalizedX = (x2 - x1) / length;
+        const mouseNodeVectorNormalizedY = (y2 - y1) / length;
+        const startingX = x1 + mouseNodeVectorNormalizedX * (this.nodeSize * this.scale) + mouseNodeVectorNormalizedX * (this.nodeContourWidth * this.scale / 2);
+        const startingY = y1 + mouseNodeVectorNormalizedY * (this.nodeSize * this.scale) + mouseNodeVectorNormalizedY * (this.nodeContourWidth * this.scale / 2);
         this.drawLine(startingX, startingY, x2, y2, 2, "black");
         if(!this.edgesTwoWay){
-            this.drawTriangleTo(x2, y2, normalizedMouseNodeVectorX, normalizedMouseNodeVectorY, "black");
+            this.drawTriangleTo(x2, y2, mouseNodeVectorNormalizedX, mouseNodeVectorNormalizedY, "black");
             return;
         }
-        this.drawArc(x2, y2, 3*this.scale, 0, Math.PI*2, "black", 2, "red")
+        this.drawArc(x2, y2, 3 * this.scale, 0, Math.PI * 2, "black", 2, "red")
     }
     private drawEdges(): void {
         for (const edge of this.graph.getEdgeList()) {
@@ -331,7 +331,7 @@ export class Network{
     }
     private drawLine(fromX: number, fromY: number, toX: number, toY: number, lineWidth: number, color: string):void{
         this.ctx.beginPath();
-        this.ctx.lineWidth = lineWidth*this.scale;
+        this.ctx.lineWidth = lineWidth * this.scale;
         this.ctx.strokeStyle = color;
         this.ctx.moveTo(this.offsetX + fromX, this.offsetY + fromY);
         this.ctx.lineTo(this.offsetX + toX, this.offsetY + toY);
@@ -340,7 +340,7 @@ export class Network{
     }
     private drawArc(x:number, y:number, radius: number, startingAngle: number, endAngle: number, contour: string, lineWidth: number,color?: string):void{
         this.ctx.beginPath();
-        this.ctx.lineWidth = lineWidth*this.scale;
+        this.ctx.lineWidth = lineWidth * this.scale;
         this.ctx.strokeStyle = contour;
         this.ctx.arc(this.offsetX + x, this.offsetY + y, radius, startingAngle, endAngle);
         this.ctx.stroke();
@@ -358,7 +358,7 @@ export class Network{
         this.ctx.fillText(text, this.offsetX+x, this.offsetY+y);
     }
     private drawNode(node: Node): void {
-        this.drawArc(node.x!, node.y!, this.nodeSize*this.scale, 0, Math.PI*2,"black",this.nodeContourWidth, node.color ? node.color : "white")
+        this.drawArc(node.x!, node.y!, this.nodeSize * this.scale, 0, Math.PI * 2,"black",this.nodeContourWidth, node.color ? node.color : "white")
         this.drawText(node.x!, node.y!, `${node.label}`, 17, "arial", "black");
     }
     private drawEdge(edge: Edge): void {
@@ -374,10 +374,10 @@ export class Network{
             }else{
                 this.drawStraightEdge(fromX, fromY, toX, toY, edge.width, edge.color, edge.getWeight())
                 const lengthOfEdge = this.measureDistance(fromX, fromY, toX, toY);
-                let edgeVectorNormalizedX = (toX-fromX)/lengthOfEdge;
-                let edgeVectorNormalizedY = (toY-fromY)/lengthOfEdge;
-                edgeVectorNormalizedX *=(lengthOfEdge-(this.nodeSize*this.scale)-(this.nodeContourWidth*this.scale)/2)
-                edgeVectorNormalizedY *=(lengthOfEdge-(this.nodeSize*this.scale)-(this.nodeContourWidth*this.scale)/2)
+                let edgeVectorNormalizedX = (toX - fromX) / lengthOfEdge;
+                let edgeVectorNormalizedY = (toY - fromY) / lengthOfEdge;
+                edgeVectorNormalizedX *= (lengthOfEdge - (this.nodeSize * this.scale) - (this.nodeContourWidth * this.scale) / 2)
+                edgeVectorNormalizedY *= (lengthOfEdge - (this.nodeSize * this.scale) - (this.nodeContourWidth * this.scale) / 2)
                 this.drawTriangleTo(fromX+edgeVectorNormalizedX, fromY+edgeVectorNormalizedY, edgeVectorNormalizedX, edgeVectorNormalizedY, edge.color);
             }
         }else{
@@ -392,23 +392,23 @@ export class Network{
     }
     private drawCurvedEdge(fromX:number, fromY:number, toX:number, toY:number, width: number, color: string, weight?: number):void{
         const lengthOfEdge = this.measureDistance(fromX, fromY, toX, toY);
-        const edgeVectorNormalizedX = (toX-fromX)/lengthOfEdge;
-        const edgeVectorNormalizedY = (toY-fromY)/lengthOfEdge;
-        let edgeVectorNormalVX = -edgeVectorNormalizedY;
-        let edgeVectorNormalVY = edgeVectorNormalizedX;
-        const edgeCenterX = (fromX+toX)/2;
-        const edgeCenterY = (fromY+toY)/2;
+        const edgeVectorNormalizedX = (toX - fromX) / lengthOfEdge;
+        const edgeVectorNormalizedY = (toY - fromY) / lengthOfEdge;
+        let edgeVectorNormalVectorX = edgeVectorNormalizedY * -1;
+        let edgeVectorNormalVectorY = edgeVectorNormalizedX;
+        const edgeCenterX = (fromX + toX) / 2;
+        const edgeCenterY = (fromY + toY) / 2;
 
-        const circleCenterX = edgeCenterX + edgeVectorNormalVX*lengthOfEdge;
-        const circleCenterY = edgeCenterY + edgeVectorNormalVY*lengthOfEdge;
+        const circleCenterX = edgeCenterX + edgeVectorNormalVectorX * lengthOfEdge;
+        const circleCenterY = edgeCenterY + edgeVectorNormalVectorY * lengthOfEdge;
 
-        const circleCenterToNodeVectorX = toX-circleCenterX;
-        const circleCenterToNodeVectorY = toY-circleCenterY;
-        const circleCenterFromNodeVectorX = fromX-circleCenterX;
-        const circleCenterFromNodeVectorY = fromY-circleCenterY;
+        const circleCenterToNodeVectorX = toX - circleCenterX;
+        const circleCenterToNodeVectorY = toY - circleCenterY;
+        const circleCenterFromNodeVectorX = fromX - circleCenterX;
+        const circleCenterFromNodeVectorY = fromY - circleCenterY;
 
-        const angleA = this.getAngleNormalized(circleCenterFromNodeVectorX, -circleCenterFromNodeVectorY);
-        const angleB = this.getAngleNormalized(circleCenterToNodeVectorX, -circleCenterToNodeVectorY);
+        const angleA = this.getAngleNormalized(circleCenterFromNodeVectorX, - circleCenterFromNodeVectorY);
+        const angleB = this.getAngleNormalized(circleCenterToNodeVectorX, - circleCenterToNodeVectorY);
         let startAngle = Math.min(angleA, angleB);
         let endAngle = Math.max(angleA, angleB);
         const radius = this.measureDistance(circleCenterX, circleCenterY, toX, toY);
@@ -418,41 +418,41 @@ export class Network{
             startAngle = temp;
         }
         this.drawArc(circleCenterX, circleCenterY, radius, startAngle, endAngle, color, width);
-        edgeVectorNormalVX *= -1;
-        edgeVectorNormalVY *= -1;
-        this.drawTriangleTo(circleCenterX+edgeVectorNormalVX*radius, circleCenterY+edgeVectorNormalVY*radius, edgeVectorNormalizedX, edgeVectorNormalizedY, color);
+        edgeVectorNormalVectorX *= -1;
+        edgeVectorNormalVectorY *= -1;
+        this.drawTriangleTo(circleCenterX + edgeVectorNormalVectorX * radius, circleCenterY + edgeVectorNormalVectorY *  radius, edgeVectorNormalizedX, edgeVectorNormalizedY, color);
         if(this.graph instanceof WeightedGraph){
-            this.drawWeightToArcMiddle(circleCenterX, circleCenterY, radius, edgeCenterX-circleCenterX, edgeCenterY-circleCenterY, weight!, color);
+            this.drawWeightToArcMiddle(circleCenterX, circleCenterY, radius, edgeCenterX - circleCenterX, edgeCenterY - circleCenterY, weight!, color);
         }
     }
     private getAngleNormalized(vectorX:number, vectorY:number):number{
         if(vectorX === 0){
-            return vectorY < 0 ? Math.PI/2 : Math.PI*3/2;
+            return vectorY < 0 ? Math.PI / 2 : Math.PI * 3 / 2;
         }
         if(vectorY === 0){
             return vectorX < 0 ? Math.PI: 0;
         }
         if(vectorX > 0){
-            const angle = Math.atan(Math.abs(vectorY/vectorX));
-            return vectorY < 0 ? angle: Math.PI*2-angle;
+            const angle = Math.atan(Math.abs(vectorY / vectorX));
+            return vectorY < 0 ? angle: Math.PI * 2 - angle;
         }
         //vectorX < 0
-        const angle = Math.atan(Math.abs(vectorY/vectorX));
-        return vectorY < 0 ? Math.PI-angle: Math.PI+angle;
+        const angle = Math.atan(Math.abs(vectorY / vectorX));
+        return vectorY < 0 ? Math.PI - angle: Math.PI + angle;
     }
     private drawTriangleTo(x:number, y:number, directionVectorX:number, directionVectorY:number, color: string):void{
-        const lenghthOfV = Math.sqrt(directionVectorX**2 + directionVectorY**2);
-        directionVectorX = directionVectorX/lenghthOfV;
-        directionVectorY = directionVectorY/lenghthOfV;
+        const lenghthOfV = Math.sqrt(directionVectorX ** 2 + directionVectorY ** 2);
+        directionVectorX = directionVectorX / lenghthOfV;
+        directionVectorY = directionVectorY / lenghthOfV;
         
-        const normalVX = directionVectorY;
-        const noramlVY = -directionVectorX;
-        const triangleHeight = 15*this.scale;
-        const halfBaseLength = 8*this.scale;
+        const normalVectorX = directionVectorY;
+        const normalVectorY = directionVectorX * -1;
+        const triangleHeight = 15 * this.scale;
+        const halfBaseLength = 8 * this.scale;
         this.ctx.beginPath();
-        this.ctx.moveTo(this.offsetX+(x-directionVectorX*triangleHeight)+normalVX*halfBaseLength,this.offsetY+(y-directionVectorY*triangleHeight)+noramlVY*halfBaseLength);
-        this.ctx.lineTo(this.offsetX+(x-directionVectorX*triangleHeight)-normalVX*halfBaseLength,this.offsetY+(y-directionVectorY*triangleHeight)-noramlVY*halfBaseLength)
-        this.ctx.lineTo(this.offsetX+x, this.offsetY+y)
+        this.ctx.moveTo(this.offsetX + (x - directionVectorX * triangleHeight) + normalVectorX * halfBaseLength,this.offsetY + (y - directionVectorY * triangleHeight) + normalVectorY * halfBaseLength);
+        this.ctx.lineTo(this.offsetX + (x - directionVectorX * triangleHeight) - normalVectorX * halfBaseLength,this.offsetY + (y - directionVectorY * triangleHeight) - normalVectorY * halfBaseLength);
+        this.ctx.lineTo(this.offsetX + x, this.offsetY + y)
         this.ctx.closePath();
         this.ctx.fillStyle = color;
         this.ctx.fill();
@@ -478,64 +478,64 @@ export class Network{
         return null;
     }
     private checkIfOnArc(x: number, y: number, fromX: number, fromY: number, toX: number, toY: number, arcWidth: number):boolean{
-        const threshold = ((arcWidth)/2)*this.scale+this.scale;
+        const threshold = (arcWidth / 2) * this.scale + this.scale;
         const lengthOfEdge = this.measureDistance(fromX, fromY, toX, toY);
-        const edgeVectorNormalizedX = (toX-fromX)/lengthOfEdge;
-        const edgeVectorNormalizedY = (toY-fromY)/lengthOfEdge;
+        const edgeVectorNormalizedX = (toX - fromX) / lengthOfEdge;
+        const edgeVectorNormalizedY = (toY - fromY) / lengthOfEdge;
 
-        const edgeVectorNormalVX = -edgeVectorNormalizedY;
-        const edgeVectorNormalVY = edgeVectorNormalizedX;
+        const edgeVectorNormalVectorX = edgeVectorNormalizedY * -1;
+        const edgeVectorNormalVectorY = edgeVectorNormalizedX;
 
-        const edgeCenterX = (fromX+toX)/2;
-        const edgeCenterY = (fromY+toY)/2;
+        const edgeCenterX = (fromX + toX) / 2;
+        const edgeCenterY = (fromY + toY) / 2;
 
-        const circleCenterX = edgeCenterX + edgeVectorNormalVX*lengthOfEdge;
-        const circleCenterY = edgeCenterY + edgeVectorNormalVY*lengthOfEdge;
+        const circleCenterX = edgeCenterX + edgeVectorNormalVectorX * lengthOfEdge;
+        const circleCenterY = edgeCenterY + edgeVectorNormalVectorY * lengthOfEdge;
 
-        const circleCenterMouseVX = x-circleCenterX;
-        const circleCenterMouseVY = y-circleCenterY;
+        const circleCenterMouseVectorX = x - circleCenterX;
+        const circleCenterMouseVectorY = y - circleCenterY;
 
-        const mouseAngle = this.getAngleNormalized(circleCenterMouseVX, -circleCenterMouseVY);
-        const angleA = this.getAngleNormalized(fromX-circleCenterX, -(fromY-circleCenterY));
-        const angleB = this.getAngleNormalized(toX-circleCenterX, -(toY-circleCenterY));
+        const mouseAngle = this.getAngleNormalized(circleCenterMouseVectorX, circleCenterMouseVectorY * -1);
+        const angleA = this.getAngleNormalized(fromX - circleCenterX, (fromY - circleCenterY) * -1);
+        const angleB = this.getAngleNormalized(toX - circleCenterX, (toY - circleCenterY) * -1);
         const startAngle = Math.min(angleA, angleB);
         const endAngle = Math.max(angleA, angleB);
         let betweenAngles = mouseAngle > startAngle && mouseAngle < endAngle;
         if(endAngle-startAngle > Math.PI){
             betweenAngles = !betweenAngles;
         }
-        const lengthOfVector = Math.sqrt(circleCenterMouseVX**2+circleCenterMouseVY**2);
-        const circleCenterMouseVnormalizedX = circleCenterMouseVX/lengthOfVector
-        const circleCenterMouseVnormalizedY = circleCenterMouseVY/lengthOfVector
+        const lengthOfVector = Math.sqrt(circleCenterMouseVectorX ** 2 + circleCenterMouseVectorY ** 2);
+        const circleCenterMouseVectorNormalizedX = circleCenterMouseVectorX / lengthOfVector;
+        const circleCenterMouseVectorNormalizedY = circleCenterMouseVectorY / lengthOfVector;
         const radius = this.measureDistance(circleCenterX, circleCenterY, toX, toY);
 
-        const referencePointX = circleCenterX + circleCenterMouseVnormalizedX*radius;
-        const referencePointY = circleCenterY + circleCenterMouseVnormalizedY*radius;
+        const referencePointX = circleCenterX + circleCenterMouseVectorNormalizedX * radius;
+        const referencePointY = circleCenterY + circleCenterMouseVectorNormalizedY * radius;
 
         return this.measureDistance(referencePointX, referencePointY, x, y) < threshold && betweenAngles;       
     }
     private checkIfOnLine( x: number, y: number, x1: number, y1: number, x2: number, y2: number, lineWidth: number ): boolean {
-        const threshold = ((lineWidth)/2)*this.scale+this.scale;
-        const xDiff = x2 - x1;
-        const yDiff = y2 - y1;
-        const lenSq = xDiff * xDiff + yDiff * yDiff;
-        if (lenSq === 0) {
-            const distSq = (x - x1) ** 2 + (y - y1) ** 2;
-            return distSq <= threshold ** 2;
+        const threshold = (lineWidth / 2) * this.scale + this.scale;
+        const xDelta = x2 - x1;
+        const yDelta = y2 - y1;
+        const segmentLengthSquared = xDelta ** 2 + yDelta ** 2;
+        if (segmentLengthSquared === 0) {
+            return this.measureDistance(x, y, x1, y1) <= threshold;
         }
-        let t = ((x - x1) * xDiff + (y - y1) * yDiff) / lenSq;
-        t = Math.max(0, Math.min(1, t));
-        const closestX = x1 + t * xDiff;
-        const closestY = y1 + t * yDiff;
-        const distSq = (x - closestX) ** 2 + (y - closestY) ** 2;
-        return distSq <= threshold ** 2;
+
+        let projectionScalar = ((x - x1) * xDelta + (y - y1) * yDelta) / segmentLengthSquared;
+        projectionScalar = Math.max(0, Math.min(1, projectionScalar));
+
+        const closestX = x1 + projectionScalar * xDelta;
+        const closestY = y1 + projectionScalar * yDelta;
+        return this.measureDistance(closestX, closestY, x, y) <= threshold;
     }
     private drawWeightToArcMiddle(circleCenterX: number, circleCenterY: number,radius:number, directionVectorX: number, directionVectorY: number, weight: number, color?: string):void{
-        const length = Math.sqrt(directionVectorX**2+directionVectorY**2);
-        directionVectorX = directionVectorX/length;
-        directionVectorY = directionVectorY/length;
-        const x = circleCenterX+directionVectorX*(radius+15*this.scale);
-        const y = circleCenterY+directionVectorY*(radius+15*this.scale);
+        const length = Math.sqrt(directionVectorX ** 2 + directionVectorY ** 2);
+        directionVectorX = directionVectorX / length;
+        directionVectorY = directionVectorY / length;
+        const x = circleCenterX + directionVectorX * (radius + 15 * this.scale);
+        const y = circleCenterY + directionVectorY * (radius + 15 * this.scale);
         this.drawText(x, y, `${weight}`, 17, "arial", color? color: "black")
     }
     private drawWeightToHalfLine( x1: number, y1: number, x2: number, y2: number, weight: number, color?: string ): void {
@@ -552,8 +552,8 @@ export class Network{
             normalVectorX *= -1;
             normalVectorY *= -1;
         }
-        const x = halfLineX + (normalVectorX * 15*this.scale);
-        const y = halfLineY + (normalVectorY * 15*this.scale);
+        const x = halfLineX + (normalVectorX * 15 * this.scale);
+        const y = halfLineY + (normalVectorY * 15 * this.scale);
         this.drawText(x, y, `${weight}`, 17, "arial", color? color: "black");
     }
     private updateEuclideanDistancesOfDraggedNode(): void {
@@ -566,15 +566,15 @@ export class Network{
     }
     private measureGraphRectangle(): { topLeftX: number; topLeftY: number; width: number; height: number; } {
         let minX = Infinity;
-        let maxX = -Infinity;
+        let maxX = Infinity * -1;
         let minY = Infinity;
-        let maxY = -Infinity;
+        let maxY = Infinity * -1;
         for (const nodeId of this.nodeIds) {
             const node = this.graph.getNode(nodeId)!;
             if (node.x! < minX) {
                 minX = node.x!;
             } else if (node.x! > maxX) {
-                maxX = node.x!;
+                maxX = node.x!; 
             }
             if (node.y! < minY) {
                 minY = node.y!;
@@ -582,7 +582,7 @@ export class Network{
                 maxY = node.y!;
             }
         }
-        return { topLeftX: minX - (this.nodeSize*this.scale)-this.nodeContourWidth*this.scale/2, topLeftY: minY - (this.nodeSize*this.scale) - this.nodeContourWidth*this.scale/2, width: maxX - minX + (this.nodeSize*this.scale) * 2 + this.nodeContourWidth*this.scale, height: maxY - minY + (this.nodeSize*this.scale) * 2 + this.nodeContourWidth*this.scale };
+        return { topLeftX: minX - (this.nodeSize * this.scale) - this.nodeContourWidth * this.scale / 2, topLeftY: minY - (this.nodeSize * this.scale) - this.nodeContourWidth * this.scale/2, width: maxX - minX + (this.nodeSize * this.scale) * 2 + this.nodeContourWidth * this.scale, height: maxY - minY + (this.nodeSize * this.scale) * 2 + this.nodeContourWidth * this.scale };
     }
     private wheelEventHandler = (e: WheelEvent): void => {
         e.preventDefault();
@@ -632,8 +632,8 @@ export class Network{
             }
             if (node && !this.isPanning) {
                 this.draggedNode = node;
-                this.mouseNodecenterVectorX = node.x! - canvasMouseX;
-                this.mouseNodecenterVectorY = node.y! - canvasMouseY;
+                this.mouseNodeCenterVectorX = node.x! - canvasMouseX;
+                this.mouseNodeCenterVectorY = node.y! - canvasMouseY;
                 this.nodeDragging = true;
                 this.nodeIds.splice(index, 1);
                 this.nodeIds.push(node.getId());
@@ -643,8 +643,8 @@ export class Network{
                 this.isPanning = true;
             }
         } else {
-            this.draggedNode!.x = canvasMouseX + this.mouseNodecenterVectorX;
-            this.draggedNode!.y = canvasMouseY + this.mouseNodecenterVectorY;
+            this.draggedNode!.x = canvasMouseX + this.mouseNodeCenterVectorX;
+            this.draggedNode!.y = canvasMouseY + this.mouseNodeCenterVectorY;
             if (this.euclideanWeights)
                 this.updateEuclideanDistancesOfDraggedNode();
         }
