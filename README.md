@@ -1,6 +1,6 @@
 # Graphwiz
 My purpose with this project was purely educational:
-I wanted to learn and experiment with TypeScript and also practice my algorithmic skills. I used OOP methodology for clarity and modularity.
+I wanted to learn and experiment with TypeScript and also practice my algorithmic skills. I used OOP methodology for clarity and modularity. Rendering shapes is done through the canvas api.
 This project is by no means perfect and can be improved in many ways - both in terms of code clarity and performance.
 
 I hope you enjoy learning about these cool graph algorithms as much as I enjoyed implementing them!
