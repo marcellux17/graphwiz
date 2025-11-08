@@ -13,7 +13,7 @@ export default class DFS extends Algorithm{
         const animationStates: animationState[] = [];
         const nodes = this.graph.getNodeList();
         const visited:boolean[] = Array(nodes.length).fill(false);
-        //code
+
         const stack:number[] = [];
         stack.push(from);
         visited[from] = true;

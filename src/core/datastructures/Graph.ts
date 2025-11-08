@@ -223,8 +223,8 @@ export class Edge {
 
 export class Node {
     private id: number;
-    private adjacencyList: number[]; //index: neighbourId, element -> edgeId, -1 -> no edge from node to neighbour (directed)
-    private originalLabel: string; //for resetting if animation changes labels
+    private adjacencyList: number[]; 
+    private originalLabel: string; 
     label: string;
     x?: number;
     y?: number;

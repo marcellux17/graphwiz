@@ -17,7 +17,7 @@ export default class TopologicalSort extends Algorithm{
 
         const nodes = this.graph.getNodeList();
         const edges = this.graph.getEdgeList();
-        const inDegrees:number[] = new Array(nodes.length).fill(-1);//-1 -> no node
+        const inDegrees:number[] = new Array(nodes.length).fill(-1);
         for(const node of nodes){
             if(node){
                 inDegrees[node.getId()] = 0;

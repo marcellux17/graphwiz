@@ -10,7 +10,7 @@ type canvasState = "add-edge-mode" | "idle" | "delete" | "add-node-mode" | "pre-
 export class TopologicalSortController {
     private network: Network;
     private selectedEdgeId: number | null = null;
-    private canvasState: canvasState = "idle"; //aka no mode is selected
+    private canvasState: canvasState = "idle"; 
     private animation: Animation;
     private algorithm: TopologicalSort
     constructor() {
@@ -20,7 +20,7 @@ export class TopologicalSortController {
         this.algorithm = new TopologicalSort(graph);
         this.setUpUiEventListeners();
     }
-    changeCanvasState(newState: canvasState): void {
+    private changeCanvasState(newState: canvasState): void {
         if ( (this.canvasState === "pre-animation" || this.canvasState === "animation-running") && newState !== "pre-animation" && newState !== "animation-running" ){
             this.animation.escapeAnimation();
             makeInvisible(algorithmInformationBox);
@@ -90,7 +90,6 @@ export class TopologicalSortController {
                 if(json.info.edgesTwoWay || json.info.weighted)throw new Error("the graph is not suitable for the algorithm")
                 this.network.loadPreset(json);
             }catch(e:any){
-                //should update this for a nice error message for the user
                 alert(e.message)
             }
         })
@@ -146,7 +145,7 @@ export class TopologicalSortController {
             makeVisible(pauseButton);
         });
         speedRangeInput?.addEventListener("input", () => {
-            let newspeed = Number.parseInt(speedRangeInput!.value);
+            const newspeed = Number.parseInt(speedRangeInput!.value);
             speedInfo.textContent = `speed: ${newspeed}x`;
             this.animation.setAnimationSpeedChange(1000 / newspeed);
         });

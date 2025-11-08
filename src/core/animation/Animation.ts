@@ -20,9 +20,9 @@ type stateRendering = {
 }
 export class Animation {
     private interval: number | null = null;
-    private animationSpeed = 1000; //in ms
-    private animationSpeedChange = 1000; //in case the user wants to change the speed of the animation
-    private currentAnimationStateNumber = 0; //in the animation function it first increments so it does not point to a negative index of the states
+    private animationSpeed = 1000; 
+    private animationSpeedChange = 1000; 
+    private currentAnimationStateNumber = 0; 
     private pathColor = "#c00000ff";
     private normalNodeColor = "white";
     private normalEdgeColor = "black";
@@ -71,7 +71,7 @@ export class Animation {
         if (this.states) {
             this.setAnimationPhase("running");
             this.interval = setInterval(() => {
-                //if animation speed has been altered by the user
+
                 if (this.animationSpeed !== this.animationSpeedChange) {
                     this.animationSpeed = this.animationSpeedChange;
                     clearInterval(this.interval!);
@@ -79,7 +79,7 @@ export class Animation {
                 } else {
                     this.moveAnimationStateForward();
                     this.animateCurrentState();
-                    //if animation finished running
+
                     if (this.isLastState()) {
                         clearInterval(this.interval!);
                         this.setAnimationPhase("paused");

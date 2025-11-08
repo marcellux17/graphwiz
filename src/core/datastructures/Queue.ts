@@ -1,16 +1,15 @@
 export class Queue<T> {
-    //circular queue implmentation
     private capacity: number;
     private items: Array<T | null>;
     private front: number;
     private rear: number;
     private size: number;
     constructor(capacity: number) {
-        this.capacity = capacity; //size of the array
+        this.capacity = capacity;
         this.items = new Array<T | null>(capacity).fill(null);
-        this.front = 0; // index of the front element
-        this.rear = -1; // index of the rear element
-        this.size = 0; //number of elements currently residing inside the queue
+        this.front = 0; 
+        this.rear = -1; 
+        this.size = 0; 
     }
     isFull(): boolean {
         return this.size === this.capacity;

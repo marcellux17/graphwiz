@@ -12,7 +12,7 @@ export class BellmanFordController {
     private selectedEdgeId: number | null = null;
     private startingNodeId: number | null = null;
     private destinationNodeId: number | null = null;
-    private canvasState: canvasState = "idle"; //aka no mode is selected
+    private canvasState: canvasState = "idle";
     private animation: Animation;
     private algorithm: BellmanFord
     constructor() {
@@ -23,7 +23,7 @@ export class BellmanFordController {
         this.setUpNetworkEventListeners();
         this.setUpUiEventListeners();
     }
-    changeCanvasState(newState: canvasState): void {
+    private changeCanvasState(newState: canvasState): void {
         if ( (this.canvasState === "pre-animation" || this.canvasState === "animation-running") && newState !== "pre-animation" && newState !== "animation-running" ){
             this.animation.escapeAnimation();
             makeInvisible(algorithmInformationBox);
@@ -73,7 +73,7 @@ export class BellmanFordController {
         this.canvasState = newState;
         resetInput();
     }
-    selectNodeHandle = (id: number): void => {
+    private selectNodeHandle = (id: number): void => {
         if (this.canvasState !== "pre-animation") return;
         if (this.startingNodeId === null) {
             this.startingNodeId = id;
@@ -103,7 +103,7 @@ export class BellmanFordController {
         this.animation.setAnimationStates(states);
         this.changeCanvasState("animation-running");
     }
-    selectEdgeHandle = (id: number): void => {
+    private selectEdgeHandle = (id: number): void => {
         if ( this.canvasState === "animation-running" || this.canvasState === "pre-animation" )return;
         if (this.canvasState !== "idle") return;
         makeVisible(inputGroup);
@@ -111,7 +111,7 @@ export class BellmanFordController {
         label.textContent = `Change weight of the selected edge`;
         weightInput.value = `${this.network.getEdgeWeight( this.selectedEdgeId! )}`;
     }
-    canvasBlankClickHandle = (): void => {
+    private canvasBlankClickHandle = (): void => {
         resetInput();
     }
     private setUpNetworkEventListeners(): void {
@@ -131,7 +131,6 @@ export class BellmanFordController {
                 if(json.info.edgesTwoWay || !json.info.weighted)throw new Error("the graph is not suitable for the algorithm")
                 this.network.loadPreset(json);
             }catch(e:any){
-                //should update this for a nice error message for the user
                 alert(e.message)
             }
         })
@@ -187,7 +186,7 @@ export class BellmanFordController {
             makeVisible(pauseButton);
         });
         speedRangeInput?.addEventListener("input", () => {
-            let newspeed = Number.parseInt(speedRangeInput!.value);
+            const newspeed = Number.parseInt(speedRangeInput!.value);
             speedInfo.textContent = `speed: ${newspeed}x`;
             this.animation.setAnimationSpeedChange(1000 / newspeed);
         });

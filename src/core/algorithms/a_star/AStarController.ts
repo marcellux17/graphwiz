@@ -11,7 +11,7 @@ export class AStarController {
     private network: Network;
     private startingNodeId: number | null = null;
     private destinationNodeId: number | null = null;
-    private canvasState: canvasState = "idle"; //aka no mode is selected
+    private canvasState: canvasState = "idle";
     private algorithm: AStar;
     private animation: Animation;
     private graph: WeightedGraph;
@@ -23,7 +23,7 @@ export class AStarController {
         this.setUpNetworkEventListeners();
         this.setUpUiEventListeners();
     }
-    changeCanvasState(newState: canvasState): void {
+    private changeCanvasState(newState: canvasState): void {
         if ( (this.canvasState === "pre-animation" || this.canvasState === "animation-running") && newState !== "pre-animation" && newState !== "animation-running" ){
             this.animation.escapeAnimation();
             makeInvisible(algorithmInformationBox);
@@ -74,7 +74,7 @@ export class AStarController {
         this.canvasState = newState;
 
     }
-    selectNodeHandle = (id: number): void => {
+    private selectNodeHandle = (id: number): void => {
         if (this.canvasState !== "pre-animation") return;
         if (this.startingNodeId === null) {
             this.startingNodeId = id;
@@ -112,7 +112,6 @@ export class AStarController {
                 if(!json.info.edgesTwoWay || !json.info.weighted)throw new Error("the graph is not suitable for the algorithm")
                 this.network.loadPreset(json);
             }catch(e:any){
-                //should update this for a nice error message for the user
                 alert(e.message)
             }
         })
@@ -163,7 +162,7 @@ export class AStarController {
             makeVisible(pauseButton);
         });
         speedRangeInput?.addEventListener("input", () => {
-            let newspeed = Number.parseInt(speedRangeInput!.value);
+            const newspeed = Number.parseInt(speedRangeInput!.value);
             speedInfo.textContent = `speed: ${newspeed}x`;
             this.animation.setAnimationSpeedChange(1000 / newspeed);
         });

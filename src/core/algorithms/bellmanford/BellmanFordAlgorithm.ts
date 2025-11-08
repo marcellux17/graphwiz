@@ -121,7 +121,7 @@ export default class BellmanFord extends Algorithm{
             }
             i++;
         }
-        //checking for negative edge cycle
+        
         for(const edge of this.graph.getEdgeList()){
             if(!edge){
                 continue;

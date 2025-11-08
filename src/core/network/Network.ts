@@ -436,7 +436,7 @@ export class Network{
             const angle = Math.atan(Math.abs(vectorY / vectorX));
             return vectorY < 0 ? angle: Math.PI * 2 - angle;
         }
-        //vectorX < 0
+        
         const angle = Math.atan(Math.abs(vectorY / vectorX));
         return vectorY < 0 ? Math.PI - angle: Math.PI + angle;
     }

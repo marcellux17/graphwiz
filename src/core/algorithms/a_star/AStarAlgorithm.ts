@@ -4,7 +4,7 @@ import { algorithmInfoBoxState, animationEdgeInformation, animationNodeInformati
 import Algorithm from "../Algorithm";
 
 export default class AStar extends Algorithm{
-    private heuristics: (number |null)[];//idx: nodeId, element: distance to destination node
+    private heuristics: (number |null)[];
     constructor(graph: WeightedGraph){
         super(graph);
         this.heuristics = Array(this.graph.getNodeList().length).fill(null);
@@ -67,7 +67,7 @@ export default class AStar extends Algorithm{
         }
     }
     private measureDistance(nodeA: Node, nodeB: Node):number{
-        return Math.floor(Math.sqrt((nodeA.x!-nodeB.x!)**2+(nodeA.y!-nodeB.y!)**2)/10);//weights of the graph are calculated by this function as well
+        return Math.floor(Math.sqrt((nodeA.x!-nodeB.x!)**2+(nodeA.y!-nodeB.y!)**2)/10);
     }
     private getLabelsForQueueRepresentation(ids: number[]):string[]{
         return ids.map(id => this.graph.getLabelOfNode(id));
@@ -75,8 +75,8 @@ export default class AStar extends Algorithm{
     run(from: number, to: number): animationState[] {
         const animationStates: animationState[] = [];
         const nodeList = this.graph.getNodeList();
-        const fScores = new MinPriorityQueue(nodeList.length); //fScores
-        const gScores = new Array(nodeList.length).fill(Infinity);//gScores: 
+        const fScores = new MinPriorityQueue(nodeList.length); 
+        const gScores = new Array(nodeList.length).fill(Infinity);
         const visited:boolean[] = Array(nodeList.length).fill(false);
         const previousNode:number[] = Array(nodeList.length).fill(-1);
         this.measureDistancesFromAllNodesToDestinationNode(to);

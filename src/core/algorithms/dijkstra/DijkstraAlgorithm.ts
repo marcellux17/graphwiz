@@ -62,9 +62,9 @@ export default class Dijkstra extends Algorithm{
     run(from: number, to: number): animationState[] {
         const animationStates: animationState[] = [];
         const nodeList = this.graph.getNodeList();
-        const estimatedDistances = new MinPriorityQueue(nodeList.length); //estimated distances
+        const estimatedDistances = new MinPriorityQueue(nodeList.length);
         const visited:boolean[] = Array(nodeList.length).fill(false);
-        const previousNode:number[] = Array(nodeList.length).fill(-1);//-1 = cannot be reached otherwise at a specific index gives us the node through which we can reach it
+        const previousNode:number[] = Array(nodeList.length).fill(-1);
         this.graph.getNodeList().forEach((node) => {
             if (node && node.getId() !== from) {
                 estimatedDistances.insert({
