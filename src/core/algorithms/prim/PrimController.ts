@@ -80,7 +80,7 @@ export class PrimController {
         makeVisible(inputGroup);
         this.selectedEdgeId = id;
         label.textContent = `Change weight of the selected edge`;
-        weightInput.value = `${this.network.getEdgeWeight( this.selectedEdgeId! )}`;
+        weightInput!.value = `${this.network.getEdgeWeight( this.selectedEdgeId! )}`;
     }
     private canvasBlankClickHandle = (): void => {
         resetInput();
@@ -91,7 +91,7 @@ export class PrimController {
         this.network.onCanvasBlankClick(this.canvasBlankClickHandle);
     }
     private setUpUiEventListeners(): void {
-        uploadGraphInput?.addEventListener("change", async () => {
+        uploadGraphInput.addEventListener("change", async () => {
             if(this.canvasState === "pre-animation" || this.canvasState === "animation-running")return;
             const file = uploadGraphInput!.files![0];
             if(!file || file.type !== "application/json")return;
@@ -105,63 +105,63 @@ export class PrimController {
                 alert(e.message)
             }
         })
-        downloadGraphButton?.addEventListener("click", () => {
+        downloadGraphButton.addEventListener("click", () => {
             if(this.canvasState !== "pre-animation" && this.canvasState !== "animation-running"){
                 this.network.saveGraphToJSON();
             }
         })
-        addEdgeButton?.addEventListener("click", () => {
+        addEdgeButton.addEventListener("click", () => {
             this.changeCanvasState("add-edge-mode");
         });
 
-        addNodeButton?.addEventListener("click", () => {
+        addNodeButton.addEventListener("click", () => {
             this.changeCanvasState("add-node-mode");
         });
-        deleteModeButton?.addEventListener("click", () => {
+        deleteModeButton.addEventListener("click", () => {
             this.changeCanvasState("delete");
         });
 
-        escapeModeButton?.addEventListener("click", () => {
+        escapeModeButton.addEventListener("click", () => {
             this.changeCanvasState("idle");
         });
 
-        runAnimationButton?.addEventListener("click", () => {
+        runAnimationButton.addEventListener("click", () => {
             this.changeCanvasState("pre-animation");
         });
-        weightInput.addEventListener("input", () => {
-            const newValue = Number.parseInt(weightInput.value);
+        weightInput!.addEventListener("input", () => {
+            const newValue = Number.parseInt(weightInput!.value);
             const selectedElementId = this.selectedEdgeId!;
             this.network.updateEdge({ id: selectedElementId, weight: newValue, });
         });
-        resetButton?.addEventListener("click", () => {
+        resetButton.addEventListener("click", () => {
             this.animation.resetAnimation();
             makeInvisible(pauseButton);
             makeVisible(playButton);
         });
-        pauseButton?.addEventListener("click", () => {
+        pauseButton.addEventListener("click", () => {
             this.animation.pause();
             makeInvisible(pauseButton);
             makeVisible(playButton);
         });
-        forwardButton?.addEventListener("click", () => {
+        forwardButton.addEventListener("click", () => {
             this.animation.setAnimationStateForward();
             this.animation.animateCurrentState();
         });
-        backButton?.addEventListener("click", () => {
+        backButton.addEventListener("click", () => {
             this.animation.setAnimationStateBackward();
             this.animation.animateCurrentState();
         });
-        playButton?.addEventListener("click", () => {
+        playButton.addEventListener("click", () => {
             this.animation.continueAnimation();
             makeInvisible(playButton);
             makeVisible(pauseButton);
         });
-        speedRangeInput?.addEventListener("input", () => {
+        speedRangeInput.addEventListener("input", () => {
             const newspeed = Number.parseInt(speedRangeInput!.value);
             speedInfo.textContent = `speed: ${newspeed}x`;
             this.animation.setAnimationSpeedChange(1000 / newspeed);
         });
-        presetInput?.addEventListener("input", () => {
+        presetInput.addEventListener("input", () => {
             if(presetInput!.value !== "load a graph"){
                 if(this.canvasState === "pre-animation" || this.canvasState === "animation-running"){
                     this.changeCanvasState("idle");

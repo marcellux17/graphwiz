@@ -22,7 +22,7 @@ export const runAnimationButton = document.querySelector<HTMLButtonElement>("#ru
 
 export const messageBox = document.querySelector<HTMLDivElement>("#message-box")!;
 export const label = document.querySelector<HTMLLabelElement>("#label-message")!;
-export const weightInput = document.querySelector<HTMLInputElement>("#change-weight")!;
+export const weightInput = document.querySelector<HTMLInputElement>("#change-weight");
 export const inputGroup = document.querySelector<HTMLDivElement>("#change-data")!;
 
 

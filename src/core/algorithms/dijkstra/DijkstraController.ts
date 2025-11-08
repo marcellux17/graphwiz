@@ -102,7 +102,7 @@ export class DijkstraController {
         makeVisible(inputGroup);
         this.selectedEdgeId = id;
         label.textContent = `Change weight of the selected edge`;
-        weightInput.value = `${this.network.getEdgeWeight( this.selectedEdgeId! )}`;
+        weightInput!.value = `${this.network.getEdgeWeight( this.selectedEdgeId! )}`;
     }
     private canvasBlankClickHandle = (): void => {
         resetInput();
@@ -113,7 +113,7 @@ export class DijkstraController {
         this.network.onCanvasBlankClick(this.canvasBlankClickHandle);
     }
     private setUpUiEventListeners(): void {
-        uploadGraphInput?.addEventListener("change", async () => {
+        uploadGraphInput.addEventListener("change", async () => {
             if(this.canvasState === "pre-animation" || this.canvasState === "animation-running")return;
             const file = uploadGraphInput!.files![0];
             if(!file || file.type !== "application/json")return;
@@ -127,30 +127,30 @@ export class DijkstraController {
                 alert(e.message)
             }
         })
-        downloadGraphButton?.addEventListener("click", () => {
+        downloadGraphButton.addEventListener("click", () => {
             if(this.canvasState !== "pre-animation" && this.canvasState !== "animation-running"){
                 this.network.saveGraphToJSON();
             }
         })
-        addEdgeButton?.addEventListener("click", () => {
+        addEdgeButton.addEventListener("click", () => {
             this.changeCanvasState("add-edge-mode");
         });
-        addNodeButton?.addEventListener("click", () => {
+        addNodeButton.addEventListener("click", () => {
             this.changeCanvasState("add-node-mode");
         });
-        deleteModeButton?.addEventListener("click", () => {
+        deleteModeButton.addEventListener("click", () => {
             this.changeCanvasState("delete");
         });
 
-        escapeModeButton?.addEventListener("click", () => {
+        escapeModeButton.addEventListener("click", () => {
             this.changeCanvasState("idle");
         });
 
-        runAnimationButton?.addEventListener("click", () => {
+        runAnimationButton.addEventListener("click", () => {
             this.changeCanvasState("pre-animation");
         });
-        weightInput.addEventListener("input", () => {
-            const newValue = Number.parseInt(weightInput.value);
+        weightInput!.addEventListener("input", () => {
+            const newValue = Number.parseInt(weightInput!.value);
             const selectedElementId = this.selectedEdgeId!;
             this.network.updateEdge({ id: selectedElementId, weight: newValue, });
         });
