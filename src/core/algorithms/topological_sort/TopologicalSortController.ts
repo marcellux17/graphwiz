@@ -1,6 +1,6 @@
 import { Animation } from "../../animation/Animation";
 import { Graph } from "../../datastructures/Graph";
-import { playBox, pauseButton, playButton, weightInput, speedRangeInput, speedInfo, backButton, forwardButton, resetButton, runAnimationButton, escapeModeButton, deleteModeButton, addNodeButton, addEdgeButton, presetInput, algorithmInformationBox, speedBox, downloadGraphButton, uploadGraphInput, } from "../../dom/elements";
+import { playBox, pauseButton, playButton, speedRangeInput, speedInfo, backButton, forwardButton, resetButton, runAnimationButton, escapeModeButton, deleteModeButton, addNodeButton, addEdgeButton, presetInput, algorithmInformationBox, speedBox, downloadGraphButton, uploadGraphInput, } from "../../dom/elements";
 import { changeMessageBox, makeInvisible, makeVisible } from "../../dom/helpers";
 import { Network } from "../../network/Network";
 import { isPreset } from "../../types/preset";

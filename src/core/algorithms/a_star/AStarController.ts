@@ -34,7 +34,7 @@ export class AStarController {
             startingNodeInfo!.textContent = "start: ";
             destinationNodeInfo!.textContent = "dest: ";
             changeMessageBox( "idle mode" );
-            makeInvisible(pathInfoBox);
+            makeInvisible(pathInfoBox!);
             makeInvisible(playBox);
         }
         if(this.canvasState === "animation-running" && newState === "pre-animation")return;
@@ -57,7 +57,7 @@ export class AStarController {
                 break;
             case "pre-animation":
                 changeMessageBox("select starting node");
-                makeVisible(pathInfoBox);
+                makeVisible(pathInfoBox!);
                 this.network.resetToIdle();
                 break;
             case "animation-running":

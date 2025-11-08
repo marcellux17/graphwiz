@@ -1,7 +1,7 @@
 import { Animation } from "../../animation/Animation";
 import { WeightedGraph } from "../../datastructures/Graph";
 import { playBox, pauseButton, playButton, startingNodeInfo, destinationNodeInfo, pathInfoBox, inputGroup, label, weightInput, speedRangeInput, speedInfo, backButton, forwardButton, resetButton, runAnimationButton, escapeModeButton, deleteModeButton, addNodeButton, addEdgeButton, presetInput, algorithmInformationBox, speedBox, downloadGraphButton, uploadGraphInput, } from "../../dom/elements";
-import { changeMessageBox, makeInvisible, makeVisible, resetInput, } from "../../dom/helpers";
+import { changeMessageBox, makeInvisible, makeVisible, resetWeightChangeInput, } from "../../dom/helpers";
 import { Network } from "../../network/Network";
 import { isPreset } from "../../types/preset";
 import Dijkstra from "./DijkstraAlgorithm";
@@ -33,7 +33,7 @@ export class DijkstraController {
             this.destinationNodeId = null;
             startingNodeInfo!.textContent = "start: ";
             destinationNodeInfo!.textContent = "dest: ";
-            makeInvisible(pathInfoBox);
+            makeInvisible(pathInfoBox!);
         }
         if(this.canvasState === "animation-running" && newState === "pre-animation")return;
         switch (newState) {
@@ -55,7 +55,7 @@ export class DijkstraController {
                 break;
             case "pre-animation":
                 changeMessageBox("select starting node");
-                makeVisible(pathInfoBox);
+                makeVisible(pathInfoBox!);
                 this.selectedEdgeId = null;
                 this.network.resetToIdle();
                 break;
@@ -71,7 +71,7 @@ export class DijkstraController {
                 break;
         }
         this.canvasState = newState;
-        resetInput();
+        resetWeightChangeInput();
     }
     private selectNodeHandle = (id: number): void => {
         if (this.canvasState !== "pre-animation") return;
@@ -101,11 +101,11 @@ export class DijkstraController {
         if (this.canvasState !== "idle") return;
         makeVisible(inputGroup);
         this.selectedEdgeId = id;
-        label.textContent = `Change weight of the selected edge`;
+        label!.textContent = `Change weight of the selected edge`;
         weightInput!.value = `${this.network.getEdgeWeight( this.selectedEdgeId! )}`;
     }
     private canvasBlankClickHandle = (): void => {
-        resetInput();
+        resetWeightChangeInput();
     }
     private setUpNetworkEventListeners(): void {
         this.network.onSelectEdge(this.selectEdgeHandle);
