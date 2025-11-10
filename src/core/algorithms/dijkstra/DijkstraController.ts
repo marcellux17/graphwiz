@@ -154,35 +154,35 @@ export class DijkstraController {
             const selectedElementId = this.selectedEdgeId!;
             this.network.updateEdge({ id: selectedElementId, weight: newValue, });
         });
-        resetButton?.addEventListener("click", () => {
+        resetButton.addEventListener("click", () => {
             this.animation.resetAnimation();
             makeInvisible(pauseButton);
             makeVisible(playButton);
         });
-        pauseButton?.addEventListener("click", () => {
+        pauseButton.addEventListener("click", () => {
             this.animation.pause();
             makeInvisible(pauseButton);
             makeVisible(playButton);
         });
-        forwardButton?.addEventListener("click", () => {
+        forwardButton.addEventListener("click", () => {
             this.animation.setAnimationStateForward();
             this.animation.animateCurrentState();
         });
-        backButton?.addEventListener("click", () => {
+        backButton.addEventListener("click", () => {
             this.animation.setAnimationStateBackward();
             this.animation.animateCurrentState();
         });
-        playButton?.addEventListener("click", () => {
+        playButton.addEventListener("click", () => {
             this.animation.continueAnimation();
             makeInvisible(playButton);
             makeVisible(pauseButton);
         });
-        speedRangeInput?.addEventListener("input", () => {
+        speedRangeInput.addEventListener("input", () => {
             const newspeed = Number.parseInt(speedRangeInput!.value);
             speedInfo.textContent = `speed: ${newspeed}x`;
             this.animation.setAnimationSpeedChange(1000 / newspeed);
         });
-        presetInput?.addEventListener("input", () => {
+        presetInput.addEventListener("input", () => {
             if(presetInput!.value !== "load a graph"){
                 if(this.canvasState === "pre-animation" || this.canvasState === "animation-running"){
                     this.changeCanvasState("idle");
