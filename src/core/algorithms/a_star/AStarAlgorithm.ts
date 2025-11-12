@@ -98,7 +98,7 @@ export default class AStar extends Algorithm{
             
         };
         animationStates.push(currentState);
-        currentState = JSON.parse(JSON.stringify(currentState));
+        currentState = this.CopyAnimationState(currentState);
         currentState.algorithmInfobox = {
             information: "Selecting node from priority queue with the smallest distance",
             dataStructure: {
@@ -166,7 +166,7 @@ export default class AStar extends Algorithm{
                     gScores[neighbourId] = gThroughCurrent;
                     fScores.update(neighbourId, gThroughCurrent+this.heuristics[neighbourId]);
                 }else{
-                    currentState = JSON.parse(JSON.stringify(currentState));
+                    currentState = this.CopyAnimationState(currentState);
                     currentState.algorithmInfobox = {
                         information: `distance through current node > current smallest distance to neighbour<hr> no updates`,
                         dataStructure: {
@@ -183,7 +183,7 @@ export default class AStar extends Algorithm{
                 currentState = this.markEdgeAsNormal(currentState, previousEdgeId);
             }
             visited[currentNode.id] = true;
-            currentState = JSON.parse(JSON.stringify(currentState));
+            currentState = this.CopyAnimationState(currentState);
             currentState.algorithmInfobox = {
                 information: `Selecting node from priority queue with the smallest g(x) + h(x)<br>
                 h(x): heuristic, in our case its euclidean distance<br>

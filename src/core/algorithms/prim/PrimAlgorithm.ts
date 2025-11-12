@@ -74,7 +74,7 @@ export default class Prim extends Algorithm{
         };
         animationStates.push(currentState);
         while(!priorityQueue.isEmpty()){
-            currentState = JSON.parse(JSON.stringify(currentState));
+            currentState = this.CopyAnimationState(currentState);
             currentState.algorithmInfobox = {
                 information: "We call dequeue() on the priority-queue to retrieve the node with the smallest cost of including it in the MST."
             }
@@ -115,7 +115,7 @@ export default class Prim extends Algorithm{
                             };
                             animationStates.push(currentState);
                         }else{
-                            currentState = JSON.parse(JSON.stringify(currentState));
+                            currentState = this.CopyAnimationState(currentState);
                             currentState.algorithmInfobox = {
                                 information: `We can't improve the cost of connecting the adjacent node to the MST.`
                             };
@@ -138,7 +138,7 @@ export default class Prim extends Algorithm{
                 }
             }
         }
-        currentState = JSON.parse(JSON.stringify(currentState));
+        currentState = this.CopyAnimationState(currentState);
         for(let edgeId = 0; edgeId < componentEdgeIds.length; edgeId++){
             if(componentEdgeIds[edgeId] && !mstEdges[edgeId]){
                 currentState = this.markEdgeAsDeselected(currentState, edgeId);

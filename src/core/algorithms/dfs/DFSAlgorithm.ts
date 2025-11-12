@@ -28,7 +28,7 @@ export default class DFS extends Algorithm{
         }
         animationStates.push(currentState);
         while(stack.length > 0){
-            currentState = JSON.parse(JSON.stringify(currentState))
+            currentState = this.CopyAnimationState(currentState);
             currentState.algorithmInfobox = {
                 information: `Pop() method called on stack to retrieve top element.`,
                 dataStructure: {

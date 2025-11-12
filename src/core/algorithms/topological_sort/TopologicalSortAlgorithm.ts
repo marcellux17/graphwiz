@@ -42,7 +42,7 @@ export default class TopologicalSort extends Algorithm{
             information: `We solve the topological sort using Kahn's algorithm.`
         }
         animationStates.push(currentState);
-        currentState = JSON.parse(JSON.stringify(currentState));
+        currentState = this.CopyAnimationState(currentState);
         currentState.algorithmInfobox = {
             information: `In Kahn's algorithm, we repeatedly find vertices with no incoming edges(in-degree 0) and store them in a queue. In each iteration we retrieve one such element from the queue and remove it from the graph:
             We delete the vertex and all of its outgoing edges. This has decreased the the in-degree of its ajdacent nodes. If an adjacent node now has in-degree 0 we add it to the queue. We continue this process until the queue is empty. 
@@ -113,7 +113,7 @@ export default class TopologicalSort extends Algorithm{
                     currentState = this.markEdgeAsNormal(currentState, edgeId);
                 }
             }
-            currentState = JSON.parse(JSON.stringify(currentState));
+            currentState = this.CopyAnimationState(currentState);
             currentState.algorithmInfobox = {
                 information: `Now we remove the node and its outgoing edges.`,
                 dataStructure: {
@@ -129,7 +129,7 @@ export default class TopologicalSort extends Algorithm{
             currentState = this.updateNodeLabel(currentState, currentNodeId, `${this.graph.getLabelOfNode(currentNodeId)}(${topologicalOrder})`)
             animationStates.push(currentState);
         }
-        currentState = JSON.parse(JSON.stringify(currentState));
+        currentState = this.CopyAnimationState(currentState);
         currentState.algorithmInfobox = {
             information: `Algorithm finished running!<hr>Topological sort completed successfully. The graph has been ordered.`
         };

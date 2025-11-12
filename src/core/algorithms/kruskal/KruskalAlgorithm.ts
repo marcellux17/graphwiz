@@ -76,7 +76,7 @@ export default class Kruskal extends Algorithm{
             }
             i++;
         }
-        currentState = JSON.parse(JSON.stringify(currentState));
+        currentState = this.CopyAnimationState(currentState);
         currentState.algorithmInfobox = {
             information: `Algorithm finished running!<hr>Minimum spanning tree of the weighted graph has been created with a total weight of: ${res}.`
         }

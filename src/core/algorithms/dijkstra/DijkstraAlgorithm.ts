@@ -139,7 +139,7 @@ export default class Dijkstra extends Algorithm{
             if(previousEdgeId !== null){
                 currentState = this.markEdgeAsNormal(currentState, previousEdgeId);
             }
-            currentState = JSON.parse(JSON.stringify(currentState));
+            currentState = this.CopyAnimationState(currentState);
             currentState.algorithmInfobox = {
                 information: "Selecting node from priority queue with the smallest distance.",
                 dataStructure: {

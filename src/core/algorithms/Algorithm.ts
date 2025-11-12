@@ -3,11 +3,15 @@ import {animationEdgeInformation, animationNodeInformation, animationState } fro
 
 export default abstract class Algorithm{
     protected graph: WeightedGraph|Graph;
+
     constructor(graph: WeightedGraph|Graph){
         this.graph = graph;
     }
+    protected CopyAnimationState(state: animationState): animationState {
+        return JSON.parse(JSON.stringify(state));
+    }
     protected markEdgeAsSelected(state: animationState, edgeId: number): animationState {
-        const newState = JSON.parse(JSON.stringify(state));
+        const newState = this.CopyAnimationState(state);
         if (newState.edges[edgeId]) {
             newState.edges[edgeId].state = "selectedEdge";
         }
@@ -15,7 +19,7 @@ export default abstract class Algorithm{
     }
 
     protected markEdgeAsPartOfPath(state: animationState, edgeId: number): animationState {
-        const newState = JSON.parse(JSON.stringify(state));
+        const newState = this.CopyAnimationState(state);
         if (newState.edges[edgeId]) {
             newState.edges[edgeId].state = "partOfPath";
         }
@@ -23,7 +27,7 @@ export default abstract class Algorithm{
     }
 
     protected markNodeAsPartOfPath(state: animationState, nodeId: number): animationState {
-        const newState = JSON.parse(JSON.stringify(state));
+        const newState = this.CopyAnimationState(state);
         if (newState.nodes[nodeId]) {
             newState.nodes[nodeId].state = "partOfPath";
         }
@@ -31,49 +35,49 @@ export default abstract class Algorithm{
     }
 
     protected markEdgeAsDeselected(state: animationState, edgeId: number): animationState {
-        const newState = JSON.parse(JSON.stringify(state));
+        const newState = this.CopyAnimationState(state);
         if (newState.edges[edgeId]) {
             newState.edges[edgeId].state = "deselectedEdge";
         }
         return newState;
     }
     protected updateNodeLabel(state: animationState, nodeId: number, newLabel: string): animationState {
-        const newState = JSON.parse(JSON.stringify(state));
+        const newState = this.CopyAnimationState(state);
         if (newState.nodes[nodeId]) {
             newState.nodes[nodeId].label = newLabel;
         }
         return newState;
     }
     protected markEdgeAsNormal(state: animationState, edgeId: number): animationState {
-        const newState = JSON.parse(JSON.stringify(state));
+        const newState = this.CopyAnimationState(state);
         if (newState.edges[edgeId]) {
             newState.edges[edgeId].state = "normal";
         }
         return newState;
     }
     protected markNodeAsVisited(state: animationState, nodeId: number): animationState {
-        const newState = JSON.parse(JSON.stringify(state));
+        const newState = this.CopyAnimationState(state);
         if (newState.nodes[nodeId]) {
             newState.nodes[nodeId].state = "visitedNode";
         }
         return newState;
     }
     protected markNodeAsInStack(state: animationState, nodeId: number): animationState {
-        const newState = JSON.parse(JSON.stringify(state));
+        const newState = this.CopyAnimationState(state);
         if (newState.nodes[nodeId]) {
             newState.nodes[nodeId].state = "inStack";
         }
         return newState;
     }
     protected markNodeAsInQueue(state: animationState, nodeId: number): animationState {
-        const newState = JSON.parse(JSON.stringify(state));
+        const newState = this.CopyAnimationState(state);
         if (newState.nodes[nodeId]) {
             newState.nodes[nodeId].state = "inQueue";
         }
         return newState;
     }
     protected markNodeAsDeselected(state: animationState, nodeId: number): animationState {
-        const newState = JSON.parse(JSON.stringify(state));
+        const newState = this.CopyAnimationState(state);
         if (newState.nodes[nodeId]) {
             newState.nodes[nodeId].state = "deselectedNode";
         }

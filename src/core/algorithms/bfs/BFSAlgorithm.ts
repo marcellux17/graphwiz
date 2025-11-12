@@ -26,7 +26,7 @@ export default class BFS extends Algorithm{
         visited[from] = true;
         queue.enqueue(from);
         while(!queue.isEmpty()){
-            currentState = JSON.parse(JSON.stringify(currentState));
+            currentState = this.CopyAnimationState(currentState);
             currentState.algorithmInfobox = {
             information: `Selecting node from queue.<hr>calling Dequeue()`,
                 dataStructure: {

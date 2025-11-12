@@ -105,7 +105,7 @@ export default class BellmanFord extends Algorithm{
                         animationStates.push(currentState);
                         changes = true;
                     }else{
-                        currentState = JSON.parse(JSON.stringify(currentState));
+                        currentState = this.CopyAnimationState(currentState);
                         currentState.algorithmInfobox = {
                             information: `it does not hold: (${distanceThroughFrom} < ${currentEstimate[to] == Infinity ? "∞": currentEstimate[to]})
                             <hr>d[u] + w(e) > d[v]`
