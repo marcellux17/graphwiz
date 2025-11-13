@@ -1,64 +1,56 @@
 export class Queue<T> {
-    private capacity: number;
-    private items: Array<T | null>;
-    private front: number;
-    private rear: number;
-    private size: number;
+    private readonly _capacity: number;
+    private readonly _items: Array<T | null>;
+    private _front: number;
+    private _rear: number;
+    private _size: number;
+    
     constructor(capacity: number) {
-        this.capacity = capacity;
-        this.items = new Array<T | null>(capacity).fill(null);
-        this.front = 0; 
-        this.rear = -1; 
-        this.size = 0; 
+        this._capacity = capacity;
+        this._items = Array<T | null>(capacity).fill(null);
+        this._front = 0; 
+        this._rear = -1; 
+        this._size = 0; 
     }
-    isFull(): boolean {
-        return this.size === this.capacity;
+    get IsFull(): boolean {
+        return this._size === this._capacity;
     }
-    isEmpty(): boolean {
-        return this.size === 0;
-    }
-    getSize(): number {
-        return this.size;
+    get IsEmpty(): boolean {
+        return this._size === 0;
     }
     enqueue(value: T): void {
-        if (this.isFull()) {
+        if (this.IsFull) {
             return;
         }
-        this.rear = (this.rear + 1) % this.capacity;
-        this.items[this.rear] = value;
-        this.size++;
+        this._rear = (this._rear + 1) % this._capacity;
+        this._items[this._rear] = value;
+        this._size++;
     }
-    dequeue(): T | null {
-        if (this.isEmpty()) {
-            return null;
+    dequeue(): T | undefined {
+        if (this.IsEmpty) {
+            return undefined;
         }
-        const value = this.items[this.front];
-        this.items[this.front] = null;
-        this.front = (this.front + 1) % this.capacity;
-        this.size--;
+        const value = this._items[this._front];
+        this._items[this._front] = null;
+        this._front = (this._front + 1) % this._capacity;
+        this._size--;
 
-        return value;
-    }
-    peek(): T | null {
-        if (this.isEmpty()) {
-            return null;
-        }
-        return this.items[this.front];
+        return value!;
     }
     toArray(): T[] {
-        if (this.isEmpty()) {
+        if (this.IsEmpty) {
             return [];
         }
         const result: T[] = [];
-        let count = this.size;
-        let index = this.front;
+        let count = this._size;
+        let index = this._front;
 
         while (count > 0) {
-            if (this.items[index] !== null) {
-                result.push(this.items[index] as T);
+            if (this._items[index] !== null) {
+                result.push(this._items[index] as T);
                 count--;
             }
-            index = (index + 1) % this.capacity;
+            index = (index + 1) % this._capacity;
         }
 
         return result;
@@ -70,65 +62,65 @@ type QueueElement = {
 }
 
 export class MinPriorityQueue {
-    private arr: (QueueElement | null)[];
-    private size = 0;
+    private readonly _items: (QueueElement | null)[];
+    private _size = 0;
     constructor(capacity: number) {
-        this.arr = new Array(capacity).fill(null);
+        this._items = Array(capacity).fill(null);
+    }
+    get isEmpty(): boolean {
+        return this._size === 0;
     }
     insert(element: QueueElement): void {
         let i = 0;
-        while (i < this.size && this.arr[i]!.value <= element.value) {
+        while (i < this._size && this._items[i]!.value <= element.value) {
             i++;
         }
-        for (let j = this.size; j > i; j--) {
-            this.arr[j] = this.arr[j - 1];
+        for (let j = this._size; j > i; j--) {
+            this._items[j] = this._items[j - 1];
         }    
-        this.arr[i] = element;
-        this.size++;
+        this._items[i] = element;
+        this._size++;
     }
-    extractMin(): QueueElement | null {
-        if (this.size === 0) return null;
-        const min = this.arr[0]!;
-        for (let i = 0; i < this.size - 1; i++) {
-            this.arr[i] = this.arr[i + 1];
+    extractMin(): QueueElement | undefined {
+        if (this._size === 0) return undefined;
+        const min = this._items[0]!;
+        for (let i = 0; i < this._size - 1; i++) {
+            this._items[i] = this._items[i + 1];
         }
-        this.arr[this.size - 1] = null;
-        this.size--;
+        this._items[this._size - 1] = null;
+        this._size--;
         return min;
     }
     update(id: number, newValue: number): void {
         let index = -1;
-        for (let i = 0; i < this.size; i++) {
-            if (this.arr[i]!.id === id) {
+        for (let i = 0; i < this._size; i++) {
+            if (this._items[i]!.id === id) {
                 index = i;
                 break;
             }
         }
         if (index === -1) return;
-        const element = this.arr[index]!;
-        for (let i = index; i < this.size - 1; i++) {
-            this.arr[i] = this.arr[i + 1];
+        const element = this._items[index]!;
+        for (let i = index; i < this._size - 1; i++) {
+            this._items[i] = this._items[i + 1];
         }
-        this.arr[this.size - 1] = null;
-        this.size--;
+        this._items[this._size - 1] = null;
+        this._size--;
         element.value = newValue;
         this.insert(element);
     }
-    get(id: number): QueueElement | null {
-        for (let i = 0; i < this.size; i++) {
-            if (this.arr[i]!.id === id) {
-                return this.arr[i]!;
+    getElement(id: number): QueueElement | undefined {
+        for (let i = 0; i < this._size; i++) {
+            if (this._items[i]!.id === id) {
+                return this._items[i]!;
             }
         }
-        return null;
-    }
-    isEmpty(): boolean {
-        return this.size === 0;
+        return undefined;
     }
     toArray(): number[] {
-        const result: number[] = new Array(this.size).fill(0);
-        for (let i = 0; i < this.size; i++) {
-            result[i] = this.arr[i]!.id;
+        const result: number[] = Array(this._size).fill(0);
+        for (let i = 0; i < this._size; i++) {
+            result[i] = this._items[i]!.id;
         }
         return result;
     }

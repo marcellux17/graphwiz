@@ -1,6 +1,6 @@
 export type animationState = {
-    nodes: (animationNodeInformation|null)[];
-    edges: (animationEdgeInformation|null)[];
+    nodes: Map<number, animationNodeInformation>;
+    edges: Map<number, animationEdgeInformation>;
     algorithmInfobox?: algorithmInfoBoxState;
 }
 export type animationNodeInformation = {

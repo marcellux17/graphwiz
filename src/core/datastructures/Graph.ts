@@ -1,139 +1,156 @@
 import { Queue } from "./Queue";
 
 export class Graph {
-    protected nodes: (Node | null)[];
-    protected edges: (Edge | null)[];
-    protected i = 1;
-    protected numberOfNodes = 0;
+    private readonly _nodes: Map<number, Node>;
+    private readonly _edges: Map<number, Edge>;
+    private readonly _weighted: boolean;
+    private _n = 1;
+    private _e = 1;
 
-    constructor() {
-        this.nodes = Array(200).fill(null);
-        this.edges = Array(200).fill(null);
+    constructor(weighted: boolean = false) {
+        this._weighted = weighted;
+        this._nodes = new Map<number, Node>();
+        this._edges = new Map<number, Edge>();
     }
-    getNumberOfNodes():number{
-        return this.numberOfNodes;
+    get isWeighted(): boolean {
+        return this._weighted;
+    }
+    get isEmpty(): boolean {
+        return this._nodes.size === 0;
+    }
+    get edges(): ReadonlyArray<Edge>{
+        return Array.from(this._edges.values());
+    }
+    get nodes(): ReadonlyArray<Node>{
+        return Array.from(this._nodes.values());
     }
     addNode(): number {
-        let idx = this.nodes.findIndex((n) => n === null);
-        if (idx === -1) idx = this.nodes.length;
-        const label = `${this.i++}`;
-        this.nodes[idx] = new Node(label, idx);
-        this.numberOfNodes++;
-        return idx;
+        const id = this._n;
+        const label = `${id}`;
+        this._nodes.set(id, new Node(id, label));
+        this._n++;
+        return id;
     }
     addExistingNode(id: number, x: number, y: number, color: string): void {
-        const label = `${this.i++}`;
-        const node = new Node(label, id);
+        const label = `${this._n}`;
+        const node = new Node(id, label);
+        
         node.color = color;
         node.x = x;
         node.y = y;
-        this.nodes[id] = node;
-        this.numberOfNodes++;
-    }
-    getEdgeList(): ReadonlyArray<Edge | null>{
-        return this.edges;
-    }
-    getNodeList(): ReadonlyArray<Node | null>{
-        return this.nodes;
-    }
-    addEdge(from: number, to: number, twoWay: boolean = true): number | undefined {
-        if (from === to) return;
-        if (this.nodes[from]!.hasEdgeToNode(to)) return;
-
-        let idx = this.edges.findIndex((e) => e === null);
-        if (idx === -1) {
-            idx = this.edges.length;
-        }
-        this.nodes[from]!.addNeighbour(to, idx);
-        if(twoWay){
-            this.nodes[to]!.addNeighbour(from, idx);
-        }
-        this.edges[idx] = new Edge(idx, to, from);
-        return idx;
-    }
-
-    removeEdge(from: number, to: number, twoWay: boolean = true) {
-        const edgeId = this.nodes[from]!.getEdgeIdConnectingToNeihgbour(to);
-        if (edgeId === -1) return;
-        this.nodes[from]!.removeNeighbour(to);
-        if(twoWay){
-            this.nodes[to]!.removeNeighbour(from);
-        }
-        this.edges[edgeId] = null;
-    }
-    deleteNode(id: number): void {
-        const node = this.nodes[id];
-        if (!node) return;
-        for (let nodeId = 0; nodeId < this.nodes.length; nodeId++) {
-            if(this.nodes[nodeId] !== null && this.nodes[nodeId]!.hasEdgeToNode(id)){
-                const edgeId = this.nodes[nodeId]!.getEdgeIdConnectingToNeihgbour(id);
-                this.edges[edgeId] = null;
-                this.nodes[nodeId]!.removeNeighbour(id);
-            }
-            if(node.hasEdgeToNode(nodeId)){
-                this.edges[node.getEdgeIdConnectingToNeihgbour(nodeId)] = null;
-            }
-        }
         
-        this.nodes[id] = null;
-        this.numberOfNodes--;
+        this._nodes.set(id, node);
+        this._n++;
     }
-    getEdgeListOfNode(id: number): number[] {
-        const node = this.nodes[id];
+    
+    addEdge(from: number, to: number, bidirectional: boolean = true, weight: number = 1): number | undefined {
+        if (from === to) return;
+        
+        const fromNode = this._nodes.get(from);
+        const toNode = this._nodes.get(to);
+        if (!fromNode || !toNode) return;
+        
+        if (fromNode.hasEdgeToNode(to)) return;
+        
+        const id = this._e;
+        fromNode.addNeighbour(to, id);
+
+        if(bidirectional){
+            toNode.addNeighbour(from, id);
+        }
+        let edge: Edge;
+        if(this._weighted){
+            edge = new Edge(id, to, from, weight);
+        }else{
+            edge = new Edge(id, to, from);
+        }
+        this._edges.set(id, edge);
+
+        this._e++;
+        return id;
+    }
+
+    removeEdge(edgeId: number):void {
+        const edge = this._edges.get(edgeId);
+        if(!edge)return;
+
+        const fromNode = this._nodes.get(edge.from);
+        const toNode = this._nodes.get(edge.to);
+        if (!fromNode || !toNode) return;
+
+        fromNode.removeNeighbour(edge.to);
+        toNode.removeNeighbour(edge.from);
+        
+        this._edges.delete(edgeId);
+    }
+
+    removeNode(id: number): void {
+        const node = this._nodes.get(id);
+        if(!node)return;
+
+        this._edges.forEach((edge, edgeId) => {
+            const to = edge.to;
+            const from = edge.from;
+            
+            if(to === id || from === id){
+                this._nodes.get(edge.to)?.removeNeighbour(edge.from);
+                this._nodes.get(edge.from)?.removeNeighbour(edge.to);
+                this._edges.delete(edgeId);
+            }
+        });
+        this._nodes.delete(id);
+    }
+    getEdgesConnectedToNode(id: number): Edge[] {
+        const node = this._nodes.get(id);
         if (!node) return [];
 
-        const edges: number[] = [];
+        const edges: Edge[] = [];
 
-        for (let nodeId = 0; nodeId < this.nodes.length; nodeId++) {
-            if (node.hasEdgeToNode(nodeId)) {
-                edges.push(node.getEdgeIdConnectingToNeihgbour(nodeId));
-            }else if(this.nodes[nodeId] !== null){
-                const neighbourNode = this.nodes[nodeId]!;
-                if(neighbourNode.hasEdgeToNode(nodeId)){
-                    edges.push(neighbourNode.getEdgeIdConnectingToNeihgbour(id));
-                }
+        this._edges.forEach(edge => {
+            if(edge.to === id || edge.from === id){
+                edges.push(edge);
             }
-        }
+        });
 
         return edges;
     }
-
-    getLabelOfNode(id: number): string {
-        return this.nodes[id]!.label;
+    getNode(id: number): Node | undefined {
+        return this._nodes.get(id);
     }
-
-    getNode(id: number): (Node | null) {
-        return this.nodes[id]!;
+    getEdge(id: number): Edge | undefined {
+        return this._edges.get(id);
     }
-
-    getEdge(id: number): (Edge|null) {
-        return this.edges[id];
-    }
-    setNodeCoordinates(id: number, x: number, y: number): void {
-        const node = this.nodes[id]!;
-        node.x = x;
-        node.y = y;
-    }
-    edgeHasAPair(edge: Edge):boolean{
-        const toNode = this.nodes[edge.getTo()]!;
-        return toNode.hasEdgeToNode(edge.getFrom());
+    edgeHasParallel(edge: Edge):boolean{
+        const toNode = this._nodes.get(edge.to);
+        if(!toNode)return false;
+        
+        return toNode.hasEdgeToNode(edge.from);
     }
     areConnected(startId: number, targetId: number): boolean {
         if (startId === targetId) return true;
 
-        const visited = new Array<boolean>(this.nodes.length).fill(false);
-        const queue = new Queue<number>(this.numberOfNodes);
-        queue.enqueue(startId);
-        visited[startId] = true;
+        const visited = new Map<number, boolean>();
+        const queue = new Queue<number>(this._nodes.size);
 
-        while (!queue.isEmpty()) {
-            const currentId = queue.dequeue()!;
-            const currentNode = this.nodes[currentId]!;
-            for (let nodeId = 0; nodeId < this.nodes.length; nodeId++) {
-                if (currentNode.hasEdgeToNode(nodeId) && !visited[nodeId]) {
-                    if (nodeId === targetId) return true;
-                    visited[nodeId] = true;
-                    queue.enqueue(nodeId);
+        let currentNode = this._nodes.get(startId)!;
+        queue.enqueue(currentNode.id);
+        visited.set(currentNode.id, true);
+
+        while (!queue.IsEmpty) {
+            
+            currentNode = this._nodes.get(queue.dequeue()!)!;
+            
+            for (const neighbourId of currentNode.AdjacencyList) {
+                
+                const neighbourNode = this._nodes.get(neighbourId)!;
+                
+                if (!visited.get(neighbourNode.id)) {
+                    if (neighbourId === targetId) {
+                        return true;
+                    }
+                    
+                    visited.set(neighbourNode.id, true);
+                    queue.enqueue(neighbourNode.id);
                 }
             }
         }
@@ -141,117 +158,127 @@ export class Graph {
         return false;
     }
     resetGraphToOriginalVisual():void{
-        for(const node of this.nodes){
-            if(node){
-                node.reset();
-            }
+        for(const node of this._nodes.values()){
+            node.reset();
         }
-        for(const edge of this.edges){
-            if(edge){
-                edge.reset();
-            }
+        for(const edge of this._edges.values()){
+            edge.reset();
         }
-    }
+    }   
     clearGraph(): void {
-        this.nodes.fill(null);
-        this.edges.fill(null);
-        this.i = 1;
-        this.numberOfNodes = 0;
-    }
-}
-
-export class WeightedGraph extends Graph {
-    getEdgeWeight(id: number): number {
-        return this.edges[id]!.getWeight()!;
-    }
-
-    modifyWeight(id: number, newWeight: number): void {
-        const edge = this.edges[id];
-        if (edge) edge.setWeight(newWeight);
-    }
-
-    override addEdge( from: number, to: number,twoWay: boolean = true , weight: number = 1): number | undefined {
-        if (from === to) return;
-        if (this.nodes[from]!.hasEdgeToNode(to)) return;
-
-        let idx = this.edges.findIndex((e) => e === null);
-        if (idx === -1) {
-            idx = this.edges.length;
-        }
-        this.nodes[from]!.addNeighbour(to, idx);
-        if(twoWay){
-            this.nodes[to]!.addNeighbour(from, idx);
-        }
-        this.edges[idx] = new Edge(idx, to, from, weight);
-        return idx;
+        this._nodes.clear();
+        this._edges.clear();
+        this._n = 1;
+        this._e = 1;
     }
 }
 
 export class Edge {
-    private id: number;
-    private weight?: number;
-    private to: number;
-    private from: number;
-    color = "black";
-    width = 2;
-    setWeight(weight: number):void{
-        this.weight = weight;
+    private readonly _id: number;
+    private readonly _to: number;
+    private readonly _from: number;
+    private _weight?: number;
+    private _color = "black";
+    private _width = 2;
+    
+    constructor(id: number, to: number, from: number, weight?: number) {
+        this._id = id;
+        this._to = to;
+        this._from = from;
+        this._weight = weight;
     }
-    getWeight():number|undefined{
-        return this.weight;
+    set color(newColor: string) {
+        this._color = newColor;
     }
-    getTo():number{
-        return this.to
+    get color():string{
+        return this._color;
     }
-    getFrom():number{
-        return this.from;
+    set width(newWidth: number) {  
+        this._width = newWidth;
     }
-    getId(): number {
-        return this.id;
+    get width():number{
+        return this._width;
+    }
+    set weight(weight: number){
+        this._weight = weight;
+    }
+    get weight():number|undefined{
+        return this._weight;
+    }
+    get to():number{
+        return this._to
+    }
+    get from():number{
+        return this._from;
+    }
+    get id(): number {
+        return this._id;
     }
     reset():void{
-        this.color = "black";
-        this.width = 2;
-    }
-    constructor(id: number, to: number, from: number, weight?: number) {
-        this.id = id;
-        this.to = to;
-        this.from = from;
-        this.weight = weight;
+        this._color = "black";
+        this._width = 2;
     }
 }
 
 export class Node {
-    private id: number;
-    private adjacencyList: number[]; 
-    private originalLabel: string; 
-    label: string;
-    x?: number;
-    y?: number;
-    color = "white";
-    constructor(label: string, id: number) {
-        this.label = label;
-        this.originalLabel = label;
-        this.id = id;
-        this.adjacencyList = Array(200).fill(-1);
+    private readonly _id: number;
+    private readonly _adjacencyList: Map<number, number>;
+    private readonly _originalLabel: string; 
+    private _label: string;
+    private _x = 0;
+    private _y = 0;
+    private _color = "white";
+    
+    constructor(id: number, label: string) {
+        this._originalLabel = label;
+        this._label = label;
+        this._id = id;
+        this._adjacencyList = new Map<number, number>();
     }
-    getId(): number {
-        return this.id;
+    get color():string {
+        return this._color;
     }
-    getEdgeIdConnectingToNeihgbour(neighbourId: number):number{
-        return this.adjacencyList[neighbourId];
+    set color(newColor: string) {
+        this._color = newColor;
+    }
+    get label(): string {
+        return this._label;
+    }
+    set label(newLabel: string) {
+        this._label = newLabel;
+    }
+    set x(newX: number) {
+        this._x = newX;
+    }
+    set y(newY: number) {
+        this._y = newY;
+    }
+    get x(): number {
+        return this._x;
+    }
+    get y(): number {
+        return this._y;
+    }
+    get id(): number {
+        return this._id;
+    }
+    get AdjacencyList(): number[] {
+        return Array.from(this._adjacencyList.keys());
+    }
+    getEdgeIdConnectingToNeighbour(neighbourId: number):number | undefined{
+        return this._adjacencyList.get(neighbourId);
     }
     removeNeighbour(neighborId: number): void {
-        this.adjacencyList[neighborId] = -1;
+        this._adjacencyList.delete(neighborId);
     }
     addNeighbour(neighborId: number, edgeId: number): void {
-        this.adjacencyList[neighborId] = edgeId;
+        this._adjacencyList.set(neighborId, edgeId);
     }
     hasEdgeToNode(id: number): boolean {
-        return this.adjacencyList[id] !== -1;
+        return this._adjacencyList.has(id);
     }
-    reset(): void {
-        this.label = this.originalLabel;
-        this.color = "white"
+    reset():void{
+        this._label = this._originalLabel;
+        this._color = "white";
     }
 }

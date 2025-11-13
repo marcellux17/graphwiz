@@ -6,7 +6,6 @@ export function makeVisible(element: HTMLElement): void {
 export function makeInvisible(element: HTMLElement): void {
     element.classList.add("hide");
 }
-
 export function changeMessageBox(newMessage: string): void {
     messageBox.textContent = newMessage;
 }

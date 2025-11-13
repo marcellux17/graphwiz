@@ -1,79 +1,28 @@
-import { Node, WeightedGraph } from "../../datastructures/Graph.ts";
+import { Graph } from "../../datastructures/Graph.ts";
 import { MinPriorityQueue } from "../../datastructures/Queue.ts";
 import { algorithmInfoBoxState, animationEdgeInformation, animationNodeInformation, animationState} from "../../types/animation.ts";
 import Algorithm from "../Algorithm.ts";
 
 export default class Dijkstra extends Algorithm{
-    constructor(graph: WeightedGraph){
+    constructor(graph: Graph){
         super(graph)
-    }
-    private createPathHighLightState(state: animationState, from: number,to: number, previous: number[]): animationState {
-        let newState = state;
-        let currentNode:Node|null = this.graph.getNode(to);
-        let algorithmStateInfo: algorithmInfoBoxState = {
-            information: `Algorithm finished running!<hr>Shortest path found between ${this.graph.getLabelOfNode(from)} and ${this.graph.getLabelOfNode(to)}.`,
-            dataStructure: {
-                type: "priority-queue",
-                ds: []
-            }
-        }
-        newState.algorithmInfobox = algorithmStateInfo;
-        while (currentNode !== null) {
-            const currentNodeId = currentNode.getId();
-            const nextNodeId = previous[currentNodeId];
-            newState = this.markNodeAsPartOfPath(newState, currentNodeId);
-            if (nextNodeId !== -1) {
-                const edgeId = currentNode.getEdgeIdConnectingToNeihgbour(nextNodeId);
-                newState = this.markEdgeAsPartOfPath(newState, edgeId)
-                currentNode = this.graph.getNode(nextNodeId);
-            } else {
-                currentNode = null;
-            }
-        }
-        return newState;
-    }
-    override createInitialState(from: number): animationState {
-        const nodeList = this.graph.getNodeList();
-        const edgeList = this.graph.getEdgeList();
-        const nodes: (animationNodeInformation | null)[] = Array(nodeList.length).fill(null);
-        const edges: (animationEdgeInformation | null)[] = Array(edgeList.length).fill(null);
-        nodeList.forEach((node, id) => {
-            if (!node) return; 
-            nodes[id] = {
-                id,
-                state: "normal",
-                label: id === from ? node.label : `${node.label}(∞)`
-            };
-        });
-        edgeList.forEach((edge, id) => {
-            if (!edge) return;
-            edges[id] = {
-                id,
-                state: "normal",
-                label: `${edge.getWeight()}`
-            };
-        });
-
-        return { nodes, edges };
-    }
-    private getLabelsForQueueRepresentation(ids: number[]):string[]{
-        return ids.map(id => this.graph.getLabelOfNode(id));
-    }
+    } 
     run(from: number, to: number): animationState[] {
         const animationStates: animationState[] = [];
-        const nodeList = this.graph.getNodeList();
-        const estimatedDistances = new MinPriorityQueue(nodeList.length);
-        const visited:boolean[] = Array(nodeList.length).fill(false);
-        const previousNode:number[] = Array(nodeList.length).fill(-1);
-        this.graph.getNodeList().forEach((node) => {
-            if (node && node.getId() !== from) {
+
+        const estimatedDistances = new MinPriorityQueue(this._graph.nodes.length);
+        const visited = new Map<number, boolean>();
+        const previousNode = new Map<number, number>();
+        
+        this._graph.nodes.forEach((node) => {
+            if (node.id !== from) {
                 estimatedDistances.insert({
-                    id: node.getId(),
+                    id: node.id,
                     value: Infinity
                 });
-            } else if(node){
+            } else{
                 estimatedDistances.insert({
-                    id: node.getId(),
+                    id: node.id,
                     value: 0
                 });
             }
@@ -86,7 +35,7 @@ export default class Dijkstra extends Algorithm{
         }
         animationStates.push(currentState);
         let currentNode = estimatedDistances.extractMin()!;
-        visited[currentNode.id] = true
+        visited.set(currentNode.id, true);
         currentState = this.markNodeAsVisited(currentState, currentNode.id);
         currentState.algorithmInfobox = {
             information: "Selecting node from priority queue with the smallest distance",
@@ -96,20 +45,22 @@ export default class Dijkstra extends Algorithm{
             }
         }
         animationStates.push(currentState);
+        
         while (currentNode.id !== to) {
-            let previousEdgeId:number|null = null;
-            for(let neighbourId = 0; neighbourId < this.graph.getNodeList().length; neighbourId++){
-                if(previousEdgeId !== null){
+            let previousEdgeId: number | undefined;
+            for(const neighbourId of this._graph.getNode(currentNode.id)!.AdjacencyList){
+                if(previousEdgeId !== undefined){
                     currentState = this.markEdgeAsNormal(currentState, previousEdgeId);
                 }
-                const edgeIdConnectedToNeighbour = this.graph.getNode(currentNode.id)!.getEdgeIdConnectingToNeihgbour(neighbourId);
-                if(edgeIdConnectedToNeighbour === -1){
-                    continue;
-                }
-                if (!visited[neighbourId]) {
-                    const weightOfEdge = this.graph.getEdge(edgeIdConnectedToNeighbour)!.getWeight()!;
-                    const estimatedDistance = estimatedDistances.get(neighbourId)!.value;
+                const edgeIdConnectedToNeighbour = this._graph.getNode(currentNode.id)!.getEdgeIdConnectingToNeighbour(neighbourId)!;
+
+                if (!visited.get(neighbourId)) {
+                    const weightOfEdge = this._graph.getEdge(edgeIdConnectedToNeighbour)!.weight!;
+
+                    const estimatedDistance = estimatedDistances.getElement(neighbourId)!.value;
+                    
                     const distanceThroughCurrentNode = currentNode.value + weightOfEdge;
+                    
                     currentState = this.markEdgeAsSelected(currentState, edgeIdConnectedToNeighbour)
                     currentState.algorithmInfobox = {
                         information: `Checking for adjacent nodes if the distance through the node currently being visited is smaller than the distance previously set.<br> 
@@ -120,9 +71,10 @@ export default class Dijkstra extends Algorithm{
                         }
                     }
                     animationStates.push(currentState);
+                    
                     if (distanceThroughCurrentNode < estimatedDistance) {
-                        previousNode[neighbourId] = currentNode.id;
-                        currentState = this.updateNodeLabel(currentState, neighbourId, `${this.graph.getLabelOfNode(neighbourId)}(${distanceThroughCurrentNode})`)
+                        previousNode.set(neighbourId, currentNode.id);
+                        currentState = this.updateNodeLabel(currentState, neighbourId, `${this._graph.getNode(neighbourId)!.label}(${distanceThroughCurrentNode})`)
                         currentState.algorithmInfobox = {
                             information: `distance through current node < current smallest distance to neighbour (${distanceThroughCurrentNode} < ${estimatedDistance == Infinity ? "∞": estimatedDistance})`,
                             dataStructure: {
@@ -136,10 +88,10 @@ export default class Dijkstra extends Algorithm{
                     previousEdgeId = edgeIdConnectedToNeighbour;
                 }
             }
-            if(previousEdgeId !== null){
+            if(previousEdgeId !== undefined){
                 currentState = this.markEdgeAsNormal(currentState, previousEdgeId);
             }
-            currentState = this.CopyAnimationState(currentState);
+            currentState = this.copyAnimationState(currentState);
             currentState.algorithmInfobox = {
                 information: "Selecting node from priority queue with the smallest distance.",
                 dataStructure: {
@@ -149,7 +101,7 @@ export default class Dijkstra extends Algorithm{
             };
             animationStates.push(currentState);
 
-            visited[currentNode.id] = true
+            visited.set(currentNode.id, true);
             currentNode = estimatedDistances.extractMin()!;
             
             currentState = this.markNodeAsVisited(currentState, currentNode.id);
@@ -164,5 +116,53 @@ export default class Dijkstra extends Algorithm{
         }
         animationStates.push(this.createPathHighLightState(currentState, from, to, previousNode));
         return animationStates;
+    }
+    private createPathHighLightState(state: animationState, from: number,to: number, previous: Map<number, number>): animationState {
+        let newState = state;
+        let currentNode = this._graph.getNode(to);
+        let algorithmStateInfo: algorithmInfoBoxState = {
+            information: `Algorithm finished running!<hr>Shortest path found between ${this._graph.getNode(from)!.label} and ${this._graph.getNode(to)!.label}.`,
+            dataStructure: {
+                type: "priority-queue",
+                ds: []
+            }
+        }
+        newState.algorithmInfobox = algorithmStateInfo;
+        while (currentNode !== undefined) {
+            const currentNodeId = currentNode.id;
+            const nextNodeId = previous.get(currentNodeId);
+            newState = this.markNodeAsPartOfPath(newState, currentNodeId);
+            if (nextNodeId !== undefined) {
+                const edgeId = currentNode.getEdgeIdConnectingToNeighbour(nextNodeId)!;
+                newState = this.markEdgeAsPartOfPath(newState, edgeId);
+                currentNode = this._graph.getNode(nextNodeId);
+            } else {
+                currentNode = undefined;
+            }
+        }
+        return newState;
+    }
+    override createInitialState(from: number): animationState {
+        const nodes = new Map<number, animationNodeInformation>();
+        const edges = new Map<number, animationEdgeInformation>();
+
+        this._graph.nodes.forEach((node) => {
+            nodes.set(node.id, {
+                id: node.id,
+                state: "normal",
+                label: node.id === from ? node.label : `${node.label}(∞)`
+            });
+        });
+        this._graph.edges.forEach((edge) => {
+            edges.set(edge.id, {
+                id: edge.id,
+                state: "normal",
+                label: `${edge.weight}`
+            });
+        });
+        return { nodes, edges };
+    }
+    private getLabelsForQueueRepresentation(ids: number[]):string[]{
+        return ids.map(id => this._graph.getNode(id)!.label);
     }
 }

@@ -1,7 +1,7 @@
 import { algorithmInfoBox, pauseButton, playButton } from "../dom/elements";
 import { changeMessageBox, makeInvisible, makeVisible } from "../dom/helpers";
 import { algorithmInfoBoxState, animationState} from "../types/animation";
-import { Network } from "../network/Network";
+import { Network } from "../Network/Network";
 
 type animationPhase = "running" | "paused";
 type nodeUpdate = {
@@ -19,81 +19,80 @@ type stateRendering = {
     nodeUpdates: nodeUpdate[];
 }
 export class Animation {
-    private interval: number | null = null;
-    private animationSpeed = 1000; 
-    private animationSpeedChange = 1000; 
-    private currentAnimationStateNumber = 0; 
-    private pathColor = "#c00000ff";
-    private normalNodeColor = "white";
-    private normalEdgeColor = "black";
-    private queueNodeColor = "#2e77ffff";
-    private stackNodeColor = "#2e77ffff";
-    private deselectedEdgeColor = "#e4e4e4ff";
-    private deselectedNodeColor = "#e4e4e4ff";
-    private selectedEdgeColor = "blue";
-    private visitedNodeColor = "orange";
-    private animationPhase: animationPhase = "running";
-    private states: animationState[] | null = null;
-    private stateRenderings: stateRendering[]|null = null;
-    private network: Network;
+    private readonly _network: Network;
+    private readonly _pathColor = "#c00000ff";
+    private readonly _normalNodeColor = "white";
+    private readonly _normalEdgeColor = "black";
+    private readonly _queueNodeColor = "#2e77ffff";
+    private readonly _stackNodeColor = "#2e77ffff";
+    private readonly _deselectedEdgeColor = "#e4e4e4ff";
+    private readonly _deselectedNodeColor = "#e4e4e4ff";
+    private readonly _selectedEdgeColor = "blue";
+    private readonly _visitedNodeColor = "orange";
+    private _interval?: number;
+    private _animationSpeed = 1000; 
+    private _animationSpeedChange = 1000; 
+    private _currentAnimationStateNumber = 0; 
+    private _animationPhase: animationPhase = "running";
+    private _states?: animationState[];
+    private _stateRenderings?: stateRendering[];
 
     constructor(network: Network) {
-        this.network = network;
+        this._network = network;
     }
     setAnimationSpeedChange(speed: number): void {
-        this.animationSpeedChange = speed;
+        this._animationSpeedChange = speed;
     }
     setAnimationStates(states: animationState[]): void {
-        this.states = states;
-        this.stateRenderings = this.createStateRenderingsFromStates(this.states);
-        this.currentAnimationStateNumber = -1;
+        this._states = states;
+        this._stateRenderings = this.createStateRenderingsFromStates(this._states);
+        this._currentAnimationStateNumber = -1;
     }
     escapeAnimation():void{
         this.pause();
         this.resetGraph();
         this.clearInfoBox();
-        this.currentAnimationStateNumber = -1;
+        this._currentAnimationStateNumber = -1;
     }
     setAnimationStateForward(): void {
-        if (this.animationPhase !== "paused") return;
+        if (this._animationPhase !== "paused") return;
         this.moveAnimationStateForward();
     }
     setAnimationStateBackward(): void {
-        if (this.animationPhase !== "paused") return;
-        if (this.currentAnimationStateNumber <= 0) return;
-        this.currentAnimationStateNumber--;
+        if (this._animationPhase !== "paused") return;
+        if (this._currentAnimationStateNumber <= 0) return;
+        this._currentAnimationStateNumber--;
     }
     setAnimationPhase(state: animationPhase): void {
-        this.animationPhase = state;
-        changeMessageBox(this.animationPhase);
+        this._animationPhase = state;
+        changeMessageBox(this._animationPhase);
     }
     continueAnimation(): void {
-        if (this.states) {
+        if (this._states) {
             this.setAnimationPhase("running");
-            this.interval = setInterval(() => {
+            this._interval = setInterval(() => {
 
-                if (this.animationSpeed !== this.animationSpeedChange) {
-                    this.animationSpeed = this.animationSpeedChange;
-                    clearInterval(this.interval!);
+                if (this._animationSpeed !== this._animationSpeedChange) {
+                    this._animationSpeed = this._animationSpeedChange;
+                    clearInterval(this._interval!);
                     this.continueAnimation();
                 } else {
                     this.moveAnimationStateForward();
                     this.animateCurrentState();
-
                     if (this.isLastState()) {
-                        clearInterval(this.interval!);
+                        clearInterval(this._interval!);
                         this.setAnimationPhase("paused");
                         makeInvisible(pauseButton);
                         makeVisible(playButton);
                         return;
                     }
                 }
-            }, this.animationSpeed);
+            }, this._animationSpeed);
         }
     }
     pause(): void {
         this.setAnimationPhase("paused");
-        clearInterval(this.interval!);
+        clearInterval(this._interval!);
     }
     start(): void {
         this.setAnimationPhase("running");
@@ -101,15 +100,18 @@ export class Animation {
     }
     resetAnimation(): void {
         this.pause();
-        this.currentAnimationStateNumber = 0;
+        this._currentAnimationStateNumber = 0;
         this.animateCurrentState();
     }
     animateCurrentState(): void {
-        if (this.currentAnimationStateNumber === -1) return;
-        const currentState = this.states![this.currentAnimationStateNumber];
-        const currentStateRendering = this.stateRenderings![this.currentAnimationStateNumber];
-        this.network.updateNodes(currentStateRendering.nodeUpdates);
-        this.network.updateEdges(currentStateRendering.edgeUpdates);
+        if (this._currentAnimationStateNumber === -1) return;
+        
+        const currentState = this._states![this._currentAnimationStateNumber];
+        const currentStateRendering = this._stateRenderings![this._currentAnimationStateNumber];
+        
+        this._network.updateNodes(currentStateRendering.nodeUpdates);
+        this._network.updateEdges(currentStateRendering.edgeUpdates);
+        
         this.renderInfoBox(currentState.algorithmInfobox);
     }
     private createStateRenderingsFromStates(states:animationState[]):stateRendering[]{
@@ -121,30 +123,29 @@ export class Animation {
     }
     private createStateRenderingFromState(state: animationState):stateRendering{
         const nodeUpdates:nodeUpdate[] = [];
-        for(const node of state.nodes){
-            if(!node)continue;
+        for(const node of state.nodes.values()){
             let color: string;
             switch (node.state) {
                 case "visitedNode": 
-                    color = this.visitedNodeColor; 
+                    color = this._visitedNodeColor; 
                     break;
                 case "normal": 
-                    color = this.normalNodeColor; 
+                    color = this._normalNodeColor; 
                     break;
                 case "partOfPath": 
-                    color = this.pathColor;
+                    color = this._pathColor;
                     break;
                 case "inQueue":
-                    color = this.queueNodeColor;
+                    color = this._queueNodeColor;
                     break;
                 case "inStack":
-                    color = this.stackNodeColor;
+                    color = this._stackNodeColor;
                     break;
                 case "deselectedNode":
-                    color = this.deselectedNodeColor;
+                    color = this._deselectedNodeColor;
                     break;
                 default: 
-                    color = this.normalNodeColor;
+                    color = this._normalNodeColor;
                     break;
                 }
             nodeUpdates.push({
@@ -153,28 +154,28 @@ export class Animation {
                 color: color,
             });
         }
+        
         const edgeUpdates:edgeUpdate[] = [];
-        for(const edge of state.edges){
-            if(!edge)continue;
+        for(const edge of state.edges.values()){
             let color: string;
             let edgeWidth: number = 2;
             switch (edge.state) {
                 case "selectedEdge": 
-                    color = this.selectedEdgeColor; 
+                    color = this._selectedEdgeColor; 
                     edgeWidth = 3;
                     break;
                 case "normal": 
-                    color = this.normalEdgeColor; 
+                    color = this._normalEdgeColor; 
                     break;
                 case "partOfPath": 
-                    color = this.pathColor; 
+                    color = this._pathColor; 
                     edgeWidth = 4;
                     break;
                 case "deselectedEdge": 
-                    color = this.deselectedEdgeColor;
+                    color = this._deselectedEdgeColor;
                     break;
                 default: 
-                    color = this.normalEdgeColor;
+                    color = this._normalEdgeColor;
                     break;
             }
             edgeUpdates.push({
@@ -194,6 +195,7 @@ export class Animation {
             const info = document.createElement("div");
             info.id = "info-text";
             info.innerHTML = input.information;
+            
             algorithmInfoBox.appendChild(info);
         }
         if (input.dataStructure) {
@@ -201,10 +203,13 @@ export class Animation {
             
             const container = document.createElement("div");
             const dsName = document.createElement("h3");
+            
             dsName.textContent = type;
             dsName.className = "ds-name";
+            
             container.id = "ds-container";
             container.className = type;
+            
             algorithmInfoBox.appendChild(dsName);
             
             for (let i = 0; i < ds.length; i++) {
@@ -220,27 +225,29 @@ export class Animation {
                 const labels = document.createElement("div");
                 labels.id = "queue-label";
                 labels.innerHTML = `<span>Front</span><span>Back</span>`;
+                
                 algorithmInfoBox.appendChild(labels);
             }
             if (type === "stack") {
                 const label = document.createElement("div");
                 label.id = "stack-label";
                 label.innerHTML = `<span>Bottom</span>`;
+                
                 algorithmInfoBox.appendChild(label);
             }
         }
     }
     private moveAnimationStateForward(): void {
         if (this.isLastState())return;
-        this.currentAnimationStateNumber++;
+        this._currentAnimationStateNumber++;
     }
     private clearInfoBox(): void {
         algorithmInfoBox.innerHTML = "";
     }
     private isLastState():boolean{
-        return this.currentAnimationStateNumber === this.states!.length - 1;
+        return this._currentAnimationStateNumber === this._states!.length - 1;
     }
     private resetGraph(): void {
-        this.network.resetGraphToOriginal();
+        this._network.resetGraphToOriginal();
     }
 }

@@ -1,44 +1,18 @@
-import { Edge, WeightedGraph } from "../../datastructures/Graph";
+import { Edge, Graph } from "../../datastructures/Graph";
 import {animationState} from "../../types/animation";
 import { DisjointSet } from "../../datastructures/DisjointSet";
 import { Queue } from "../../datastructures/Queue";
 import Algorithm from "../Algorithm";
 
 export default class Kruskal extends Algorithm{
-    constructor(graph: WeightedGraph){
+    constructor(graph: Graph){
         super(graph)
     } 
-    private findComponentEdgeList(nodeId: number):(Edge|null)[]{
-        const edgeList = this.graph.getEdgeList();
-        const nodeList = this.graph.getNodeList();
-        const edges = new Array(edgeList.length).fill(null);
-        const queue = new Queue<number>(nodeList.length);
-        const visited:boolean[] = new Array(nodeList.length).fill(false);
-        queue.enqueue(nodeId);
-        visited[nodeId] = true;
-        while(!queue.isEmpty()){
-            const currentNodeId = queue.dequeue()!;
-            const currentNode = this.graph.getNode(currentNodeId)!;
-            for(let id = 0; id < this.graph.getNodeList().length; id++){
-                const edgeId = currentNode.getEdgeIdConnectingToNeihgbour(id);
-                if(currentNode.hasEdgeToNode(id) && !visited[id]){
-                    queue.enqueue(id)
-                    visited[id] = true;
-                }
-                if(currentNode.hasEdgeToNode(id) && edges[edgeId] === null){
-                    edges[edgeId] = this.graph.getEdge(edgeId)!;
-                }
-            }
-        }
-        return edges;
-    }
     run(nodeId: number): animationState[] {
         const animationStates: animationState[] = [];
         const componentEdges = this.findComponentEdgeList(nodeId);
         const sortedEdges = componentEdges.sort((a, b) => {
-            if(a === null)return 1;
-            if(b === null)return -1;
-            return a.getWeight()!-b.getWeight()!;
+            return a.weight! - b.weight!;
         })
 
         let currentState = this.createInitialState();
@@ -46,29 +20,31 @@ export default class Kruskal extends Algorithm{
             information: "We first sort the edges in ascending order by their weight."
         }
         animationStates.push(currentState);
+        
         const components = new DisjointSet(sortedEdges.length);
         let i = 0;
         let res = 0;
-        while(sortedEdges[i] !== null){
-            const fromComp = components.find(sortedEdges[i]!.getFrom());
-            const toComp = components.find(sortedEdges[i]!.getTo());
-            currentState = this.markEdgeAsSelected(currentState, sortedEdges[i]!.getId());
+        
+        while(i < sortedEdges.length){
+            const fromComp = components.find(sortedEdges[i]!.from);
+            const toComp = components.find(sortedEdges[i]!.to);
+            currentState = this.markEdgeAsSelected(currentState, sortedEdges[i]!.id);
             currentState.algorithmInfobox = {
                 information: "We check if the selected edge forms a cycle, if so we don't include it in the spanning tree, otherwise we include it."
             }
             animationStates.push(currentState);
             if(fromComp !== toComp){
                 components.union(fromComp, toComp);
-                currentState = this.markEdgeAsPartOfPath(currentState, sortedEdges[i]!.getId());
-                currentState = this.markNodeAsPartOfPath(currentState, sortedEdges[i]!.getFrom());
-                currentState = this.markNodeAsPartOfPath(currentState, sortedEdges[i]!.getTo());
+                currentState = this.markEdgeAsPartOfPath(currentState, sortedEdges[i]!.id);
+                currentState = this.markNodeAsPartOfPath(currentState, sortedEdges[i]!.from);
+                currentState = this.markNodeAsPartOfPath(currentState, sortedEdges[i]!.to);
                 currentState.algorithmInfobox = {
                     information: "The selected edge does not form a cycle. It will be part of the minimum spanning tree."
                 }
                 animationStates.push(currentState);
-                res += sortedEdges[i]!.getWeight()!;
+                res += sortedEdges[i]!.weight!;
             }else{
-                currentState = this.markEdgeAsDeselected(currentState, sortedEdges[i]!.getId());
+                currentState = this.markEdgeAsDeselected(currentState, sortedEdges[i]!.id);
                 currentState.algorithmInfobox = {
                     information: "The selected edge does form a cycle as both nodes connected by the edge are in the same component. It will be part of the minimum spanning tree."
                 }
@@ -76,11 +52,42 @@ export default class Kruskal extends Algorithm{
             }
             i++;
         }
-        currentState = this.CopyAnimationState(currentState);
+        currentState = this.copyAnimationState(currentState);
         currentState.algorithmInfobox = {
             information: `Algorithm finished running!<hr>Minimum spanning tree of the weighted graph has been created with a total weight of: ${res}.`
         }
         animationStates.push(currentState);
         return animationStates;
+    }
+    private findComponentEdgeList(nodeId: number):Edge[]{
+
+        const edges: Edge[] = [];
+
+        const edgeInArray = new Map<Edge, boolean>();
+        const queue = new Queue<number>(this._graph.nodes.length);
+        
+        const visited = new Map<number, boolean>();
+        
+        queue.enqueue(nodeId);
+        visited.set(nodeId, true);
+        
+        while(!queue.IsEmpty){
+            const currentNodeId = queue.dequeue()!;
+            const currentNode = this._graph.getNode(currentNodeId)!;
+           
+            for(const node of this._graph.nodes){
+                const nodeId = node.id;
+                if(currentNode.hasEdgeToNode(nodeId) && !visited.get(nodeId)){
+                    queue.enqueue(nodeId)
+                    visited.set(nodeId, true);
+                }
+                const edgeId = currentNode.getEdgeIdConnectingToNeighbour(nodeId)!;
+                if(currentNode.hasEdgeToNode(nodeId) && !edgeInArray.get(this._graph.getEdge(edgeId)!)){
+                    edges.push(this._graph.getEdge(edgeId)!);
+                    edgeInArray.set(this._graph.getEdge(edgeId)!, true);
+                }
+            }
+        }
+        return edges;
     }
 }

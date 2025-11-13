@@ -2,58 +2,61 @@ import { Animation } from "../../animation/Animation";
 import { Graph } from "../../datastructures/Graph";
 import { playBox, pauseButton, playButton, speedRangeInput, speedInfo, backButton, forwardButton, resetButton, runAnimationButton, escapeModeButton, deleteModeButton, addNodeButton, addEdgeButton, presetInput, algorithmInformationBox, speedBox, downloadGraphButton, uploadGraphInput, } from "../../dom/elements";
 import { changeMessageBox, makeInvisible, makeVisible } from "../../dom/helpers";
-import { Network } from "../../network/Network";
+import { Network } from "../../Network/Network";
 import { isPreset } from "../../types/preset";
 import TopologicalSort from "./TopologicalSortAlgorithm";
 
 type canvasState = "add-edge-mode" | "idle" | "delete" | "add-node-mode" | "pre-animation" | "step-by-step" | "animation-running";
 export class TopologicalSortController {
-    private network: Network;
-    private canvasState: canvasState = "idle"; 
-    private animation: Animation;
-    private algorithm: TopologicalSort
+    private readonly _network: Network;
+    private readonly _animation: Animation;
+    private readonly _algorithm: TopologicalSort;
+    private readonly _graph: Graph;
+    private _canvasState: canvasState = "idle"; 
+    
     constructor() {
-        const graph = new Graph();
-        this.network = new Network(graph, false);
-        this.animation = new Animation(this.network);
-        this.algorithm = new TopologicalSort(graph);
+        this._graph = new Graph();
+        this._network = new Network(this._graph, false);
+        this._animation = new Animation(this._network);
+        this._algorithm = new TopologicalSort(this._graph);
+        
         this.setUpUiEventListeners();
     }
     private changeCanvasState(newState: canvasState): void {
-        if ( (this.canvasState === "pre-animation" || this.canvasState === "animation-running") && newState !== "pre-animation" && newState !== "animation-running" ){
-            this.animation.escapeAnimation();
+        if ( (this._canvasState === "pre-animation" || this._canvasState === "animation-running") && newState !== "pre-animation" && newState !== "animation-running" ){
+            this._animation.escapeAnimation();
             makeInvisible(algorithmInformationBox);
             makeInvisible(speedBox);
             makeInvisible(playBox);
         }
-        if(this.canvasState === "animation-running" && newState === "pre-animation")return;
+        if(this._canvasState === "animation-running" && newState === "pre-animation")return;
         switch (newState) {
             case "add-edge-mode":
                 changeMessageBox( "to create an edge click and drag from one node to the other" );
-                this.network.addEdgeModeOn();
+                this._network.addEdgeModeOn();
                 break;
             case "add-node-mode":
                 changeMessageBox("click on the canvas to create a node");
-                this.network.addNodeModeOn();
+                this._network.addNodeModeOn();
                 break;
             case "delete":
                 changeMessageBox("select an element to delete");
-                this.network.deleteElementModeOn();
+                this._network.deleteElementModeOn();
                 break;
             case "idle":
                 changeMessageBox( "idle mode" );
-                this.network.resetToIdle();
+                this._network.resetToIdle();
                 break;
             case "pre-animation":
-                this.network.resetToIdle();
-                if(this.network.getNumberOfNodes() === 0){
+                this._network.resetToIdle();
+                if(this._graph.isEmpty){
                     changeMessageBox("no nodes to run algorithm on.");
                     setTimeout(() => {
                         this.changeCanvasState("idle");
                     }, 1500);
                     break;
                 }
-                const states = this.algorithm.run();
+                const states = this._algorithm.run();
                 if(states.length === 0){
                     changeMessageBox("Graph contains cycle(s). Remove them to run algorithm.");
                     setTimeout(() => {
@@ -61,7 +64,7 @@ export class TopologicalSortController {
                     }, 1500);
                     break;
                 }
-                this.animation.setAnimationStates(states);
+                this._animation.setAnimationStates(states);
                 this.changeCanvasState("animation-running");
                 break;
             case "animation-running":
@@ -70,31 +73,35 @@ export class TopologicalSortController {
                 makeInvisible(playButton);
                 makeVisible(algorithmInformationBox);
                 makeVisible(speedBox);
-                this.network.fitGraphIntoAnimationSpace();
-                this.network.disableEverything();
-                this.animation.start();
+                this._network.fitGraphIntoAnimationSpace();
+                this._network.disableEverything();
+                this._animation.start();
                 break;
         }
-        this.canvasState = newState;
+        this._canvasState = newState;
     }
     private setUpUiEventListeners(): void {
         uploadGraphInput.addEventListener("change", async () => {
-            if(this.canvasState === "pre-animation" || this.canvasState === "animation-running")return;
+            if(this._canvasState === "pre-animation" || this._canvasState === "animation-running")return;
+            
             const file = uploadGraphInput!.files![0];
+            
             if(!file || file.type !== "application/json")return;
             try{
                 const text = await file.text();
                 const json = await JSON.parse(text);
+            
                 if(!isPreset(json))throw new Error("wrong graph format");
-                if(json.info.edgesTwoWay || json.info.weighted)throw new Error("the graph is not suitable for the algorithm")
-                this.network.loadPreset(json);
-            }catch(e:any){
+                if(json.info.edgesBidirectional || json.info.weighted)throw new Error("the graph is not suitable for the algorithm")
+            
+                this._network.loadPreset(json);
+            }catch(e: any){
                 alert(e.message)
             }
         })
         downloadGraphButton.addEventListener("click", () => {
-            if(this.canvasState !== "pre-animation" && this.canvasState !== "animation-running"){
-                this.network.saveGraphToJSON();
+            if(this._canvasState !== "pre-animation" && this._canvasState !== "animation-running"){
+                this._network.saveGraphToJSON();
             }
         })
         addEdgeButton.addEventListener("click", () => {
@@ -116,36 +123,36 @@ export class TopologicalSortController {
             this.changeCanvasState("pre-animation");
         });
         resetButton.addEventListener("click", () => {
-            this.animation.resetAnimation();
+            this._animation.resetAnimation();
             makeInvisible(pauseButton);
             makeVisible(playButton);
         });
         pauseButton.addEventListener("click", () => {
-            this.animation.pause();
+            this._animation.pause();
             makeInvisible(pauseButton);
             makeVisible(playButton);
         });
         forwardButton.addEventListener("click", () => {
-            this.animation.setAnimationStateForward();
-            this.animation.animateCurrentState();
+            this._animation.setAnimationStateForward();
+            this._animation.animateCurrentState();
         });
         backButton.addEventListener("click", () => {
-            this.animation.setAnimationStateBackward();
-            this.animation.animateCurrentState();
+            this._animation.setAnimationStateBackward();
+            this._animation.animateCurrentState();
         });
         playButton.addEventListener("click", () => {
-            this.animation.continueAnimation();
+            this._animation.continueAnimation();
             makeInvisible(playButton);
             makeVisible(pauseButton);
         });
         speedRangeInput.addEventListener("input", () => {
             const newspeed = Number.parseInt(speedRangeInput!.value);
             speedInfo.textContent = `speed: ${newspeed}x`;
-            this.animation.setAnimationSpeedChange(1000 / newspeed);
+            this._animation.setAnimationSpeedChange(1000 / newspeed);
         });
         presetInput.addEventListener("input", () => {
             if(presetInput!.value !== "load a graph"){
-                if(this.canvasState === "pre-animation" || this.canvasState === "animation-running"){
+                if(this._canvasState === "pre-animation" || this._canvasState === "animation-running"){
                     this.changeCanvasState("idle");
                 }
                 const request = new Request(`./graph_presets/topological_sort/${presetInput!.value}.json`);
@@ -154,7 +161,7 @@ export class TopologicalSortController {
                         return res.json();
                     })
                     .then((preset) => {
-                        this.network.loadPreset(preset);
+                        this._network.loadPreset(preset);
                     });
             }
         })

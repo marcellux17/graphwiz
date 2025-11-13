@@ -1,32 +1,30 @@
 export class DisjointSet{
-    private parent:number[];
-    private rank: number[];
+    private readonly _parent:number[];
+    private readonly _rank: number[];
 
     constructor(size: number){
-        this.parent = Array(size).fill(0);
-        this.rank = Array(size).fill(0);
-        for(let i = 0; i < size;i++){
-            this.parent[i] = i;
-            this.rank[i] = 0;
-        }
+        this._parent = Array.from({length: size}, (_, i) => i);
+        this._rank = Array(size).fill(0);
     }
     find(a: number):number{
-        if(this.parent[a] !== a){
-            this.parent[a] = this.find(this.parent[a]);
+        if(this._parent[a] !== a){
+            this._parent[a] = this.find(this._parent[a]);
         }
-        return this.parent[a];
+        return this._parent[a];
     }   
     union(a:number, b:number):void {
         const rootA = this.find(a);
         const rootB = this.find(b);
-        if (rootA == rootB) return;
-        if (this.rank[rootA] < this.rank[rootB]) {
-            this.parent[rootA] = rootB;
-        } else if (this.rank[rootA] > this.rank[rootB]) {
-            this.parent[rootB] = rootA;
+        
+        if (rootA === rootB) return;
+        
+        if (this._rank[rootA] < this._rank[rootB]) {
+            this._parent[rootA] = rootB;
+        } else if (this._rank[rootA] > this._rank[rootB]) {
+            this._parent[rootB] = rootA;
         } else {
-            this.parent[rootB] = rootA;
-            this.rank[rootA]++;
+            this._parent[rootB] = rootA;
+            this._rank[rootA]++;
         }
     }
 }

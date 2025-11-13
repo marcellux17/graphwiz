@@ -7,14 +7,11 @@ export default class BFS extends Algorithm{
     constructor(graph: Graph){
         super(graph);
     }
-    private getLabelsForQueueRepresentation(ids: number[]):string[]{
-        return ids.map(id => this.graph.getLabelOfNode(id));
-    }
     run(from: number): animationState[] {
         const animationStates: animationState[] = [];
-        const nodes = this.graph.getNodeList();
-        const queue = new Queue<number>(nodes.length);
-        const visited = Array(nodes.length).fill(false);
+
+        const queue = new Queue<number>(this._graph.nodes.length);
+        const visited = new Map<number, boolean>();
 
         let currentState = this.createInitialState();
         currentState = this.markNodeAsInQueue(currentState, from);
@@ -23,10 +20,11 @@ export default class BFS extends Algorithm{
         }
         animationStates.push(currentState);
 
-        visited[from] = true;
+        visited.set(from, true);
         queue.enqueue(from);
-        while(!queue.isEmpty()){
-            currentState = this.CopyAnimationState(currentState);
+        
+        while(!queue.IsEmpty){
+            currentState = this.copyAnimationState(currentState);
             currentState.algorithmInfobox = {
             information: `Selecting node from queue.<hr>calling Dequeue()`,
                 dataStructure: {
@@ -35,50 +33,62 @@ export default class BFS extends Algorithm{
                 }
             }
             animationStates.push(currentState);
+            
             const currentNodeId = queue.dequeue()!;
-            const currentNode = this.graph.getNode(currentNodeId)!;
-            currentState = this.markNodeAsVisited(currentState, currentNodeId!);
+            const currentNode = this._graph.getNode(currentNodeId)!;
+            
+            currentState = this.markNodeAsVisited(currentState, currentNodeId);
             currentState.algorithmInfobox = {
-            information: `Selecting node from queue: (${this.graph.getLabelOfNode(currentNodeId!)}).`,
+            information: `Selecting node from queue: (${currentNode.label}).`,
                 dataStructure: {
                     type: "queue",
                     ds: this.getLabelsForQueueRepresentation(queue.toArray())
                 }
             }
             animationStates.push(currentState);
-            for(let nodeId = 0; nodeId < nodes.length; nodeId++){
-                if(currentNode.hasEdgeToNode(nodeId)){
-                    const edgeId = currentNode.getEdgeIdConnectingToNeihgbour(nodeId)
-                    currentState = this.markEdgeAsSelected(currentState, edgeId);
-                    currentState.algorithmInfobox = {
-                        information: `Checking whether neighbour has been visited yet or in queue.`,
-                        dataStructure: {
-                                type: "queue",
-                                ds: this.getLabelsForQueueRepresentation(queue.toArray())
-                            }
-                    };
-                    animationStates.push(currentState);
-                    if(!visited[nodeId]){
-                        visited[nodeId] = true;
-                        queue.enqueue(nodeId);
-                        currentState = this.markNodeAsInQueue(currentState, nodeId);
-                        currentState.algorithmInfobox = {
-                            information: `neighbour of ${this.graph.getLabelOfNode(currentNodeId!)} hasn't yet been visited and currently not in queue.<hr>putting it in queue.`,
-                            dataStructure: {
-                                type: "queue",
-                                ds: this.getLabelsForQueueRepresentation(queue.toArray())
-                            }
+            
+            for(const neighbourId of currentNode.AdjacencyList){
+                
+                const edgeId = currentNode.getEdgeIdConnectingToNeighbour(neighbourId)!;
+                
+                currentState = this.markEdgeAsSelected(currentState, edgeId);
+                currentState.algorithmInfobox = {
+                    information: `Checking whether neighbour has been visited yet or in queue.`,
+                    dataStructure: {
+                            type: "queue",
+                            ds: this.getLabelsForQueueRepresentation(queue.toArray())
                         }
-                        animationStates.push(currentState);
+                };
+                animationStates.push(currentState);
+                
+                if(!visited.get(neighbourId)){
+
+                    queue.enqueue(neighbourId);
+                    visited.set(neighbourId, true);
+                    
+                    currentState = this.markNodeAsInQueue(currentState, neighbourId);
+                    currentState.algorithmInfobox = {
+                        information: `Neighbour of ${currentNode.label} hasn't yet been visited and currently not in queue.<hr>putting it in queue.`,
+                        dataStructure: {
+                            type: "queue",
+                            ds: this.getLabelsForQueueRepresentation(queue.toArray())
+                        }
                     }
-                    currentState = this.markEdgeAsNormal(currentState, edgeId);
+                    animationStates.push(currentState);
                 }
+                currentState = this.markEdgeAsNormal(currentState, edgeId);
+                
             }
         }
+        
         currentState.algorithmInfobox = {
             information: `Algorithm finished running!<hr> All nodes reachable from starting node have been visited since the queue is empty!`
         }
         animationStates.push(currentState);
+        
         return animationStates;
+    }
+    private getLabelsForQueueRepresentation(ids: number[]):string[]{
+        return ids.map(id => this._graph.getNode(id)!.label);
     }
 }

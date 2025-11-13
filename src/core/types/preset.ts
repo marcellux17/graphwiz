@@ -1,7 +1,7 @@
 export type Preset = {
     info: {
         weighted: boolean;
-        edgesTwoWay: boolean;
+        edgesBidirectional: boolean;
         scale: number
     };
     nodes: presetNode[];
