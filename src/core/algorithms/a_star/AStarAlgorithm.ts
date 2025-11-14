@@ -3,29 +3,25 @@ import { MinPriorityQueue } from "../../datastructures/Queue";
 import { algorithmInfoBoxState, animationEdgeInformation, animationNodeInformation, animationState} from "../../types/animation";
 import Algorithm from "../Algorithm";
 
-export default class AStar extends Algorithm{
-    private readonly _heuristics: Map<number, number>;
-    private _scale: number = 1;
-    
+export default class AStar extends Algorithm{  
     constructor(graph: Graph){
         super(graph);
-        this._heuristics = new Map<number, number>();
     }
     run(from: number, to: number, scale: number): animationState[] {
-        this._scale = scale;
         const animationStates: animationState[] = [];
         const fScores = new MinPriorityQueue(this._graph.nodes.length); 
         const gScores = new Map<number, number>();
         const visited = new Map<number, boolean>();
         const previousNode = new Map<number, number>();
+        const heuristics = new Map<number, number>();
         
-        this.measureDistancesFromAllNodesToDestinationNode(to);
+        this.measureDistancesFromAllNodesToDestinationNode(to, heuristics, scale);
         
         for(const node of this._graph.nodes){
             const g = (node.id === from ? 0 : Infinity);
             gScores.set(node.id, g);
             
-            const f = (node.id === from ? 0 : Infinity) + this._heuristics.get(node.id)!;
+            const f = (node.id === from ? 0 : Infinity) + heuristics.get(node.id)!;
             fScores.insert({ id: node.id, value: f });
         }
         
@@ -79,7 +75,7 @@ export default class AStar extends Algorithm{
                 const gThroughCurrent = gScores.get(currentElement.id)! + edgeW;
                 
                 const gScoreNeighbor = gScores.get(neighbourId)!;
-                const neighbourHeusristic = this._heuristics.get(neighbourId)!;
+                const neighbourHeusristic = heuristics.get(neighbourId)!;
 
                 currentState = this.markEdgeAsSelected(currentState, edgeIdConnectedToNeighbour)
                 currentState.algorithmInfobox = {
@@ -207,13 +203,13 @@ export default class AStar extends Algorithm{
 
         return { nodes, edges };
     }
-    private measureDistancesFromAllNodesToDestinationNode(to:number):void{
+    private measureDistancesFromAllNodesToDestinationNode(to:number, heuristics: Map<number, number>, scale: number):void{
         for(const node of this._graph.nodes){
-            this._heuristics.set(node.id, this.measureDistance(this._graph.getNode(to)!, node));
+            heuristics.set(node.id, this.measureDistance(this._graph.getNode(to)!, node, scale));
         }
     }
-    private measureDistance(nodeA: Node, nodeB: Node):number{
-        return Math.floor(Math.sqrt((nodeA.x - nodeB.x) ** 2 + (nodeA.y - nodeB.y) ** 2) / (10 * this._scale));
+    private measureDistance(nodeA: Node, nodeB: Node, scale: number):number{
+        return Math.floor(Math.sqrt((nodeA.x - nodeB.x) ** 2 + (nodeA.y - nodeB.y) ** 2) / (10 * scale));
     }
     private getLabelsForQueueRepresentation(ids: number[]):string[]{
         return ids.map(id => this._graph.getNode(id)!.label);

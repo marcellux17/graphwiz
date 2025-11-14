@@ -21,7 +21,7 @@ export default class Kruskal extends Algorithm{
         }
         animationStates.push(currentState);
         
-        const components = new DisjointSet(sortedEdges.length);
+        const components = new DisjointSet();
         let i = 0;
         let res = 0;
         
