@@ -754,8 +754,8 @@ export class Network{
                 this._nodeIds.push(id);
             } else if (this._mode === "delete") {
                 if (hitNodeIndex !== -1) {
-                    this._nodeIds.splice(hitNodeIndex, 1);
                     this._graph.removeNode(this._nodeIds[hitNodeIndex]);
+                    this._nodeIds.splice(hitNodeIndex, 1);
                 
                 } else if (hitEdgeId !== -1) {
                     this._graph.removeEdge(hitEdgeId);

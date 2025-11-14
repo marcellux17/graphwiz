@@ -4,8 +4,9 @@ export class Graph {
     private readonly _nodes: Map<number, Node>;
     private readonly _edges: Map<number, Edge>;
     private readonly _weighted: boolean;
-    private _n = 1;
-    private _e = 1;
+    private _nextNodeId = 0;
+    private _nextEdgeId = 0;
+    private _nextLabel = 1;
 
     constructor(weighted: boolean = false) {
         this._weighted = weighted;
@@ -25,14 +26,20 @@ export class Graph {
         return Array.from(this._nodes.values());
     }
     addNode(): number {
-        const id = this._n;
-        const label = `${id}`;
+        const id = this._nextNodeId;
+        const label = `${this._nextLabel}`;
+       
         this._nodes.set(id, new Node(id, label));
-        this._n++;
+       
+        this._nextNodeId++;
+        this._nextLabel++;
         return id;
     }
     addExistingNode(id: number, x: number, y: number, color: string): void {
-        const label = `${this._n}`;
+        if(id >= this._nextNodeId){
+            this._nextNodeId = id + 1;
+        }
+        const label = `${this._nextLabel}`;
         const node = new Node(id, label);
         
         node.color = color;
@@ -40,7 +47,7 @@ export class Graph {
         node.y = y;
         
         this._nodes.set(id, node);
-        this._n++;
+        this._nextLabel++;
     }
     
     addEdge(from: number, to: number, bidirectional: boolean = true, weight: number = 1): number | undefined {
@@ -52,7 +59,7 @@ export class Graph {
         
         if (fromNode.hasEdgeToNode(to)) return;
         
-        const id = this._e;
+        const id = this._nextEdgeId;
         fromNode.addNeighbour(to, id);
 
         if(bidirectional){
@@ -66,7 +73,7 @@ export class Graph {
         }
         this._edges.set(id, edge);
 
-        this._e++;
+        this._nextEdgeId++;
         return id;
     }
 
@@ -168,8 +175,9 @@ export class Graph {
     clearGraph(): void {
         this._nodes.clear();
         this._edges.clear();
-        this._n = 1;
-        this._e = 1;
+        this._nextNodeId = 1;
+        this._nextEdgeId = 1;
+        this._nextLabel = 1;
     }
 }
 
