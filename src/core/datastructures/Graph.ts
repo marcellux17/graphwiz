@@ -50,7 +50,7 @@ export class Graph {
         this._nextLabel++;
     }
     
-    addEdge(from: number, to: number, bidirectional: boolean = true, weight: number = 1): number | undefined {
+    addEdge(from: number, to: number, bidirectional: boolean = true, width: number = 2, weight: number = 1): number | undefined {
         if (from === to) return;
         
         const fromNode = this._nodes.get(from);
@@ -67,9 +67,9 @@ export class Graph {
         }
         let edge: Edge;
         if(this._weighted){
-            edge = new Edge(id, to, from, weight);
+            edge = new Edge(id, to, from, width, weight);
         }else{
-            edge = new Edge(id, to, from);
+            edge = new Edge(id, to, from, width);
         }
         this._edges.set(id, edge);
 
@@ -189,11 +189,12 @@ export class Edge {
     private _color = "black";
     private _width = 2;
     
-    constructor(id: number, to: number, from: number, weight?: number) {
+    constructor(id: number, to: number, from: number, width: number, weight?: number) {
         this._id = id;
         this._to = to;
         this._from = from;
         this._weight = weight;
+        this._width = width;
     }
     set color(newColor: string) {
         this._color = newColor;

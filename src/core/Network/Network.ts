@@ -12,6 +12,8 @@ export class Network{
     private readonly _nodeSize = 30;
     private readonly _nodeContourWidth = 4;
     private readonly _euclideanWeights: boolean;
+    private readonly _fontSize = 17;
+    private readonly _edgeWidth = 2;
     private _isDown = false;
     private _dragging = false;
     private _isPanning = false;
@@ -244,9 +246,9 @@ export class Network{
         
         for (const edge of preset.edges) {
             if (this._graph.isWeighted) {
-                this._graph.addEdge(edge.from, edge.to,this._edgesBidirectional, edge.weight);
+                this._graph.addEdge(edge.from, edge.to,this._edgesBidirectional,this._edgeWidth, edge.weight);
             } else {
-                this._graph.addEdge(edge.from, edge.to, this._edgesBidirectional);
+                this._graph.addEdge(edge.from, edge.to, this._edgesBidirectional, this._edgeWidth);
             }
         }
         
@@ -375,8 +377,8 @@ export class Network{
         }
         this._ctx.closePath();
     }
-    private drawText(x: number, y: number,text: string, fontSize: number, fontFamily: string, fontColor: string):void{
-        this._ctx.font = `${fontSize * this._scale}px ${fontFamily}`;
+    private drawText(x: number, y: number,text: string, fontFamily: string, fontColor: string):void{
+        this._ctx.font = `${this._fontSize * this._scale}px ${fontFamily}`;
         this._ctx.textAlign = "center";
         this._ctx.textBaseline = "middle";
         this._ctx.fillStyle = fontColor;
@@ -384,7 +386,7 @@ export class Network{
     }
     private drawNode(node: Node): void {
         this.drawArc(node.x, node.y, this._nodeSize * this._scale, 0, Math.PI * 2,"black",this._nodeContourWidth, node.color ? node.color : "white")
-        this.drawText(node.x, node.y, `${node.label}`, 17, "arial", "black");
+        this.drawText(node.x, node.y, `${node.label}`, "arial", "black");
     }
     private drawEdge(edge: Edge): void {
         const fromNode = this._graph.getNode(edge.from)!;
@@ -482,8 +484,8 @@ export class Network{
         const normalVectorX = directionVectorY;
         const normalVectorY = directionVectorX * -1;
         
-        const triangleHeight = 15 * this._scale;
-        const halfBaseLength = 8 * this._scale;
+        const triangleHeight = 13 * this._scale;
+        const halfBaseLength = 7  * this._scale;
         
         this._ctx.beginPath();
         this._ctx.moveTo(this._offsetX + (x - directionVectorX * triangleHeight) + normalVectorX * halfBaseLength,this._offsetY + (y - directionVectorY * triangleHeight) + normalVectorY * halfBaseLength);
@@ -581,7 +583,7 @@ export class Network{
         const x = circleCenterX + directionVectorX * (radius + 15 * this._scale);
         const y = circleCenterY + directionVectorY * (radius + 15 * this._scale);
         
-        this.drawText(x, y, `${weight}`, 17, "arial", color? color: "black")
+        this.drawText(x, y, `${weight}`, "arial", color ?? "black");
     }
     private drawWeightToHalfLine( x1: number, y1: number, x2: number, y2: number, weight: number, color?: string ): void {
         const halfLineX = (x1 + x2) / 2;
@@ -606,7 +608,7 @@ export class Network{
         const x = halfLineX + (normalVectorX * 15 * this._scale);
         const y = halfLineY + (normalVectorY * 15 * this._scale);
         
-        this.drawText(x, y, `${weight}`, 17, "arial", color? color: "black");
+        this.drawText(x, y, `${weight}`, "arial", color ?? "black");
     }
     private updateEuclideanDistancesOfDraggedNode(): void {
         for (const edge of this._graph.getEdgesConnectedToNode( this._draggedNodeId! )) {
@@ -789,9 +791,9 @@ export class Network{
                         normalWeight *= (this._negativeEdges && Math.random() > 0.8) ? -1 : 1;
                         
                         const weight = this._euclideanWeights ?  euclideanWeight: normalWeight;
-                        this._graph.addEdge( this._firstNodeId, node.id,this._edgesBidirectional, weight );
+                        this._graph.addEdge( this._firstNodeId, node.id,this._edgesBidirectional,this._edgeWidth, weight );
                     } else {
-                        this._graph.addEdge( this._firstNodeId, node.id, this._edgesBidirectional );
+                        this._graph.addEdge( this._firstNodeId, node.id, this._edgesBidirectional, this._edgeWidth );
                     }
                     
                     this._firstNodeId = undefined;
