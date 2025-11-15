@@ -22,9 +22,9 @@ export default class TopologicalSort extends Algorithm{
             const to = edge.to;
             inDegrees.set(to, (inDegrees.get(to) || 0) + 1);
         }
-        for(let i = 0; i < this._graph.nodes.length; i++){
-            if(inDegrees.get(i) === 0){
-                queue.enqueue(i);
+        for(const node of this._graph.nodes){
+            if(inDegrees.get(node.id) === 0){
+                queue.enqueue(node.id);
             }
         }
         let topologicalOrder = 0;
