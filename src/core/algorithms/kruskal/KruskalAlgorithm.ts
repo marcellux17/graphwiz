@@ -1,4 +1,5 @@
-import { Edge, Graph } from "../../datastructures/Graph";
+import Graph from "../../datastructures/Graph";
+import Edge from "../../datastructures/Edge";
 import {animationState} from "../../types/animation";
 import { DisjointSet } from "../../datastructures/DisjointSet";
 import { Queue } from "../../datastructures/Queue";

@@ -1,5 +1,5 @@
 import { animationState} from "../../types/animation";
-import { Graph } from "../../datastructures/Graph";
+import Graph from "../../datastructures/Graph";
 import Algorithm from "../Algorithm";
 
 export default class DFS extends Algorithm{

@@ -1,4 +1,7 @@
-export class Graph {
+import Edge from "./Edge";
+import Node from "./Node";
+
+export default class Graph {
     private readonly _nodes: Map<number, Node>;
     private readonly _edges: Map<number, Edge>;
     private readonly _weighted: boolean;
@@ -148,113 +151,4 @@ export class Graph {
     }
 }
 
-export class Edge {
-    private readonly _id: number;
-    private readonly _to: number;
-    private readonly _from: number;
-    private _weight?: number;
-    private _color = "black";
-    private _width = 2;
-    
-    constructor(id: number, to: number, from: number, width: number, weight?: number) {
-        this._id = id;
-        this._to = to;
-        this._from = from;
-        this._weight = weight;
-        this._width = width;
-    }
-    set color(newColor: string) {
-        this._color = newColor;
-    }
-    get color():string{
-        return this._color;
-    }
-    set width(newWidth: number) {  
-        this._width = newWidth;
-    }
-    get width():number{
-        return this._width;
-    }
-    set weight(weight: number){
-        this._weight = weight;
-    }
-    get weight():number|undefined{
-        return this._weight;
-    }
-    get to():number{
-        return this._to
-    }
-    get from():number{
-        return this._from;
-    }
-    get id(): number {
-        return this._id;
-    }
-    reset():void{
-        this._color = "black";
-        this._width = 2;
-    }
-}
 
-export class Node {
-    private readonly _id: number;
-    private readonly _adjacencyList: Map<number, number>;
-    private readonly _originalLabel: string; 
-    private _label: string;
-    private _x = 0;
-    private _y = 0;
-    private _color = "white";
-    
-    constructor(id: number, label: string) {
-        this._originalLabel = label;
-        this._label = label;
-        this._id = id;
-        this._adjacencyList = new Map<number, number>();
-    }
-    get color():string {
-        return this._color;
-    }
-    set color(newColor: string) {
-        this._color = newColor;
-    }
-    get label(): string {
-        return this._label;
-    }
-    set label(newLabel: string) {
-        this._label = newLabel;
-    }
-    set x(newX: number) {
-        this._x = newX;
-    }
-    set y(newY: number) {
-        this._y = newY;
-    }
-    get x(): number {
-        return this._x;
-    }
-    get y(): number {
-        return this._y;
-    }
-    get id(): number {
-        return this._id;
-    }
-    get AdjacencyList(): number[] {
-        return Array.from(this._adjacencyList.keys());
-    }
-    getEdgeIdConnectingToNeighbour(neighbourId: number):number | undefined{
-        return this._adjacencyList.get(neighbourId);
-    }
-    removeNeighbour(neighborId: number): void {
-        this._adjacencyList.delete(neighborId);
-    }
-    addNeighbour(neighborId: number, edgeId: number): void {
-        this._adjacencyList.set(neighborId, edgeId);
-    }
-    hasEdgeToNode(id: number): boolean {
-        return this._adjacencyList.has(id);
-    }
-    reset():void{
-        this._label = this._originalLabel;
-        this._color = "white";
-    }
-}

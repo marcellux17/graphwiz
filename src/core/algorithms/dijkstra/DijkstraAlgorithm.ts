@@ -1,4 +1,4 @@
-import { Graph } from "../../datastructures/Graph.ts";
+import Graph from "../../datastructures/Graph.ts";
 import { MinPriorityQueue } from "../../datastructures/Queue.ts";
 import { algorithmInfoBoxState, animationEdgeInformation, animationNodeInformation, animationState} from "../../types/animation.ts";
 import Algorithm from "../Algorithm.ts";

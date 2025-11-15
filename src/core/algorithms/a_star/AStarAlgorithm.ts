@@ -1,4 +1,5 @@
-import { Node, Graph } from "../../datastructures/Graph";
+import Graph from "../../datastructures/Graph";
+import Node from "../../datastructures/Node";
 import { MinPriorityQueue } from "../../datastructures/Queue";
 import { algorithmInfoBoxState, animationEdgeInformation, animationNodeInformation, animationState} from "../../types/animation";
 import Algorithm from "../Algorithm";

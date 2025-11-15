@@ -1,4 +1,6 @@
-import { Graph, Node, Edge } from "../datastructures/Graph";
+import Graph from "../datastructures/Graph";
+import Edge from "../datastructures/Edge";
+import Node from "../datastructures/Node";
 import { algorithmInformationBox, canvas, editingPanel } from "../dom/elements";
 import { saveAs } from "file-saver"
 import { Preset, presetEdge, presetNode } from "../types/preset";
