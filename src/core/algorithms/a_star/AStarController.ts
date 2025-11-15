@@ -1,13 +1,13 @@
-import { Animation } from "../../animation/Animation";
+import Animation from "../../animation/Animation";
 import Graph from "../../datastructures/Graph";
 import { playBox, pauseButton, playButton, startingNodeInfo, destinationNodeInfo, pathInfoBox, speedRangeInput, speedInfo, backButton, forwardButton, resetButton, runAnimationButton, escapeModeButton, deleteModeButton, addNodeButton, addEdgeButton, presetInput, speedBox, algorithmInformationBox, downloadGraphButton, uploadGraphInput, } from "../../dom/elements";
 import { changeMessageBox, makeInvisible, makeVisible} from "../../dom/helpers";
-import { Network } from "../../Network/Network";
+import Network from "../../Network/Network";
 import { isPreset } from "../../types/preset";
 import AStar from "./AStarAlgorithm";
 
 type canvasState = "add-edge-mode" | "idle" | "delete" | "add-node-mode" | "pre-animation" | "step-by-step" | "animation-running";
-export class AStarController {
+export default class AStarController {
     private readonly _network: Network;
     private readonly _algorithm: AStar;
     private readonly _animation: Animation;

@@ -1,3 +1,3 @@
-import { PrimController } from "./PrimController";
+import PrimController from "./PrimController";
 
 new PrimController();

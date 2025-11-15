@@ -1,7 +1,7 @@
 import { algorithmInfoBox, pauseButton, playButton } from "../dom/elements";
 import { changeMessageBox, makeInvisible, makeVisible } from "../dom/helpers";
 import { algorithmInfoBoxState, animationState} from "../types/animation";
-import { Network } from "../Network/Network";
+import Network from "../Network/Network";
 
 type animationPhase = "running" | "paused";
 type nodeUpdate = {
@@ -18,7 +18,7 @@ type stateRendering = {
     edgeUpdates: edgeUpdate[];
     nodeUpdates: nodeUpdate[];
 }
-export class Animation {
+export default class Animation {
     private readonly _network: Network;
     private readonly _pathColor = "#c00000ff";
     private readonly _normalNodeColor = "white";

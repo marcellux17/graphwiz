@@ -1,13 +1,13 @@
-import { Animation } from "../../animation/Animation";
-import { Graph } from "../../datastructures/Graph";
+import Animation from "../../animation/Animation";
+import Graph from "../../datastructures/Graph";
 import { playBox, pauseButton, playButton, speedRangeInput, speedInfo, backButton, forwardButton, resetButton, runAnimationButton, escapeModeButton, deleteModeButton, addNodeButton, addEdgeButton, presetInput, algorithmInformationBox, speedBox, downloadGraphButton, uploadGraphInput, } from "../../dom/elements";
 import { changeMessageBox, makeInvisible, makeVisible } from "../../dom/helpers";
-import { Network } from "../../Network/Network";
+import Network from "../../Network/Network";
 import { isPreset } from "../../types/preset";
 import BFS from "./BFSAlgorithm";
 
 type canvasState = "add-edge-mode" | "idle" | "delete" | "add-node-mode" | "pre-animation" | "step-by-step" | "animation-running";
-export class BFSController {
+export default class BFSController {
     private readonly _network: Network;
     private readonly _animation: Animation;
     private readonly _algorithm: BFS;

@@ -1,3 +1,3 @@
-import { BellmanFordController } from "./BellmanFordController";
+import BellmanFordController from "./BellmanFordController";
 
 new BellmanFordController();

@@ -1,3 +1,3 @@
-import { AStarController } from "./AStarController";
+import AStarController from "./AStarController";
 
 new AStarController();

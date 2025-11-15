@@ -1,3 +1,3 @@
-import { KruskalController } from "./KruskalController";
+import KruskalController from "./KruskalController";
 
 new KruskalController();

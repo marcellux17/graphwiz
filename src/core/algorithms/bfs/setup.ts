@@ -1,3 +1,3 @@
-import { BFSController } from "./BFSController";
+import BFSController from "./BFSController";
 
 new BFSController();

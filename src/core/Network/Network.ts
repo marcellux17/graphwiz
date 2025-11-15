@@ -6,7 +6,7 @@ import { saveAs } from "file-saver"
 import { Preset, presetEdge, presetNode } from "../types/preset";
 
 type networkMode = "addEdgeMode" | "addNodeMode" | "idle" | "delete" | "disabled";
-export class Network{
+export default class Network{
     private readonly _ctx = canvas.getContext("2d")!;
     private readonly _graph: Graph;
     private readonly _edgesBidirectional:boolean;

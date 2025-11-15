@@ -1,14 +1,14 @@
-import { Animation } from "../../animation/Animation";
+import Animation from "../../animation/Animation";
 import Graph from "../../datastructures/Graph";
 import { playBox, pauseButton, playButton, inputGroup, label, weightInput, speedRangeInput, speedInfo, backButton, forwardButton, resetButton, runAnimationButton, escapeModeButton, deleteModeButton, addNodeButton, addEdgeButton, presetInput, algorithmInformationBox, speedBox, downloadGraphButton, uploadGraphInput, } from "../../dom/elements";
 import { changeMessageBox, makeInvisible, makeVisible, resetWeightChangeInput, } from "../../dom/helpers";
-import { Network } from "../../Network/Network";
+import Network from "../../Network/Network";
 import { isPreset } from "../../types/preset";
 import Kruskal from "./KruskalAlgorithm";
 
 type canvasState = "add-edge-mode" | "idle" | "delete" | "add-node-mode" | "step-by-step" | "animation-running" | "pre-animation";
 
-export class KruskalController {
+export default class KruskalController {
     private readonly _network: Network;
     private readonly _algorithm: Kruskal;
     private readonly _graph: Graph;

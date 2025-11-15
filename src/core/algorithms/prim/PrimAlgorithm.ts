@@ -1,4 +1,4 @@
-import { Graph } from "../../datastructures/Graph";
+import Graph from "../../datastructures/Graph";
 import { animationEdgeInformation, animationNodeInformation, animationState } from "../../types/animation";
 import { MinPriorityQueue, Queue } from "../../datastructures/Queue";
 import Algorithm from "../Algorithm";

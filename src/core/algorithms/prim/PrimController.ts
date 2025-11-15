@@ -1,13 +1,13 @@
-import { Animation } from "../../animation/Animation";
-import { Graph } from "../../datastructures/Graph";
+import Animation from "../../animation/Animation";
+import Graph from "../../datastructures/Graph";
 import { playBox, pauseButton, playButton, inputGroup, label, weightInput, speedRangeInput, speedInfo, backButton, forwardButton, resetButton, runAnimationButton, escapeModeButton, deleteModeButton, addNodeButton, addEdgeButton, presetInput, algorithmInformationBox, speedBox, downloadGraphButton, uploadGraphInput, } from "../../dom/elements";
 import { changeMessageBox, makeInvisible, makeVisible, resetWeightChangeInput, } from "../../dom/helpers";
-import { Network } from "../../Network/Network";
+import Network from "../../Network/Network";
 import { isPreset } from "../../types/preset";
 import Prim from "./PrimAlgorithm";
 
 type canvasState = "add-edge-mode" | "idle" | "delete" | "add-node-mode" | "pre-animation" | "step-by-step" | "animation-running";
-export class PrimController {
+export default class PrimController {
     private readonly _network: Network;
     private readonly _algorithm: Prim;
     private readonly _animation: Animation;

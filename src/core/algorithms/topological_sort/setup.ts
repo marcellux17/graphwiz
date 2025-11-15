@@ -1,3 +1,3 @@
-import { TopologicalSortController } from "./TopologicalSortController";
+import TopologicalSortController from "./TopologicalSortController";
 
 new TopologicalSortController();

@@ -1,3 +1,3 @@
-import { DijkstraController } from "./DijkstraController";
+import DijkstraController from "./DijkstraController";
 
 new DijkstraController();

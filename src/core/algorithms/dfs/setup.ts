@@ -1,3 +1,3 @@
-import { DFSController } from "./DFSController";
+import DFSController from "./DFSController";
 
 new DFSController();
