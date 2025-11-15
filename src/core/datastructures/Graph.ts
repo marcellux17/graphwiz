@@ -1,5 +1,3 @@
-import { Queue } from "./Queue";
-
 export class Graph {
     private readonly _nodes: Map<number, Node>;
     private readonly _edges: Map<number, Edge>;
@@ -132,37 +130,6 @@ export class Graph {
         if(!toNode)return false;
         
         return toNode.hasEdgeToNode(edge.from);
-    }
-    areConnected(startId: number, targetId: number): boolean {
-        if (startId === targetId) return true;
-
-        const visited = new Map<number, boolean>();
-        const queue = new Queue<number>(this._nodes.size);
-
-        let currentNode = this._nodes.get(startId)!;
-        queue.enqueue(currentNode.id);
-        visited.set(currentNode.id, true);
-
-        while (!queue.IsEmpty) {
-            
-            currentNode = this._nodes.get(queue.dequeue()!)!;
-            
-            for (const neighbourId of currentNode.AdjacencyList) {
-                
-                const neighbourNode = this._nodes.get(neighbourId)!;
-                
-                if (!visited.get(neighbourNode.id)) {
-                    if (neighbourId === targetId) {
-                        return true;
-                    }
-                    
-                    visited.set(neighbourNode.id, true);
-                    queue.enqueue(neighbourNode.id);
-                }
-            }
-        }
-
-        return false;
     }
     resetGraphToOriginalVisual():void{
         for(const node of this._nodes.values()){

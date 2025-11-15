@@ -1,4 +1,5 @@
 import { Graph } from "../datastructures/Graph";
+import { Queue } from "../datastructures/Queue";
 import {animationEdgeInformation, animationNodeInformation, animationState } from "../types/animation";
 
 export default abstract class Algorithm{
@@ -6,6 +7,37 @@ export default abstract class Algorithm{
 
     constructor(graph: Graph){
         this._graph = graph;
+    }
+    public areConnected(startId: number, targetId: number): boolean {
+        if (startId === targetId) return true;
+
+        const visited = new Map<number, boolean>();
+        const queue = new Queue<number>(this._graph.nodes.length);
+
+        let currentNode = this._graph.getNode(startId)!;
+        queue.enqueue(currentNode.id);
+        visited.set(currentNode.id, true);
+
+        while (!queue.IsEmpty) {
+            
+            currentNode = this._graph.getNode(queue.dequeue()!)!;
+            
+            for (const neighbourId of currentNode.AdjacencyList) {
+                
+                const neighbourNode = this._graph.getNode(neighbourId)!;
+                
+                if (!visited.get(neighbourNode.id)) {
+                    if (neighbourId === targetId) {
+                        return true;
+                    }
+                    
+                    visited.set(neighbourNode.id, true);
+                    queue.enqueue(neighbourNode.id);
+                }
+            }
+        }
+
+        return false;
     }
     protected copyAnimationState(state: animationState): animationState {
         return structuredClone(state);

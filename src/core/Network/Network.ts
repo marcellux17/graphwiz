@@ -126,12 +126,6 @@ export class Network{
     onCanvasBlankClick(callback: () => void): void {
         this._canvasBlankClick = callback;
     }
-    areConnected(aNodeId: number, bNodeId: number): boolean {
-        return this._graph.areConnected(aNodeId, bNodeId);
-    }
-    getLabelOfNode(nodeId: number): string {
-        return this._graph.getNode(nodeId)!.label;
-    }
     fitGraphIntoAnimationSpace():void{
         const algorithmInfoBoxOffsetX = algorithmInformationBox!.clientWidth === 0? 50: algorithmInformationBox!.clientWidth;
         let {topLeftX, topLeftY, width, height} = this.measureGraphRectangle();

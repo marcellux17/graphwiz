@@ -81,7 +81,7 @@ export class BellmanFordController {
         if (this._startingNodeId === undefined) {
             this._startingNodeId = id;
             changeMessageBox("choose destination node");
-            startingNodeInfo!.textContent = `start: ${this._network.getLabelOfNode( this._startingNodeId! )}`;
+            startingNodeInfo!.textContent = `start: ${this._graph.getNode(this._startingNodeId!)!.label}`;
             return;
         }
         this._destinationNodeId = id;
@@ -89,12 +89,12 @@ export class BellmanFordController {
             changeMessageBox("choose destination node");
             return;
         }
-        const connected = this._network.areConnected( this._startingNodeId!, this._destinationNodeId! );
+        const connected = this._algorithm.areConnected( this._startingNodeId!, this._destinationNodeId! );
         if (!connected) {
             changeMessageBox( "no path from starting node to destination node, choose another destination node" );
             return;
         }
-        destinationNodeInfo!.textContent = `dest: ${this._network.getLabelOfNode( this._destinationNodeId! )}`;
+        destinationNodeInfo!.textContent = `dest: ${this._graph.getNode(this._destinationNodeId!)!.label}`;
         const states = this._algorithm.run( this._startingNodeId!, this._destinationNodeId! );
         if(states.length === 0){
             changeMessageBox( "graph contains negative cycle(s), change graph to run algorithm" );
