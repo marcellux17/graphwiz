@@ -1,6 +1,6 @@
 import Animation from "../../animation/Animation";
 import Graph from "../../datastructures/Graph";
-import { playBox, pauseButton, playButton, speedRangeInput, speedInfo, backButton, forwardButton, resetButton, runAnimationButton, escapeModeButton, deleteModeButton, addNodeButton, addEdgeButton, presetInput, algorithmInformationBox, speedBox, downloadGraphButton, uploadGraphInput, } from "../../dom/elements";
+import { playBox, pauseButton, playButton, speedRangeInput, speedInfo, backButton, forwardButton, resetButton, runAnimationButton, escapeModeButton, deleteModeButton, addNodeButton, addEdgeButton, presetInput, algorithmInformationBox, speedBox, downloadGraphButton, uploadGraphInput, clearGraphButton, } from "../../dom/elements";
 import { changeMessageBox, makeInvisible, makeVisible, } from "../../dom/helpers";
 import Network from "../../Network/Network";
 import { isPreset } from "../../types/preset";
@@ -117,7 +117,11 @@ export default class DFSController {
         escapeModeButton.addEventListener("click", () => {
             this.changeCanvasState("idle");
         });
-
+        clearGraphButton.addEventListener("click", () => {
+            if(this._canvasState !== "pre-animation" && this._canvasState !== "animation-running"){
+                this._network.clearGraph();
+            }
+        });
         runAnimationButton.addEventListener("click", () => {
             this.changeCanvasState("pre-animation");
         });

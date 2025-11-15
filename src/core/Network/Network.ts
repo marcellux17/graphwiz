@@ -250,6 +250,11 @@ export default class Network{
         
         this.fitGraphIntoAnimationSpace();
     }
+    clearGraph(): void {
+        this._graph.clearGraph();
+        this._nodeIds = [];
+        this.drawCanvas();
+    }
     private canvasScaleDown(): void {
         if (this._scale < 0.5) return;
         

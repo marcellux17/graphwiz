@@ -1,6 +1,6 @@
 import Animation from "../../animation/Animation";
 import Graph from "../../datastructures/Graph";
-import { playBox, pauseButton, playButton, inputGroup, label, weightInput, speedRangeInput, speedInfo, backButton, forwardButton, resetButton, runAnimationButton, escapeModeButton, deleteModeButton, addNodeButton, addEdgeButton, presetInput, algorithmInformationBox, speedBox, downloadGraphButton, uploadGraphInput, } from "../../dom/elements";
+import { playBox, pauseButton, playButton, inputGroup, label, weightInput, speedRangeInput, speedInfo, backButton, forwardButton, resetButton, runAnimationButton, escapeModeButton, deleteModeButton, addNodeButton, addEdgeButton, presetInput, algorithmInformationBox, speedBox, downloadGraphButton, uploadGraphInput, clearGraphButton, } from "../../dom/elements";
 import { changeMessageBox, makeInvisible, makeVisible, resetWeightChangeInput, } from "../../dom/helpers";
 import Network from "../../Network/Network";
 import { isPreset } from "../../types/preset";
@@ -167,6 +167,11 @@ export default class PrimController {
             this._animation.continueAnimation();
             makeInvisible(playButton);
             makeVisible(pauseButton);
+        });
+        clearGraphButton.addEventListener("click", () => {
+            if(this._canvasState !== "pre-animation" && this._canvasState !== "animation-running"){
+                this._network.clearGraph();
+            }
         });
         speedRangeInput.addEventListener("input", () => {
             const newspeed = Number.parseInt(speedRangeInput!.value);

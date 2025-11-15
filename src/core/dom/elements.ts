@@ -7,6 +7,7 @@ export const addNodeButton = document.querySelector<HTMLButtonElement>("#add-nod
 export const deleteModeButton = document.querySelector<HTMLButtonElement>("#delete-mode")!;
 export const escapeModeButton = document.querySelector<HTMLButtonElement>("#escape-mode")!;
 export const presetInput = document.querySelector<HTMLSelectElement>("#presets")!;
+export const clearGraphButton = document.querySelector<HTMLButtonElement>("#clear-graph")!;
 
 export const downloadGraphButton = document.querySelector<HTMLButtonElement>("#download-graph")!;
 export const uploadGraphInput = document.querySelector<HTMLInputElement>("#graph-upload input")!;
