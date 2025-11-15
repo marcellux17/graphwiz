@@ -23,7 +23,7 @@ export default class BFS extends Algorithm{
         visited.set(from, true);
         queue.enqueue(from);
         
-        while(!queue.IsEmpty){
+        while(!queue.isEmpty){
             currentState = this.copyAnimationState(currentState);
             currentState.algorithmInfobox = {
             information: `Selecting node from queue.<hr>calling Dequeue()`,

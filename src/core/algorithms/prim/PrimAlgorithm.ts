@@ -140,7 +140,7 @@ export default class Prim extends Algorithm {
         visited.set(from, true);
         bfsQueue.enqueue(from);
 
-        while (!bfsQueue.IsEmpty) {
+        while (!bfsQueue.isEmpty) {
             const currentNodeId = bfsQueue.dequeue()!;
             const currentNode = this._graph.getNode(currentNodeId)!;
 

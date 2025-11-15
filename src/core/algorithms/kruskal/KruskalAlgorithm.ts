@@ -72,7 +72,7 @@ export default class Kruskal extends Algorithm{
         queue.enqueue(nodeId);
         visited.set(nodeId, true);
         
-        while(!queue.IsEmpty){
+        while(!queue.isEmpty){
             const currentNodeId = queue.dequeue()!;
             const currentNode = this._graph.getNode(currentNodeId)!;
            

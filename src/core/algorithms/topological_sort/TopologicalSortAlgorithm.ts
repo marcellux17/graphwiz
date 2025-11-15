@@ -51,7 +51,7 @@ export default class TopologicalSort extends Algorithm{
             }
         }
         animationStates.push(currentState);
-        while(!queue.IsEmpty){
+        while(!queue.isEmpty){
             currentState = this.copyAnimationState(currentState);
             currentState.algorithmInfobox = {
                 information: `We retrieve an element from the queue calling Dequeue().`,

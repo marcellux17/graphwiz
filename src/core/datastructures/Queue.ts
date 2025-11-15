@@ -12,14 +12,14 @@ export class Queue<T> {
         this._rear = -1; 
         this._size = 0; 
     }
-    get IsFull(): boolean {
+    get isFull(): boolean {
         return this._size === this._capacity;
     }
-    get IsEmpty(): boolean {
+    get isEmpty(): boolean {
         return this._size === 0;
     }
     enqueue(value: T): void {
-        if (this.IsFull) {
+        if (this.isFull) {
             return;
         }
         this._rear = (this._rear + 1) % this._capacity;
@@ -27,7 +27,7 @@ export class Queue<T> {
         this._size++;
     }
     dequeue(): T | undefined {
-        if (this.IsEmpty) {
+        if (this.isEmpty) {
             return undefined;
         }
         const value = this._items[this._front];
@@ -38,7 +38,7 @@ export class Queue<T> {
         return value!;
     }
     toArray(): T[] {
-        if (this.IsEmpty) {
+        if (this.isEmpty) {
             return [];
         }
         const result: T[] = [];

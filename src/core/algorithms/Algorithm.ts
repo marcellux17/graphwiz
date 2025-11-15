@@ -18,7 +18,7 @@ export default abstract class Algorithm{
         queue.enqueue(currentNode.id);
         visited.set(currentNode.id, true);
 
-        while (!queue.IsEmpty) {
+        while (!queue.isEmpty) {
             
             currentNode = this._graph.getNode(queue.dequeue()!)!;
             
