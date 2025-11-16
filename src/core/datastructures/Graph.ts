@@ -83,7 +83,7 @@ export default class Graph {
         return id;
     }
 
-    removeEdge(edgeId: number, bidirectional: boolean = false):void {
+    removeEdge(edgeId: number):void {
         const edge = this._edges.get(edgeId);
         if(!edge)return;
 
@@ -91,7 +91,7 @@ export default class Graph {
         const toNode = this._nodes.get(edge.to);
         if (!fromNode || !toNode) return;
 
-        if(bidirectional){
+        if(!this._directed){
             fromNode.removeNeighbour(edge.to);
             toNode.removeNeighbour(edge.from);
         } else {

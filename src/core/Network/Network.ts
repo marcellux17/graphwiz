@@ -509,7 +509,7 @@ export default class Network{
             if(hasAPair && this.checkIfOnArc(x, y, fromX, fromY, toX, toY, edge.width)){
                 return edge.id;
             }
-            if((this._graph.isDirected || !hasAPair) && this.checkIfOnLine(x, y, fromX, fromY, toX, toY, edge.width)){
+            if((!this._graph.isDirected || !hasAPair) && this.checkIfOnLine(x, y, fromX, fromY, toX, toY, edge.width)){
                 return edge.id;
             }
         }
