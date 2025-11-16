@@ -9,7 +9,6 @@ type networkMode = "addEdgeMode" | "addNodeMode" | "idle" | "delete" | "disabled
 export default class Network{
     private readonly _ctx = canvas.getContext("2d")!;
     private readonly _graph: Graph;
-    private readonly _edgesBidirectional:boolean;
     private readonly _negativeEdges: boolean;
     private readonly _nodeSize = 30;
     private readonly _nodeContourWidth = 4;
@@ -40,10 +39,9 @@ export default class Network{
     private _canvasBlankClick?: () => void;
     private _mode: networkMode = "idle";
 
-    constructor(graph: Graph,edgesBidirectional: boolean = false, euclideanWeights: boolean = false, negativeEdges: boolean = false) {
+    constructor(graph: Graph, euclideanWeights: boolean, negativeEdges: boolean) {
         this._graph = graph;
         this._euclideanWeights = euclideanWeights;
-        this._edgesBidirectional = edgesBidirectional;
         this._negativeEdges = negativeEdges;
         
         canvas.addEventListener("mousedown", this.mouseDownEventHandler);
@@ -61,7 +59,7 @@ export default class Network{
         const jsonOjbect:Preset = {
             info: {
                 weighted: this._graph.isWeighted,
-                edgesBidirectional: this._edgesBidirectional,
+                directed: this._graph.isDirected,
                 scale: this._scale
                 }, 
             nodes: [], 
@@ -242,9 +240,9 @@ export default class Network{
         
         for (const edge of preset.edges) {
             if (this._graph.isWeighted) {
-                this._graph.addEdge(edge.from, edge.to,this._edgesBidirectional,this._edgeWidth, edge.weight);
+                this._graph.addEdge(edge.from, edge.to, this._edgeWidth, edge.weight);
             } else {
-                this._graph.addEdge(edge.from, edge.to, this._edgesBidirectional, this._edgeWidth);
+                this._graph.addEdge(edge.from, edge.to, this._edgeWidth);
             }
         }
         
@@ -327,7 +325,7 @@ export default class Network{
         const startingY = y1 + mouseNodeVectorNormalizedY * (this._nodeSize * this._scale) + mouseNodeVectorNormalizedY * (this._nodeContourWidth * this._scale / 2);
         
         this.drawLine(startingX, startingY, x2, y2, 2, "black");
-        if(!this._edgesBidirectional){
+        if(this._graph.isDirected){
             this.drawTriangleTo(x2, y2, mouseNodeVectorNormalizedX, mouseNodeVectorNormalizedY, "black");
             return;
         }
@@ -399,7 +397,7 @@ export default class Network{
         const toX = toNode.x;
         const toY = toNode.y;
 
-        if(!this._edgesBidirectional){
+        if(this._graph.isDirected){
             if(this._graph.edgeHasParallel(edge)){
                 this.drawCurvedEdge(fromX, fromY, toX, toY, edge.width, edge.color, edge.weight);
             }else{
@@ -511,7 +509,7 @@ export default class Network{
             if(hasAPair && this.checkIfOnArc(x, y, fromX, fromY, toX, toY, edge.width)){
                 return edge.id;
             }
-            if((this._edgesBidirectional || !hasAPair) && this.checkIfOnLine(x, y, fromX, fromY, toX, toY, edge.width)){
+            if((this._graph.isDirected || !hasAPair) && this.checkIfOnLine(x, y, fromX, fromY, toX, toY, edge.width)){
                 return edge.id;
             }
         }
@@ -803,9 +801,9 @@ export default class Network{
                         normalWeight *= (this._negativeEdges && Math.random() > 0.8) ? -1 : 1;
                         
                         const weight = this._euclideanWeights ?  euclideanWeight: normalWeight;
-                        this._graph.addEdge( this._firstNodeId, node.id,this._edgesBidirectional,this._edgeWidth, weight );
+                        this._graph.addEdge( this._firstNodeId, node.id, this._edgeWidth, weight );
                     } else {
-                        this._graph.addEdge( this._firstNodeId, node.id, this._edgesBidirectional, this._edgeWidth );
+                        this._graph.addEdge( this._firstNodeId, node.id, this._edgeWidth );
                     }
                     
                     this._firstNodeId = undefined;

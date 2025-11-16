@@ -16,8 +16,8 @@ export default class DFSController {
     private _canvasState: canvasState = "idle";
     
     constructor() {
-        this._graph = new Graph();
-        this._network = new Network(this._graph, true);
+        this._graph = new Graph(false, false);
+        this._network = new Network(this._graph, false, false);
         this._animation = new Animation(this._network);
         this._algorithm = new DFS(this._graph);
         
@@ -92,7 +92,7 @@ export default class DFSController {
                 const json = await JSON.parse(text);
                 
                 if(!isPreset(json))throw new Error("wrong graph format");
-                if(!json.info.edgesBidirectional || json.info.weighted)throw new Error("the graph is not suitable for the algorithm")
+                if(json.info.directed || json.info.weighted)throw new Error("the graph is not suitable for the algorithm")
                 
                     this._network.loadPreset(json);
             }catch(e:any){

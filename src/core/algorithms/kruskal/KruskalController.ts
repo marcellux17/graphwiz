@@ -18,8 +18,8 @@ export default class KruskalController {
     private _canvasState: canvasState = "idle"; 
     
     constructor() {
-        this._graph = new Graph(true);
-        this._network = new Network(this._graph, true);
+        this._graph = new Graph(true, false);
+        this._network = new Network(this._graph, false, true);
         this._algorithm = new Kruskal(this._graph);
         this._animation = new Animation(this._network);
         
@@ -111,7 +111,7 @@ export default class KruskalController {
                 const json = await JSON.parse(text);
             
                 if(!isPreset(json))throw new Error("wrong graph format");
-                if(!json.info.edgesBidirectional || !json.info.weighted)throw new Error("the graph is not suitable for the algorithm")
+                if(json.info.directed || !json.info.weighted)throw new Error("the graph is not suitable for the algorithm")
             
                 this._network.loadPreset(json);
             }catch(e:any){

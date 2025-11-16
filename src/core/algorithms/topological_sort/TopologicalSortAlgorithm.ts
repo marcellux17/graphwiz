@@ -79,35 +79,35 @@ export default class TopologicalSort extends Algorithm{
             const outgoingEdges:number[] = [];
             
             for(const neighbourId of currentNode.AdjacencyList){
-                if(currentNode.hasEdgeToNode(neighbourId)){
-                    const edgeId = currentNode.getEdgeIdConnectingToNeighbour(neighbourId)!;
-                    outgoingEdges.push(edgeId);
-                    currentState = this.markEdgeAsSelected(currentState, edgeId);
+                const edgeId = currentNode.getEdgeIdConnectingToNeighbour(neighbourId)!;
+                
+                outgoingEdges.push(edgeId);
+                currentState = this.markEdgeAsSelected(currentState, edgeId);
+                currentState.algorithmInfobox = {
+                    information: `We now check if the adjacent node has in-degree 0 with the removal, if so we add it to the queue.`,
+                    dataStructure: {
+                        type: "queue",
+                        ds: this.getLabelsForQueueRepresentation(queue.toArray())
+                    }
+                }
+                animationStates.push(currentState);
+
+                const newInDegree = inDegrees.get(neighbourId)! - 1;
+                inDegrees.set(neighbourId, newInDegree);
+                if(newInDegree === 0){
+                    queue.enqueue(neighbourId);
+                    currentState = this.markNodeAsInQueue(currentState, neighbourId);
                     currentState.algorithmInfobox = {
-                        information: `We now check if the adjacent node has in-degree 0 with the removal, if so we add it to the queue.`,
+                        information: `With the removal the currently observed adjacent node will have in-degree 0, so we add it to the queue.`,
                         dataStructure: {
                             type: "queue",
                             ds: this.getLabelsForQueueRepresentation(queue.toArray())
                         }
                     }
                     animationStates.push(currentState);
-
-                    const newInDegree = inDegrees.get(neighbourId)! - 1;
-                    inDegrees.set(neighbourId, newInDegree);
-                    if(newInDegree === 0){
-                        queue.enqueue(neighbourId);
-                        currentState = this.markNodeAsInQueue(currentState, neighbourId);
-                        currentState.algorithmInfobox = {
-                            information: `With the removal the currently observed adjacent node will have in-degree 0, so we add it to the queue.`,
-                            dataStructure: {
-                                type: "queue",
-                                ds: this.getLabelsForQueueRepresentation(queue.toArray())
-                            }
-                        }
-                        animationStates.push(currentState);
-                    }
-                    currentState = this.markEdgeAsNormal(currentState, edgeId);
                 }
+                currentState = this.markEdgeAsNormal(currentState, edgeId);
+                
             }
             currentState = this.copyAnimationState(currentState);
             currentState.algorithmInfobox = {

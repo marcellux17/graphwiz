@@ -5,14 +5,19 @@ export default class Graph {
     private readonly _nodes: Map<number, Node>;
     private readonly _edges: Map<number, Edge>;
     private readonly _weighted: boolean;
+    private readonly _directed: boolean;
     private _nextNodeId = 0;
     private _nextEdgeId = 0;
     private _nextLabel = 1;
 
-    constructor(weighted: boolean = false) {
+    constructor(weighted: boolean, directed: boolean) {
         this._weighted = weighted;
+        this._directed = directed;
         this._nodes = new Map<number, Node>();
         this._edges = new Map<number, Edge>();
+    }
+    get isDirected(): boolean {
+        return this._directed;
     }
     get isWeighted(): boolean {
         return this._weighted;
@@ -51,7 +56,7 @@ export default class Graph {
         this._nextLabel++;
     }
     
-    addEdge(from: number, to: number, bidirectional: boolean = true, width: number = 2, weight: number = 1): number | undefined {
+    addEdge(from: number, to: number, width: number = 2, weight: number = 1): number | undefined {
         if (from === to) return;
         
         const fromNode = this._nodes.get(from);
@@ -63,7 +68,7 @@ export default class Graph {
         const id = this._nextEdgeId;
         fromNode.addNeighbour(to, id);
 
-        if(bidirectional){
+        if(!this._directed){
             toNode.addNeighbour(from, id);
         }
         let edge: Edge;
@@ -78,7 +83,7 @@ export default class Graph {
         return id;
     }
 
-    removeEdge(edgeId: number):void {
+    removeEdge(edgeId: number, bidirectional: boolean = false):void {
         const edge = this._edges.get(edgeId);
         if(!edge)return;
 
@@ -86,8 +91,12 @@ export default class Graph {
         const toNode = this._nodes.get(edge.to);
         if (!fromNode || !toNode) return;
 
-        fromNode.removeNeighbour(edge.to);
-        toNode.removeNeighbour(edge.from);
+        if(bidirectional){
+            fromNode.removeNeighbour(edge.to);
+            toNode.removeNeighbour(edge.from);
+        } else {
+            fromNode.removeNeighbour(edge.to);
+        }
         
         this._edges.delete(edgeId);
     }
@@ -145,8 +154,8 @@ export default class Graph {
     clearGraph(): void {
         this._nodes.clear();
         this._edges.clear();
-        this._nextNodeId = 1;
-        this._nextEdgeId = 1;
+        this._nextNodeId = 0;
+        this._nextEdgeId = 0;
         this._nextLabel = 1;
     }
 }

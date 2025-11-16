@@ -1,7 +1,7 @@
 export type Preset = {
     info: {
         weighted: boolean;
-        edgesBidirectional: boolean;
+        directed: boolean;
         scale: number
     };
     nodes: presetNode[];
@@ -23,7 +23,7 @@ export function isPreset(obj: any): obj is Preset {
     typeof obj === "object" && obj !== null &&
     typeof obj.info === "object" && obj.info !== null &&
     typeof obj.info.weighted === "boolean" &&
-    typeof obj.info.edgesBidirectional === "boolean" &&
+    typeof obj.info.directed === "boolean" &&
     typeof obj.info.scale === "number" &&
     Array.isArray(obj.nodes) &&
     obj.nodes.every(
