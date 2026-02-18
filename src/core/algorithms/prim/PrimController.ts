@@ -1,8 +1,8 @@
 import Animation from "../../animation/Animation";
 import Graph from "../../datastructures/Graph";
-import { playBox, pauseButton, playButton, inputGroup, label, weightInput, speedRangeInput, speedInfo, backButton, forwardButton, resetButton, runAnimationButton, escapeModeButton, deleteModeButton, addNodeButton, addEdgeButton, presetInput, algorithmInformationBox, speedBox, downloadGraphButton, uploadGraphInput, clearGraphButton, } from "../../dom/elements";
-import { changeMessageBox, makeInvisible, makeVisible, resetWeightChangeInput, } from "../../dom/helpers";
-import Network from "../../Network/Network";
+import { playBox, pauseButton, playButton, inputGroup, label, weightInput, speedRangeInput, speedInfo, backButton, forwardButton, resetButton, runAnimationButton, escapeModeButton, deleteModeButton, addNodeButton, addEdgeButton, presetInput, algorithmInformationBox, speedBox, downloadGraphButton, uploadGraphInput, clearGraphButton, closeAnimationButton, } from "../../dom/elements";
+import { changeMessageBox, disableElement, enableElement, makeInvisible, makeVisible, resetWeightChangeInput, } from "../../dom/helpers";
+import Network from "../../network/Network";
 import { isPreset } from "../../types/preset";
 import Prim from "./PrimAlgorithm";
 
@@ -25,14 +25,16 @@ export default class PrimController {
         this.setUpUiEventListeners();
     }
     private changeCanvasState(newState: canvasState): void {
-        if ( (this._canvasState === "pre-animation" || this._canvasState === "animation-running") && newState !== "pre-animation" && newState !== "animation-running" ){
+        if ( (this._canvasState === "animation-running" || this._canvasState === "pre-animation") && newState === "idle" ){
             this._animation.escapeAnimation();
+            this.enableAllButtons();
             makeInvisible(algorithmInformationBox);
             makeInvisible(speedBox);
             makeInvisible(playBox);
             this._startingNodeId = undefined;
         }
-        if(this._canvasState === "animation-running" && newState === "pre-animation")return;
+        this._canvasState = newState;
+        resetWeightChangeInput();
         switch (newState) {
             case "add-edge-mode":
                 changeMessageBox( "to create an edge click and drag from one node to the other" );
@@ -51,6 +53,14 @@ export default class PrimController {
                 this._network.resetToIdle();
                 break;
             case "pre-animation":
+                if(this._graph.isEmpty){
+                    changeMessageBox("no nodes to run algorithm on.");
+                    setTimeout(() => {
+                        this.changeCanvasState("idle");
+                    }, 1500);
+                    break;
+                }
+                this.disableAllButtons();
                 changeMessageBox("select starting node");
                 this._selectedEdgeId = undefined;
                 this._network.resetToIdle();
@@ -66,8 +76,29 @@ export default class PrimController {
                 this._animation.start();
                 break;
         }
-        this._canvasState = newState;
-        resetWeightChangeInput();
+        
+    }
+    private enableAllButtons() {
+        enableElement(addEdgeButton);
+        enableElement(addNodeButton);
+        enableElement(deleteModeButton);
+        enableElement(clearGraphButton);
+        enableElement(escapeModeButton);
+        enableElement(runAnimationButton);
+        enableElement(downloadGraphButton);
+        enableElement(uploadGraphInput);
+        enableElement(presetInput);
+    }
+    private disableAllButtons() {
+        disableElement(addEdgeButton);
+        disableElement(addNodeButton);
+        disableElement(clearGraphButton);
+        disableElement(deleteModeButton);
+        disableElement(escapeModeButton);
+        disableElement(runAnimationButton);
+        disableElement(downloadGraphButton);
+        disableElement(uploadGraphInput);
+        disableElement(presetInput);
     }
     private selectNodeHandle = (id: number): void => {
         if (this._canvasState !== "pre-animation") return;
@@ -80,9 +111,7 @@ export default class PrimController {
         this.changeCanvasState("animation-running");
     }
     private selectEdgeHandle = (id: number): void => {
-        if ( this._canvasState === "animation-running" || this._canvasState === "pre-animation" )return;
         if (this._canvasState !== "idle") return;
-        
         makeVisible(inputGroup);
         
         this._selectedEdgeId = id;
@@ -100,8 +129,6 @@ export default class PrimController {
     }
     private setUpUiEventListeners(): void {
         uploadGraphInput.addEventListener("change", async () => {
-            if(this._canvasState === "pre-animation" || this._canvasState === "animation-running")return;
-            
             const file = uploadGraphInput!.files![0];
             
             if(!file || file.type !== "application/json")return;
@@ -117,10 +144,11 @@ export default class PrimController {
                 alert(e.message)
             }
         })
+        closeAnimationButton.addEventListener("click", () => {
+            this.changeCanvasState("idle");
+        })
         downloadGraphButton.addEventListener("click", () => {
-            if(this._canvasState !== "pre-animation" && this._canvasState !== "animation-running"){
-                this._network.saveGraphToJSON();
-            }
+            this._network.saveGraphToJSON();
         })
         addEdgeButton.addEventListener("click", () => {
             this.changeCanvasState("add-edge-mode");
@@ -169,9 +197,8 @@ export default class PrimController {
             makeVisible(pauseButton);
         });
         clearGraphButton.addEventListener("click", () => {
-            if(this._canvasState !== "pre-animation" && this._canvasState !== "animation-running"){
-                this._network.clearGraph();
-            }
+            this._network.clearGraph();
+            
         });
         speedRangeInput.addEventListener("input", () => {
             const newspeed = Number.parseInt(speedRangeInput!.value);
@@ -179,10 +206,7 @@ export default class PrimController {
             this._animation.setAnimationSpeedChange(1000 / newspeed);
         });
         presetInput.addEventListener("input", () => {
-            if(presetInput!.value !== "load a graph"){
-                if(this._canvasState === "pre-animation" || this._canvasState === "animation-running"){
-                    this.changeCanvasState("idle");
-                }
+            if(presetInput!.value !== "load a graph"){    
                 const request = new Request(`./graph_presets/prim/${presetInput!.value}.json`);
                 fetch(request)
                     .then((res) => {

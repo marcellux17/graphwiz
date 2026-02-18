@@ -14,3 +14,9 @@ export function resetWeightChangeInput(): void {
     weightInput!.value = "";
     makeInvisible(inputGroup);
 }
+export function disableElement(element: HTMLButtonElement|HTMLSelectElement|HTMLInputElement):void{
+    element.disabled = true;
+}
+export function enableElement(element: HTMLButtonElement|HTMLSelectElement|HTMLInputElement):void{
+    element.disabled = false;
+}

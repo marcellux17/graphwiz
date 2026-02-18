@@ -1,6 +1,6 @@
 :root {
     --main-color: #2c3e50;
-    --transition-color: #2c3e50;
+    --disabled-color: #b6c0ca;
     --main-font-color: white;
 }
 body,
@@ -41,11 +41,8 @@ body {
     background-color: #ecf0f1;
     min-width: 210px;
 }
-#modify-graph > * {
-    margin-bottom: 0.2em;
-}
 #modify-graph button,
-select, #graph-upload {
+#modify-graph select,#modify-graph #graph-upload {
     padding: 8px 12px;
     box-sizing: border-box;
     font-size: 17px;
@@ -55,16 +52,13 @@ select, #graph-upload {
     color: var(--main-font-color);
     font-family: inherit;
     display: flex;
-}
-#graph-upload{
+    margin-bottom: 0.2em;
     cursor: pointer;
 }
-#modify-graph button:hover {
-    background-color: var(--transition-color);
-    transition: all 0.1s linear;
-}
-#modify-graph select.hide {
-    display: none;
+#modify-graph button[disabled],#modify-graph select[disabled], #modify-graph #graph-upload:has(input[disabled]){
+    background-color: var(--disabled-color);
+    opacity: 1;
+    cursor: default;
 }
 #modify-graph svg{
     fill: white;
@@ -102,7 +96,7 @@ select, #graph-upload {
     display: none;
 }
 #play-box {
-    min-width: 220px;
+    min-width: 280px;
     display: flex;
     justify-content: space-around;
     position: absolute;

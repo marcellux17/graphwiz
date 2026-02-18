@@ -20,6 +20,7 @@ export const pauseButton = document.querySelector<HTMLButtonElement>("#pause")!;
 export const playButton = document.querySelector<HTMLButtonElement>("#play")!;
 export const resetButton = document.querySelector<HTMLButtonElement>("#reset")!;
 export const runAnimationButton = document.querySelector<HTMLButtonElement>("#run-animation")!;
+export const closeAnimationButton = document.querySelector<HTMLButtonElement>("#close-animation")!;
 
 export const messageBox = document.querySelector<HTMLDivElement>("#message-box")!;
 export const label = document.querySelector<HTMLLabelElement>("#label-message");

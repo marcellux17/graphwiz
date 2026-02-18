@@ -1,7 +1,7 @@
 import { algorithmInfoBox, pauseButton, playButton } from "../dom/elements";
 import { changeMessageBox, makeInvisible, makeVisible } from "../dom/helpers";
 import { algorithmInfoBoxState, animationState} from "../types/animation";
-import Network from "../Network/Network";
+import Network from "../network/Network";
 
 type animationPhase = "running" | "paused";
 type nodeUpdate = {

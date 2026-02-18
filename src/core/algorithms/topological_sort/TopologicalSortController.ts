@@ -1,8 +1,8 @@
 import Animation from "../../animation/Animation";
 import Graph from "../../datastructures/Graph";
-import { playBox, pauseButton, playButton, speedRangeInput, speedInfo, backButton, forwardButton, resetButton, runAnimationButton, escapeModeButton, deleteModeButton, addNodeButton, addEdgeButton, presetInput, algorithmInformationBox, speedBox, downloadGraphButton, uploadGraphInput, clearGraphButton, } from "../../dom/elements";
-import { changeMessageBox, makeInvisible, makeVisible } from "../../dom/helpers";
-import Network from "../../Network/Network";
+import { playBox, pauseButton, playButton, speedRangeInput, speedInfo, backButton, forwardButton, resetButton, runAnimationButton, escapeModeButton, deleteModeButton, addNodeButton, addEdgeButton, presetInput, algorithmInformationBox, speedBox, downloadGraphButton, uploadGraphInput, clearGraphButton, closeAnimationButton, } from "../../dom/elements";
+import { changeMessageBox, disableElement, enableElement, makeInvisible, makeVisible } from "../../dom/helpers";
+import Network from "../../network/Network";
 import { isPreset } from "../../types/preset";
 import TopologicalSort from "./TopologicalSortAlgorithm";
 
@@ -23,13 +23,16 @@ export default class TopologicalSortController {
         this.setUpUiEventListeners();
     }
     private changeCanvasState(newState: canvasState): void {
-        if ( (this._canvasState === "pre-animation" || this._canvasState === "animation-running") && newState !== "pre-animation" && newState !== "animation-running" ){
+        if ((this._canvasState === "animation-running" || this._canvasState === "pre-animation") && newState === "idle" ){
+            this.enableAllButtons();
             this._animation.escapeAnimation();
             makeInvisible(algorithmInformationBox);
             makeInvisible(speedBox);
             makeInvisible(playBox);
+            makeInvisible(playButton);
+            makeInvisible(pauseButton);
         }
-        if(this._canvasState === "animation-running" && newState === "pre-animation")return;
+        this._canvasState = newState;
         switch (newState) {
             case "add-edge-mode":
                 changeMessageBox( "to create an edge click and drag from one node to the other" );
@@ -64,6 +67,7 @@ export default class TopologicalSortController {
                     }, 1500);
                     break;
                 }
+                this.disableAllButtons();
                 this._animation.setAnimationStates(states);
                 this.changeCanvasState("animation-running");
                 break;
@@ -78,12 +82,31 @@ export default class TopologicalSortController {
                 this._animation.start();
                 break;
         }
-        this._canvasState = newState;
+    }
+    private enableAllButtons() {
+        enableElement(addEdgeButton);
+        enableElement(addNodeButton);
+        enableElement(deleteModeButton);
+        enableElement(clearGraphButton);
+        enableElement(escapeModeButton);
+        enableElement(runAnimationButton);
+        enableElement(downloadGraphButton);
+        enableElement(uploadGraphInput);
+        enableElement(presetInput);
+    }
+    private disableAllButtons() {
+        disableElement(addEdgeButton);
+        disableElement(addNodeButton);
+        disableElement(clearGraphButton);
+        disableElement(deleteModeButton);
+        disableElement(escapeModeButton);
+        disableElement(runAnimationButton);
+        disableElement(downloadGraphButton);
+        disableElement(uploadGraphInput);
+        disableElement(presetInput);
     }
     private setUpUiEventListeners(): void {
         uploadGraphInput.addEventListener("change", async () => {
-            if(this._canvasState === "pre-animation" || this._canvasState === "animation-running")return;
-            
             const file = uploadGraphInput!.files![0];
             
             if(!file || file.type !== "application/json")return;
@@ -99,10 +122,12 @@ export default class TopologicalSortController {
                 alert(e.message)
             }
         })
+        closeAnimationButton.addEventListener("click", () => {
+            this.changeCanvasState("idle");
+        })
         downloadGraphButton.addEventListener("click", () => {
-            if(this._canvasState !== "pre-animation" && this._canvasState !== "animation-running"){
-                this._network.saveGraphToJSON();
-            }
+            this._network.saveGraphToJSON();
+            
         })
         addEdgeButton.addEventListener("click", () => {
             this.changeCanvasState("add-edge-mode");
@@ -119,9 +144,8 @@ export default class TopologicalSortController {
             this.changeCanvasState("idle");
         });
         clearGraphButton.addEventListener("click", () => {
-            if(this._canvasState !== "pre-animation" && this._canvasState !== "animation-running"){
-                this._network.clearGraph();
-            }
+            this._network.clearGraph();
+            
         });
         runAnimationButton.addEventListener("click", () => {
             this.changeCanvasState("pre-animation");
@@ -156,9 +180,6 @@ export default class TopologicalSortController {
         });
         presetInput.addEventListener("input", () => {
             if(presetInput!.value !== "load a graph"){
-                if(this._canvasState === "pre-animation" || this._canvasState === "animation-running"){
-                    this.changeCanvasState("idle");
-                }
                 const request = new Request(`./graph_presets/topological_sort/${presetInput!.value}.json`);
                 fetch(request)
                     .then((res) => {
