@@ -497,7 +497,7 @@ export default class Network{
     }
     private checkIfOnArc(x: number, y: number, fromX: number, fromY: number, toX: number, toY: number, arcWidth: number):boolean{
         const threshold = (arcWidth / 2) * this._scale + this._scale;
-        
+
         const lengthOfEdge = this.measureDistance(fromX, fromY, toX, toY);
         const circleCenterX = (fromX + toX) / 2 + ((toY - fromY) * -1 / lengthOfEdge) * lengthOfEdge;
         const circleCenterY = (fromY + toY) / 2 + ((toX - fromX) / lengthOfEdge) * lengthOfEdge;
@@ -549,21 +549,21 @@ export default class Network{
     }
     private drawWeightToHalfLine( x1: number, y1: number, x2: number, y2: number, weight: number, color?: string ): void {
         const length = this.measureDistance(x1, y1, x2, y2);
-        
+
         let lineVectorNormalizedX = (x1 - x2) / length;
         let lineVectorNormalizedY = (y1 - y2) / length;
-        
+
         let normalVectorX = lineVectorNormalizedY * -1;
         let normalVectorY = lineVectorNormalizedX;
-        
+
         if (normalVectorY > 0) {
             normalVectorX *= -1;
             normalVectorY *= -1;
         }
-        
+
         const x = (x1 + x2) / 2 + normalVectorX * 15 * this._scale;
         const y = (y1 + y2) / 2 + normalVectorY * 15 * this._scale;
-        
+
         this.drawText(x, y, `${weight}`, "arial", color ?? "black");
     }
     private updateEuclideanDistancesOfDraggedNode(): void {
@@ -710,8 +710,6 @@ export default class Network{
         const canvasMouseY = this.screenToCanvasY(e.y);
         
         if (!this._dragging && e.target == canvas && !this._isPanning) {
-            const hitNodeIndex = this.hitNode(canvasMouseX, canvasMouseY);
-            const hitEdgeId = this.hitEdge(canvasMouseX, canvasMouseY);
             
             if (this._mode === "addNodeMode") {
                 const id = this._graph.addNode();
@@ -722,6 +720,9 @@ export default class Network{
                 
                 this._nodeIds.push(id);
             } else if (this._mode === "delete") {
+                const hitNodeIndex = this.hitNode(canvasMouseX, canvasMouseY);
+                const hitEdgeId = this.hitEdge(canvasMouseX, canvasMouseY);
+                
                 if (hitNodeIndex !== -1) {
                     this._graph.removeNode(this._nodeIds[hitNodeIndex]);
                     this._nodeIds.splice(hitNodeIndex, 1);
@@ -729,7 +730,11 @@ export default class Network{
                 } else if (hitEdgeId !== -1) {
                     this._graph.removeEdge(hitEdgeId);
                 }
+
             } else if (this._mode === "idle") {
+                const hitNodeIndex = this.hitNode(canvasMouseX, canvasMouseY);
+                const hitEdgeId = this.hitEdge(canvasMouseX, canvasMouseY);
+
                 if (hitNodeIndex !== -1) {
                     if (this._selectNodeCallback){
                         this._selectNodeCallback(this._nodeIds[hitNodeIndex]);
@@ -746,7 +751,9 @@ export default class Network{
             }
         } else if (this._dragging && !this._isPanning) {
             if (this._mode === "addEdgeMode") {
+                
                 const hitNodeIndex = this.hitNode( canvasMouseX, canvasMouseY );
+                
                 if (hitNodeIndex !== -1 && this._firstNodeId !== undefined) {
                     const node = this._graph.getNode(this._nodeIds[hitNodeIndex])!;
 
