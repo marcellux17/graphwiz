@@ -499,40 +499,23 @@ export default class Network{
         const threshold = (arcWidth / 2) * this._scale + this._scale;
         
         const lengthOfEdge = this.measureDistance(fromX, fromY, toX, toY);
-        
-        const edgeVectorNormalizedX = (toX - fromX) / lengthOfEdge;
-        const edgeVectorNormalizedY = (toY - fromY) / lengthOfEdge;
+        const circleCenterX = (fromX + toX) / 2 + ((toY - fromY) * -1 / lengthOfEdge) * lengthOfEdge;
+        const circleCenterY = (fromY + toY) / 2 + ((toX - fromX) / lengthOfEdge) * lengthOfEdge;
 
-        const edgeVectorNormalVectorX = edgeVectorNormalizedY * -1;
-        const edgeVectorNormalVectorY = edgeVectorNormalizedX;
+        const radius = this.measureDistance(circleCenterX, circleCenterY, toX, toY);
+        const distanceFromCenterToMouse = this.measureDistance(circleCenterX, circleCenterY, x, y);
+        if (Math.abs(distanceFromCenterToMouse - radius) >= threshold) return false;
 
-        const circleCenterX = (fromX + toX) / 2 + edgeVectorNormalVectorX * lengthOfEdge;
-        const circleCenterY = (fromY + toY) / 2 + edgeVectorNormalVectorY * lengthOfEdge;
-
-        const circleCenterMouseVectorX = x - circleCenterX;
-        const circleCenterMouseVectorY = y - circleCenterY;
-
-        const mouseAngle = this.getAngleNormalized(circleCenterMouseVectorX, circleCenterMouseVectorY * -1);
-        
+        const mouseAngle = this.getAngleNormalized(x - circleCenterX, (y - circleCenterY) * -1);
         const angleA = this.getAngleNormalized(fromX - circleCenterX, (fromY - circleCenterY) * -1);
         const angleB = this.getAngleNormalized(toX - circleCenterX, (toY - circleCenterY) * -1);
         const startAngle = Math.min(angleA, angleB);
         const endAngle = Math.max(angleA, angleB);
         let betweenAngles = startAngle < mouseAngle && mouseAngle < endAngle;
-        if(endAngle - startAngle > Math.PI){
-            betweenAngles = !betweenAngles;
-        }
-        
-        const lengthOfVector = this.measureDistance(0, 0, circleCenterMouseVectorX, circleCenterMouseVectorY);
-        
-        const circleCenterMouseVectorNormalizedX = circleCenterMouseVectorX / lengthOfVector;
-        const circleCenterMouseVectorNormalizedY = circleCenterMouseVectorY / lengthOfVector;
-        const radius = this.measureDistance(circleCenterX, circleCenterY, toX, toY);
+       
+        if (endAngle - startAngle > Math.PI) betweenAngles = !betweenAngles;
 
-        const referencePointX = circleCenterX + circleCenterMouseVectorNormalizedX * radius;
-        const referencePointY = circleCenterY + circleCenterMouseVectorNormalizedY * radius;
-
-        return this.measureDistance(referencePointX, referencePointY, x, y) < threshold && betweenAngles;       
+        return betweenAngles;     
     }
     private checkIfOnLine( x: number, y: number, x1: number, y1: number, x2: number, y2: number, lineWidth: number ): boolean {
         const threshold = (lineWidth / 2) * this._scale + this._scale;
