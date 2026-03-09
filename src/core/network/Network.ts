@@ -548,27 +548,21 @@ export default class Network{
         this.drawText(x, y, `${weight}`, "arial", color ?? "black");
     }
     private drawWeightToHalfLine( x1: number, y1: number, x2: number, y2: number, weight: number, color?: string ): void {
-        const halfLineX = (x1 + x2) / 2;
-        const halfLineY = (y1 + y2) / 2;
-        
-        let lineVectorX = x1 - x2;
-        let lineVectorY = y1 - y2;
-        
         const length = this.measureDistance(x1, y1, x2, y2);
         
-        lineVectorX = lineVectorX / length;
-        lineVectorY = lineVectorY / length;
+        let lineVectorNormalizedX = (x1 - x2) / length;
+        let lineVectorNormalizedY = (y1 - y2) / length;
         
-        let normalVectorX = -lineVectorY;
-        let normalVectorY = lineVectorX;
+        let normalVectorX = lineVectorNormalizedY * -1;
+        let normalVectorY = lineVectorNormalizedX;
         
         if (normalVectorY > 0) {
             normalVectorX *= -1;
             normalVectorY *= -1;
         }
         
-        const x = halfLineX + (normalVectorX * 15 * this._scale);
-        const y = halfLineY + (normalVectorY * 15 * this._scale);
+        const x = (x1 + x2) / 2 + normalVectorX * 15 * this._scale;
+        const y = (y1 + y2) / 2 + normalVectorY * 15 * this._scale;
         
         this.drawText(x, y, `${weight}`, "arial", color ?? "black");
     }
