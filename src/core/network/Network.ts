@@ -640,46 +640,48 @@ export default class Network{
             this.drawCanvas();
             return;
         }
-        if (!this._nodeDragging) {
-            const hitNodeIndex = this.hitNode(canvasMouseX, canvasMouseY);
-            if ( this._mode === "addEdgeMode" && hitNodeIndex !== -1) {
-                this._firstNodeId = this._nodeIds[hitNodeIndex];
-                this._pendingEdge = true;
- 
-                this.drawCanvas();
-                return;
-            } 
-            if (hitNodeIndex !== -1) {
-                this._draggedNodeId = this._nodeIds[hitNodeIndex];
-                const node = this._graph.getNode(this._draggedNodeId)!;
-                
-                this._mouseNodeCenterVectorX = node.x - canvasMouseX;
-                this._mouseNodeCenterVectorY = node.y - canvasMouseY;
-                
-                this._nodeDragging = true;
-                
-                this._nodeIds.splice(hitNodeIndex, 1);
-                this._nodeIds.push(node.id);
-                this.drawCanvas();
-                return;
-            }
-            this._offsetX -= deltaX;
-            this._offsetY -= deltaY;
+        if(this._nodeDragging){
+            const draggedNode = this._graph.getNode(this._draggedNodeId!)!;
+        
+            draggedNode.x = canvasMouseX + this._mouseNodeCenterVectorX;
+            draggedNode.y = canvasMouseY + this._mouseNodeCenterVectorY;
             
-            this._isPanning = true;
+            if (this._euclideanWeights){
+                this.updateEuclideanDistancesOfDraggedNode();
+            }
+            this.drawCanvas();
+            return;
+        }
+        
+        const hitNodeIndex = this.hitNode(canvasMouseX, canvasMouseY);
+        if ( this._mode === "addEdgeMode" && hitNodeIndex !== -1) {
+            this._firstNodeId = this._nodeIds[hitNodeIndex];
+            this._pendingEdge = true;
+
             this.drawCanvas();
             return;
         } 
-        const draggedNode = this._graph.getNode(this._draggedNodeId!)!;
-        
-        draggedNode.x = canvasMouseX + this._mouseNodeCenterVectorX;
-        draggedNode.y = canvasMouseY + this._mouseNodeCenterVectorY;
-        
-        if (this._euclideanWeights){
-            this.updateEuclideanDistancesOfDraggedNode();
+        if (hitNodeIndex !== -1) {
+            this._draggedNodeId = this._nodeIds[hitNodeIndex];
+            const node = this._graph.getNode(this._draggedNodeId)!;
+            
+            this._mouseNodeCenterVectorX = node.x - canvasMouseX;
+            this._mouseNodeCenterVectorY = node.y - canvasMouseY;
+            
+            this._nodeDragging = true;
+            
+            this._nodeIds.splice(hitNodeIndex, 1);
+            this._nodeIds.push(node.id);
+            this.drawCanvas();
+            return;
         }
+        this._offsetX -= deltaX;
+        this._offsetY -= deltaY;
+        
+        this._isPanning = true;
         this.drawCanvas();
         return;
+    
     };
     private mouseUpEventHandler = (e: MouseEvent): void => {
         if (this._mode === "disabled") return;
