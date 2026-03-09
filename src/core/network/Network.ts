@@ -126,49 +126,27 @@ export default class Network{
     onCanvasBlankClick(callback: () => void): void {
         this._canvasBlankClick = callback;
     }
-    fitGraphIntoAnimationSpace():void{
-        const algorithmInfoBoxOffsetX = algorithmInformationBox!.clientWidth === 0? 50: algorithmInformationBox!.clientWidth;
-        let {topLeftX, topLeftY, width, height} = this.measureGraphRectangle();
-        
-        const animationSpaceWidth = this._canvasWidth - algorithmInfoBoxOffsetX - 70;
+    fitGraphIntoAnimationSpace():void {
+        const infoBoxWidth = algorithmInformationBox!.clientWidth || 50;
+        const { topLeftX, topLeftY, width, height } = this.measureGraphRectangle();
+
+        const animationSpaceWidth = this._canvasWidth - infoBoxWidth - 70;
         const animationSpaceHeight = this._canvasHeight - 100;
-        
-        if(width / animationSpaceWidth > 1){
-            let newScale = animationSpaceWidth / width;
-            
-            topLeftX *= newScale
-            topLeftY *= newScale
-            
-            height *= newScale
-            width *=newScale
-            
-            if(height/animationSpaceHeight > 1){
-                newScale *= animationSpaceHeight / height
-               
-                topLeftX *= animationSpaceHeight / height
-                topLeftY *= animationSpaceHeight / height
-               
-                width *= animationSpaceHeight / height
-                height *= animationSpaceHeight / height
-            }
-            
-            this.setCanvasScale(this._scale * newScale);
-        }else if(height / animationSpaceHeight > 1){
-            this.setCanvasScale(this._scale * (animationSpaceHeight / height))
-            
-            topLeftX *= animationSpaceHeight / height
-            topLeftY *= animationSpaceHeight / height
-            
-            width *= animationSpaceHeight / height
-            height *= animationSpaceHeight / height
+
+        const scaleX = animationSpaceWidth / width;
+        const scaleY = animationSpaceHeight / height;
+        const fitScale = Math.min(scaleX, scaleY, 1);
+
+        if (fitScale < 1) {
+            this.setCanvasScale(this._scale * fitScale);
         }
-        
-        const fittedTopX = algorithmInfoBoxOffsetX + 50;
-        const fittedTopY = (this._canvasHeight - height) / 2;
-        
-        this._offsetX = fittedTopX - topLeftX;
-        this._offsetY = fittedTopY - topLeftY;
-        
+
+        const fittedTopX = infoBoxWidth + 50;
+        const fittedTopY = (this._canvasHeight - height * fitScale) / 2;
+
+        this._offsetX = fittedTopX - topLeftX * fitScale;
+        this._offsetY = fittedTopY - topLeftY * fitScale;
+
         this.drawCanvas();
     }
     updateEdge(edge :{id: number, color?: string, weight?: number, width?: number}):void{
