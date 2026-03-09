@@ -187,9 +187,7 @@ export default class Animation {
         return {edgeUpdates, nodeUpdates};
     }
     private renderInfoBox(input?: algorithmInfoBoxState): void {
-        if (!input) {
-            return;
-        }
+        if (!input)return;
         algorithmInfoBox.innerHTML = "";
         if (input.information) {
             const info = document.createElement("div");

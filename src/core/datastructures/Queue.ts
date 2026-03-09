@@ -19,9 +19,7 @@ export class Queue<T> {
         return this._size === 0;
     }
     enqueue(value: T): void {
-        if (this.isFull) {
-            return;
-        }
+        if (this.isFull) return;
         this._rear = (this._rear + 1) % this._capacity;
         this._items[this._rear] = value;
         this._size++;
