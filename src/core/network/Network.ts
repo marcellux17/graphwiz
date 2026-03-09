@@ -615,7 +615,7 @@ export default class Network{
             const fromNode = this._graph.getNode(edge.from)!;
             const toNode = this._graph.getNode(edge.to)!;
             
-            edge.weight = this.calculateEuclidieanWeight(fromNode.x, fromNode.y, toNode.x, toNode.y);
+            edge.weight = this.calculateEuclideanWeight(fromNode.x, fromNode.y, toNode.x, toNode.y);
         }
     }
     private measureGraphRectangle(): { topLeftX: number; topLeftY: number; width: number; height: number; } {
@@ -796,7 +796,7 @@ export default class Network{
                     if (this._graph.isWeighted) {
                         const firstNode = this._graph.getNode(this._firstNodeId)!;
                         
-                        const euclideanWeight = this.calculateEuclidieanWeight(firstNode.x, firstNode.y, node.x, node.y);                
+                        const euclideanWeight = this.calculateEuclideanWeight(firstNode.x, firstNode.y, node.x, node.y);                
                         let normalWeight = Math.floor(Math.random() * 5) + 1;
                         normalWeight *= (this._negativeEdges && Math.random() > 0.8) ? -1 : 1;
                         
@@ -822,7 +822,7 @@ export default class Network{
         
         this.drawCanvas();
     };
-    private calculateEuclidieanWeight(x1: number, y1: number, x2: number, y2: number): number {
+    private calculateEuclideanWeight(x1: number, y1: number, x2: number, y2: number): number {
          return Math.floor( this.measureDistance( x1, y1, x2, y2 ) / (10 * this._scale) );
     }
     private resizeHandler = ():void =>{
