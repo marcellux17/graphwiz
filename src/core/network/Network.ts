@@ -476,7 +476,7 @@ export default class Network{
         return vectorY < 0 ? Math.PI - angle: Math.PI + angle;
     }
     private drawTriangleTo(x:number, y:number, directionVectorX:number, directionVectorY:number, color: string):void{
-        const lengthOfVector = Math.sqrt(directionVectorX ** 2 + directionVectorY ** 2);
+        const lengthOfVector = this.measureDistance(0, 0, directionVectorX , directionVectorY);
         directionVectorX = directionVectorX / lengthOfVector;
         directionVectorY = directionVectorY / lengthOfVector;
         
@@ -543,7 +543,7 @@ export default class Network{
             betweenAngles = !betweenAngles;
         }
         
-        const lengthOfVector = Math.sqrt(circleCenterMouseVectorX ** 2 + circleCenterMouseVectorY ** 2);
+        const lengthOfVector = this.measureDistance(0, 0, circleCenterMouseVectorX, circleCenterMouseVectorY);
         
         const circleCenterMouseVectorNormalizedX = circleCenterMouseVectorX / lengthOfVector;
         const circleCenterMouseVectorNormalizedY = circleCenterMouseVectorY / lengthOfVector;
@@ -574,7 +574,7 @@ export default class Network{
         return this.measureDistance(closestX, closestY, x, y) <= threshold;
     }
     private drawWeightToArcMiddle(circleCenterX: number, circleCenterY: number,radius:number, directionVectorX: number, directionVectorY: number, weight: number, color?: string):void{
-        const length = Math.sqrt(directionVectorX ** 2 + directionVectorY ** 2);
+        const length = this.measureDistance(0, 0, directionVectorX, directionVectorY);
         
         directionVectorX = directionVectorX / length;
         directionVectorY = directionVectorY / length;
