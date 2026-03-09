@@ -410,7 +410,7 @@ export default class Network{
                 edgeVectorNormalizedX *= (lengthOfEdge - (this._nodeSize * this._scale) - (this._nodeContourWidth * this._scale) / 2)
                 edgeVectorNormalizedY *= (lengthOfEdge - (this._nodeSize * this._scale) - (this._nodeContourWidth * this._scale) / 2)
                 
-                this.drawTriangleTo(fromX+edgeVectorNormalizedX, fromY+edgeVectorNormalizedY, edgeVectorNormalizedX, edgeVectorNormalizedY, edge.color);
+                this.drawTriangleTo(fromX + edgeVectorNormalizedX, fromY + edgeVectorNormalizedY, edgeVectorNormalizedX, edgeVectorNormalizedY, edge.color);
             }
         }else{
             this.drawStraightEdge(fromX, fromY, toX, toY, edge.width, edge.color, edge.weight)
@@ -430,23 +430,15 @@ export default class Network{
         let edgeVectorNormalVectorX = edgeVectorNormalizedY * -1;
         let edgeVectorNormalVectorY = edgeVectorNormalizedX;
         
-        const edgeCenterX = (fromX + toX) / 2;
-        const edgeCenterY = (fromY + toY) / 2;
+        const circleCenterX = (fromX + toX) / 2 + edgeVectorNormalVectorX * lengthOfEdge;
+        const circleCenterY = (fromY + toY) / 2 + edgeVectorNormalVectorY * lengthOfEdge;
 
-        const circleCenterX = edgeCenterX + edgeVectorNormalVectorX * lengthOfEdge;
-        const circleCenterY = edgeCenterY + edgeVectorNormalVectorY * lengthOfEdge;
-
-        const circleCenterToNodeVectorX = toX - circleCenterX;
-        const circleCenterToNodeVectorY = toY - circleCenterY;
-        const circleCenterFromNodeVectorX = fromX - circleCenterX;
-        const circleCenterFromNodeVectorY = fromY - circleCenterY;
-
-        const angleA = this.getAngleNormalized(circleCenterFromNodeVectorX, - circleCenterFromNodeVectorY);
-        const angleB = this.getAngleNormalized(circleCenterToNodeVectorX, - circleCenterToNodeVectorY);
+        const angleA = this.getAngleNormalized(fromX - circleCenterX, (fromY - circleCenterY) * -1);
+        const angleB = this.getAngleNormalized(toX - circleCenterX, (toY - circleCenterY) * -1);
         let startAngle = Math.min(angleA, angleB);
         let endAngle = Math.max(angleA, angleB);
         const radius = this.measureDistance(circleCenterX, circleCenterY, toX, toY);
-        if(endAngle-startAngle > Math.PI){
+        if(endAngle - startAngle > Math.PI){
             [endAngle, startAngle] = [startAngle, endAngle];
         }
         
@@ -457,7 +449,7 @@ export default class Network{
         
         this.drawTriangleTo(circleCenterX + edgeVectorNormalVectorX * radius, circleCenterY + edgeVectorNormalVectorY *  radius, edgeVectorNormalizedX, edgeVectorNormalizedY, color);
         if(this._graph.isWeighted){
-            this.drawWeightToArcMiddle(circleCenterX, circleCenterY, radius, edgeCenterX - circleCenterX, edgeCenterY - circleCenterY, weight!, color);
+            this.drawWeightToArcMiddle(circleCenterX, circleCenterY, radius, (fromX + toX) / 2 - circleCenterX, (fromY + toY) / 2 - circleCenterY, weight!, color);
         }
     }
     private getAngleNormalized(vectorX:number, vectorY:number):number{
