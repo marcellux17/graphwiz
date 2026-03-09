@@ -452,20 +452,8 @@ export default class Network{
             this.drawWeightToArcMiddle(circleCenterX, circleCenterY, radius, (fromX + toX) / 2 - circleCenterX, (fromY + toY) / 2 - circleCenterY, weight!, color);
         }
     }
-    private getAngleNormalized(vectorX:number, vectorY:number):number{
-        if(vectorX === 0){
-            return vectorY < 0 ? Math.PI / 2 : Math.PI * 3 / 2;
-        }
-        if(vectorY === 0){
-            return vectorX < 0 ? Math.PI: 0;
-        }
-        if(vectorX > 0){
-            const angle = Math.atan(Math.abs(vectorY / vectorX));
-            return vectorY < 0 ? angle: Math.PI * 2 - angle;
-        }
-        
-        const angle = Math.atan(Math.abs(vectorY / vectorX));
-        return vectorY < 0 ? Math.PI - angle: Math.PI + angle;
+    private getAngleNormalized(vectorX: number, vectorY: number): number {
+        return (Math.atan2(vectorY * -1, vectorX) + Math.PI * 2) % (Math.PI * 2);
     }
     private drawTriangleTo(x:number, y:number, directionVectorX:number, directionVectorY:number, color: string):void{
         const lengthOfVector = this.measureDistance(0, 0, directionVectorX , directionVectorY);
