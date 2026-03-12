@@ -29,6 +29,7 @@ export default class BellmanFordController {
     private changeCanvasState(newState: canvasState): void {
         if ( (this._canvasState === "animation-running" || this._canvasState === "pre-animation") && newState === "idle" ){
             this._animation.escapeAnimation();
+            this._network.graph = this._graph;
             this.enableAllButtons();
             makeInvisible(algorithmInformationBox);
             makeInvisible(speedBox);
@@ -80,6 +81,10 @@ export default class BellmanFordController {
                 makeVisible(speedBox);
                 this._network.fitGraphIntoAnimationSpace();
                 this._network.disableEverything();
+
+                const states = this._algorithm.run(this._startingNodeId!, this._destinationNodeId!);
+                this._animation.setAnimationStates(states);
+                
                 this._animation.start();
                 break;
         }
@@ -125,15 +130,13 @@ export default class BellmanFordController {
             return;
         }
         destinationNodeInfo!.textContent = `dest: ${this._graph.getNode(this._destinationNodeId!)!.label}`;
-        const states = this._algorithm.run( this._startingNodeId!, this._destinationNodeId! );
-        if(states.length === 0){
+        if(this._algorithm.negativeCycleExists( this._startingNodeId!)){
             changeMessageBox( "graph contains negative cycle(s), change graph to run algorithm" );
             setTimeout(() => {
                 this.changeCanvasState("idle");
             }, 1500);
             return;
         }
-        this._animation.setAnimationStates(states);
         this.changeCanvasState("animation-running");
     }
     private selectEdgeHandle = (id: number): void => {
@@ -199,7 +202,7 @@ export default class BellmanFordController {
         weightInput!.addEventListener("input", () => {
             const newValue = Number.parseInt(weightInput!.value);
             const selectedElementId = this._selectedEdgeId!;
-            this._network.updateEdge({ id: selectedElementId, weight: newValue, });
+            this._graph.getEdge(selectedElementId)!.weight = newValue;
         });
         resetButton.addEventListener("click", () => {
             this._animation.resetAnimation();

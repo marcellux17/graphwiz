@@ -28,6 +28,7 @@ export default class AStarController {
     private changeCanvasState(newState: canvasState): void {
         if ( (this._canvasState === "animation-running" || this._canvasState === "pre-animation") && newState === "idle" ){
             this._animation.escapeAnimation();
+            this._network.graph = this._graph;
             this.enableAllButtons();
             makeInvisible(algorithmInformationBox);
             makeInvisible(speedBox);
@@ -77,6 +78,10 @@ export default class AStarController {
                 makeInvisible(playButton);
                 this._network.fitGraphIntoAnimationSpace();
                 this._network.disableEverything();
+
+                const states = this._algorithm.run( this._startingNodeId!, this._destinationNodeId!, this._network.scale );
+                this._animation.setAnimationStates(states);
+
                 this._animation.start();
                 break;
         }
@@ -123,10 +128,7 @@ export default class AStarController {
             return;
         }
         destinationNodeInfo!.textContent = `dest: ${this._graph.getNode(this._destinationNodeId!)!.label}`;
-        
-        const states = this._algorithm.run( this._startingNodeId!, this._destinationNodeId!, this._network.scale );
-        this._animation.setAnimationStates(states);
-        
+                
         this.changeCanvasState("animation-running");
     }
     private setUpNetworkEventListeners(): void {

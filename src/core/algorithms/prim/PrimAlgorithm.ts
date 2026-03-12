@@ -1,12 +1,8 @@
-import Graph from "../../datastructures/Graph";
-import { animationEdgeInformation, animationNodeInformation, animationState } from "../../types/animation";
+import { animationState } from "../../types/animation";
 import { MinPriorityQueue, Queue } from "../../datastructures/Queue";
 import Algorithm from "../Algorithm";
 
 export default class Prim extends Algorithm {
-    constructor(graph: Graph) {
-        super(graph);
-    }
     run(from: number): animationState[] {
         const animationStates: animationState[] = [];
         const priorityQueue = this.fillQueue(from);
@@ -110,26 +106,13 @@ export default class Prim extends Algorithm {
         return animationStates;
     }
     override createInitialState(from: number): animationState {
-        const nodes = new Map<number, animationNodeInformation>();
-        const edges = new Map<number, animationEdgeInformation>();
+        const state:animationState = {graph: this._graph.clone()};
 
-        this._graph.nodes.forEach((node) => {
-            nodes.set(node.id, {
-                id: node.id,
-                state: "normal",
-                label: node.id === from ? `${node.label}(0)` : `${node.label}(∞)`
-            });
+        state.graph.nodes.forEach((node) => {
+            node.label = node.id === from ? node.label : `${node.label}(∞)`;
         });
 
-        this._graph.edges.forEach((edge) => {
-            edges.set(edge.id, {
-                id: edge.id,
-                state: "normal",
-                label: `${edge.weight}`
-            });
-        });
-
-        return { nodes, edges };
+        return state;
     }
     private fillQueue(from: number): MinPriorityQueue {
         const nodes = this._graph.nodes;

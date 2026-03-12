@@ -9,7 +9,7 @@ type networkMode = "addEdgeMode" | "addNodeMode" | "idle" | "delete" | "disabled
 export default class Network{
     private readonly _ctx = canvas.getContext("2d")!;
     private readonly _negativeEdges: boolean;
-    private readonly _nodeSize = 30;
+    private readonly _nodeSize = 27;
     private readonly _nodeContourWidth = 4;
     private readonly _euclideanWeights: boolean;
     private readonly _fontSize = 17;
@@ -102,20 +102,24 @@ export default class Network{
         saveAs(blob, filename);
     }
     deleteElementModeOn(): void {
-        this.resetToIdle();
         this._mode = "delete";
+        this._firstNodeId = undefined;
+        this.drawCanvas();
     }
     addNodeModeOn(): void {
-        this.resetToIdle();
         this._mode = "addNodeMode";
+        this._firstNodeId = undefined;
+        this.drawCanvas();
     }
     disableEverything(): void {
-        this.resetToIdle();
         this._mode = "disabled";
+        this._firstNodeId = undefined;
+        this.drawCanvas();
     }
     addEdgeModeOn(): void {
-        this.resetToIdle();
         this._mode = "addEdgeMode";
+        this._firstNodeId = undefined;
+        this.drawCanvas();
     }
     resetToIdle(): void {
         this._mode = "idle";
@@ -180,6 +184,17 @@ export default class Network{
         this._nodeIds = [];
         this.drawCanvas();
     }
+    drawCanvas = (): void => {
+        this._ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        this.drawEdges();
+        this.drawNodes();
+        
+        if (this._pendingEdge) {
+            this.drawPendingEdge();
+            this.drawNode(this._graph.getNode(this._firstNodeId!)!);
+        }
+    };
     private canvasScaleDown(): void {
         if (this._scale < 0.5) return;
         
@@ -246,17 +261,6 @@ export default class Network{
     private measureDistance( x1: number, y1: number, x2: number, y2: number ): number {
         return Math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2);
     }
-    private drawCanvas = (): void => {
-        this._ctx.clearRect(0, 0, canvas.width, canvas.height);
-        
-        this.drawEdges();
-        this.drawNodes();
-        
-        if (this._pendingEdge) {
-            this.drawPendingEdge();
-            this.drawNode(this._graph.getNode(this._firstNodeId!)!);
-        }
-    };
     private drawPendingEdge(): void {
         const firstNode = this._graph.getNode(this._firstNodeId!)!;
         const x1 = firstNode.x;

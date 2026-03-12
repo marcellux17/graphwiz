@@ -26,6 +26,7 @@ export default class TopologicalSortController {
         if ((this._canvasState === "animation-running" || this._canvasState === "pre-animation") && newState === "idle" ){
             this.enableAllButtons();
             this._animation.escapeAnimation();
+            this._network.graph = this._graph;
             makeInvisible(algorithmInformationBox);
             makeInvisible(speedBox);
             makeInvisible(playBox);
@@ -59,8 +60,7 @@ export default class TopologicalSortController {
                     }, 1500);
                     break;
                 }
-                const states = this._algorithm.run();
-                if(states.length === 0){
+                if(this._algorithm.cyclesExist){
                     changeMessageBox("Graph contains cycle(s). Remove them to run algorithm.");
                     setTimeout(() => {
                         this.changeCanvasState("idle");
@@ -68,7 +68,7 @@ export default class TopologicalSortController {
                     break;
                 }
                 this.disableAllButtons();
-                this._animation.setAnimationStates(states);
+                
                 this.changeCanvasState("animation-running");
                 break;
             case "animation-running":
@@ -79,6 +79,9 @@ export default class TopologicalSortController {
                 makeVisible(speedBox);
                 this._network.fitGraphIntoAnimationSpace();
                 this._network.disableEverything();
+
+                const animationStates = this._algorithm.run();
+                this._animation.setAnimationStates(animationStates);
                 this._animation.start();
                 break;
         }

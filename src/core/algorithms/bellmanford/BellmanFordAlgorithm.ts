@@ -1,10 +1,55 @@
 import Graph from "../../datastructures/Graph";
-import { animationEdgeInformation, animationNodeInformation, animationState} from "../../types/animation";
+import { animationState} from "../../types/animation";
 import Algorithm from "../Algorithm";
 
 export default class BellmanFord extends Algorithm{
     constructor(graph: Graph){
         super(graph);
+    }
+    negativeCycleExists(from: number): boolean {
+        const currentEstimate = new Map<number, number>();
+
+        for(const node of this._graph.nodes){
+            currentEstimate.set(node.id, Infinity);
+        }
+
+        currentEstimate.set(from, 0); 
+
+        let changes = true;
+        let i = 0;
+        while(i <= this._graph.nodes.length - 1 && changes){
+            changes = false;
+
+            for(const edge of this._graph.edges){
+                const to = edge.to;
+                const from = edge.from;
+
+                if(currentEstimate.get(from) !== Infinity){
+                    const distanceThroughFrom = currentEstimate.get(from)! + edge.weight!;
+
+                    if(distanceThroughFrom < currentEstimate.get(to)!){
+                        currentEstimate.set(to, distanceThroughFrom);
+                        changes = true;
+                    }
+                }
+            }
+
+            i++;
+        }
+        
+        for(const edge of this._graph.edges){
+            const to = edge.to;
+            const from = edge.from;
+            if(currentEstimate.get(from) !== Infinity){
+                const distanceThroughFrom = currentEstimate.get(from)! + edge.weight!
+                if(distanceThroughFrom < currentEstimate.get(to)!){
+                    return true;
+                }
+
+            }
+        }
+
+        return false;
     }
     run(from: number, to:number): animationState[] {
         const animationStates: animationState[] = [];
@@ -114,24 +159,12 @@ export default class BellmanFord extends Algorithm{
         return newState;
     }
     override createInitialState(from: number): animationState {
-        const nodes = new Map<number, animationNodeInformation>();
-        const edges = new Map<number, animationEdgeInformation>();
-
-        this._graph.nodes.forEach((node) => {
-            nodes.set(node.id, {
-                id: node.id,
-                state: "normal",
-                label: node.id === from ? node.label : `${node.label}(∞)`
-            });
-        });
-        this._graph.edges.forEach((edge) => {
-            edges.set(edge.id, {
-                id: edge.id,
-                state: "normal",
-                label: `${edge.weight}`
-            });
+        const state:animationState = {graph: this._graph.clone()};
+        
+        state.graph.nodes.forEach((node) => {
+            node.label = node.id === from ? node.label : `${node.label}(∞)`;
         });
 
-        return { nodes, edges };
+        return state;
     }    
 }

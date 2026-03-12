@@ -143,24 +143,13 @@ export default class Dijkstra extends Algorithm{
         return newState;
     }
     override createInitialState(from: number): animationState {
-        const nodes = new Map<number, animationNodeInformation>();
-        const edges = new Map<number, animationEdgeInformation>();
+        const state:animationState = {graph: this._graph.clone()};
+        
+        state.graph.nodes.forEach((node) => {
+            node.label = node.id === from ? node.label : `${node.label}(∞)`;
+        });
 
-        this._graph.nodes.forEach((node) => {
-            nodes.set(node.id, {
-                id: node.id,
-                state: "normal",
-                label: node.id === from ? node.label : `${node.label}(∞)`
-            });
-        });
-        this._graph.edges.forEach((edge) => {
-            edges.set(edge.id, {
-                id: edge.id,
-                state: "normal",
-                label: `${edge.weight}`
-            });
-        });
-        return { nodes, edges };
+        return state;
     }
     private getLabelsForQueueRepresentation(ids: number[]):string[]{
         return ids.map(id => this._graph.getNode(id)!.label);

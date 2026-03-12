@@ -4,38 +4,15 @@ import { algorithmInfoBoxState, animationState} from "../types/animation";
 import Network from "../network/Network";
 
 type animationPhase = "running" | "paused";
-type nodeUpdate = {
-    id: number;
-    label: string;
-    color: string;
-}
-type edgeUpdate = {
-    id: number;
-    color: string;
-    width: number;
-}
-type stateRendering = {
-    edgeUpdates: edgeUpdate[];
-    nodeUpdates: nodeUpdate[];
-}
 export default class Animation {
     private readonly _network: Network;
-    private readonly _pathColor = "#c00000ff";
-    private readonly _normalNodeColor = "white";
-    private readonly _normalEdgeColor = "black";
-    private readonly _queueNodeColor = "#2e77ffff";
-    private readonly _stackNodeColor = "#2e77ffff";
-    private readonly _deselectedEdgeColor = "#e4e4e4ff";
-    private readonly _deselectedNodeColor = "#e4e4e4ff";
-    private readonly _selectedEdgeColor = "blue";
-    private readonly _visitedNodeColor = "orange";
+    
     private _interval?: number;
     private _animationSpeed = 1000; 
     private _animationSpeedChange = 1000; 
     private _currentAnimationStateNumber = 0; 
     private _animationPhase: animationPhase = "running";
     private _states?: animationState[];
-    private _stateRenderings?: stateRendering[];
 
     constructor(network: Network) {
         this._network = network;
@@ -45,13 +22,12 @@ export default class Animation {
     }
     setAnimationStates(states: animationState[]): void {
         this._states = states;
-        this._stateRenderings = this.createStateRenderingsFromStates(this._states);
         this._currentAnimationStateNumber = -1;
     }
     escapeAnimation():void{
         this.pause();
-        this.resetGraph();
         this.clearInfoBox();
+        this._states = [];
         this._currentAnimationStateNumber = -1;
     }
     setAnimationStateForward(): void {
@@ -106,109 +82,35 @@ export default class Animation {
     animateCurrentState(): void {
         if (this._currentAnimationStateNumber === -1) return;
         
-        const currentState = this._states![this._currentAnimationStateNumber];
-        const currentStateRendering = this._stateRenderings![this._currentAnimationStateNumber];
-        
-        this._network.updateNodes(currentStateRendering.nodeUpdates);
-        this._network.updateEdges(currentStateRendering.edgeUpdates);
-        
+        const currentState = this._states![this._currentAnimationStateNumber];        
+        this._network.graph = currentState.graph;
+
         this.renderInfoBox(currentState.algorithmInfobox);
     }
-    private createStateRenderingsFromStates(states:animationState[]):stateRendering[]{
-        const stateRenderings: stateRendering[] = [];
-        for(const state of states){
-            stateRenderings.push(this.createStateRenderingFromState(state));
-        }
-        return stateRenderings;
-    }
-    private createStateRenderingFromState(state: animationState):stateRendering{
-        const nodeUpdates:nodeUpdate[] = [];
-        for(const node of state.nodes.values()){
-            let color: string;
-            switch (node.state) {
-                case "visitedNode": 
-                    color = this._visitedNodeColor; 
-                    break;
-                case "normal": 
-                    color = this._normalNodeColor; 
-                    break;
-                case "partOfPath": 
-                    color = this._pathColor;
-                    break;
-                case "inQueue":
-                    color = this._queueNodeColor;
-                    break;
-                case "inStack":
-                    color = this._stackNodeColor;
-                    break;
-                case "deselectedNode":
-                    color = this._deselectedNodeColor;
-                    break;
-                default: 
-                    color = this._normalNodeColor;
-                    break;
-                }
-            nodeUpdates.push({
-                id: node.id,
-                label: node.label,
-                color: color,
-            });
-        }
+    private renderInfoBox(infoBoxState?: algorithmInfoBoxState): void {
+        if (!infoBoxState)return;
         
-        const edgeUpdates:edgeUpdate[] = [];
-        for(const edge of state.edges.values()){
-            let color: string;
-            let edgeWidth: number = 2;
-            switch (edge.state) {
-                case "selectedEdge": 
-                    color = this._selectedEdgeColor; 
-                    edgeWidth = 3;
-                    break;
-                case "normal": 
-                    color = this._normalEdgeColor; 
-                    break;
-                case "partOfPath": 
-                    color = this._pathColor; 
-                    edgeWidth = 4;
-                    break;
-                case "deselectedEdge": 
-                    color = this._deselectedEdgeColor;
-                    break;
-                default: 
-                    color = this._normalEdgeColor;
-                    break;
-            }
-            edgeUpdates.push({
-                id: edge.id,
-                color,
-                width: edgeWidth,
-            });
-        }
-        return {edgeUpdates, nodeUpdates};
-    }
-    private renderInfoBox(input?: algorithmInfoBoxState): void {
-        if (!input)return;
         algorithmInfoBox.innerHTML = "";
-        if (input.information) {
+        if (infoBoxState.information) {
             const info = document.createElement("div");
             info.id = "info-text";
-            info.innerHTML = input.information;
+            info.innerHTML = infoBoxState.information;
             
             algorithmInfoBox.appendChild(info);
         }
-        if (input.dataStructure) {
-            const { type, ds } = input.dataStructure;
+        if (infoBoxState.dataStructure) {
+            const { type, ds } = infoBoxState.dataStructure;
             
             const container = document.createElement("div");
-            const dsName = document.createElement("h3");
+            const datastructureName = document.createElement("h3");
             
-            dsName.textContent = type;
-            dsName.className = "ds-name";
+            datastructureName.textContent = type;
+            datastructureName.className = "ds-name";
             
             container.id = "ds-container";
             container.className = type;
             
-            algorithmInfoBox.appendChild(dsName);
+            algorithmInfoBox.appendChild(datastructureName);
             
             for (let i = 0; i < ds.length; i++) {
                 if (ds[i]) {
@@ -244,8 +146,5 @@ export default class Animation {
     }
     private isLastState():boolean{
         return this._currentAnimationStateNumber === this._states!.length - 1;
-    }
-    private resetGraph(): void {
-        this._network.resetGraphToOriginal();
     }
 }

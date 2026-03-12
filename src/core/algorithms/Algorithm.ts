@@ -1,6 +1,7 @@
+import { VisualConfig } from "../animation/Config";
 import Graph from "../datastructures/Graph";
 import { Queue } from "../datastructures/Queue";
-import {animationEdgeInformation, animationNodeInformation, animationState } from "../types/animation";
+import { animationState } from "../types/animation";
 
 export default abstract class Algorithm{
     protected _graph: Graph;
@@ -39,81 +40,97 @@ export default abstract class Algorithm{
 
         return false;
     }
-    protected copyAnimationState(state: animationState): animationState {
-        return structuredClone(state);
-    }
     protected markEdgeAsSelected(state: animationState, edgeId: number): animationState {
-        const newState = this.copyAnimationState(state);
-        newState.edges.get(edgeId)!.state = "selectedEdge";
+        const newState: animationState = {graph: state.graph.clone(), algorithmInfobox: state.algorithmInfobox};
+        
+        const edge = newState.graph.getEdge(edgeId)!;
+        edge.color = VisualConfig.edgeColors.selected;
+        edge.width = VisualConfig.edgeWidths.selected;
+        
         return newState;
     }
 
     protected markEdgeAsPartOfPath(state: animationState, edgeId: number): animationState {
         const newState = this.copyAnimationState(state);
-        newState.edges.get(edgeId)!.state = "partOfPath";
+        
+        const edge = newState.graph.getEdge(edgeId)!;
+        edge.color = VisualConfig.edgeColors.path;
+        edge.width = VisualConfig.edgeWidths.path;
+        
         return newState;
     }
 
     protected markNodeAsPartOfPath(state: animationState, nodeId: number): animationState {
-        const newState = this.copyAnimationState(state)
-        newState.nodes.get(nodeId)!.state = "partOfPath";
+        const newState: animationState = { graph: state.graph.clone(), algorithmInfobox: state.algorithmInfobox };
+        
+        const node = newState.graph.getNode(nodeId)!;
+        node.color = VisualConfig.nodeColors.path;
+        
         return newState;
     }
 
     protected markEdgeAsDeselected(state: animationState, edgeId: number): animationState {
         const newState = this.copyAnimationState(state);
-        newState.edges.get(edgeId)!.state = "deselectedEdge";
+        
+        const edge = newState.graph.getEdge(edgeId)!;
+        edge.color = VisualConfig.edgeColors.deselected;
+        edge.width = 2;
+        
         return newState;
     }
     protected updateNodeLabel(state: animationState, nodeId: number, newLabel: string): animationState {
         const newState = this.copyAnimationState(state);
-        newState.nodes.get(nodeId)!.label = newLabel;
+        
+        const node = newState.graph.getNode(nodeId)!;
+        node.label = newLabel;
+        
         return newState;
     }
     protected markEdgeAsNormal(state: animationState, edgeId: number): animationState {
         const newState = this.copyAnimationState(state);
-        newState.edges.get(edgeId)!.state = "normal";
+        
+        const edge = newState.graph.getEdge(edgeId)!;
+        edge.color = VisualConfig.edgeColors.normal;
+        edge.width = 2;
+        
         return newState;
     }
     protected markNodeAsVisited(state: animationState, nodeId: number): animationState {
         const newState = this.copyAnimationState(state);
-        newState.nodes.get(nodeId)!.state = "visitedNode";
+        
+        const node = newState.graph.getNode(nodeId)!;
+        node.color = VisualConfig.nodeColors.visited;
+        
         return newState;
     }
     protected markNodeAsInStack(state: animationState, nodeId: number): animationState {
         const newState = this.copyAnimationState(state);
-        newState.nodes.get(nodeId)!.state = "inStack";
+        
+        const node = newState.graph.getNode(nodeId)!;
+        node.color = VisualConfig.nodeColors.stack;
         return newState;
     }
     protected markNodeAsInQueue(state: animationState, nodeId: number): animationState {
-        const newState = this.copyAnimationState(state);        
-        newState.nodes.get(nodeId)!.state = "inQueue";
+        const newState = this.copyAnimationState(state);
+        
+        const node = newState.graph.getNode(nodeId)!;
+        node.color = VisualConfig.nodeColors.queue;
+        
         return newState;
     }
     protected markNodeAsDeselected(state: animationState, nodeId: number): animationState {
         const newState = this.copyAnimationState(state);
-        newState.nodes.get(nodeId)!.state = "deselectedNode";
+        
+        const node = newState.graph.getNode(nodeId)!;
+        node.color = VisualConfig.nodeColors.deselected;
+        
         return newState;
     }
+    protected copyAnimationState(state: animationState): animationState {
+        return { graph: state.graph.clone(), algorithmInfobox: state.algorithmInfobox };
+    }
     protected createInitialState(..._args: any[]): animationState {
-        const nodes = new Map<number, animationNodeInformation>();
-        const edges = new Map<number, animationEdgeInformation>();
-        this._graph.nodes.forEach(node => {
-            nodes.set(node.id, {
-                id: node.id,
-                state: "normal",
-                label:  `${node.label}`
-            });
-        });
-        this._graph.edges.forEach(edge => {
-            edges.set(edge.id, {
-                id: edge.id,
-                state: "normal",
-                label: `${edge.weight}`
-            });
-        });
-
-        return { nodes, edges };
+        return {graph: this._graph.clone()};
     }
     abstract run(..._args: any[]):animationState[];
 }

@@ -7,6 +7,46 @@ export default class TopologicalSort extends Algorithm{
     constructor(graph: Graph){
         super(graph);
     }
+    
+    get cyclesExist(): boolean{
+        const queue = new Queue<number>(this._graph.nodes.length);
+        let numberOfNodesToBeProcessed = 0;
+
+        const inDegrees = new Map<number, number>();
+        for(const node of this._graph.nodes){
+            inDegrees.set(node.id, 0);
+            numberOfNodesToBeProcessed++;
+        }
+
+        for(const edge of this._graph.edges){
+            const to = edge.to;
+            inDegrees.set(to, (inDegrees.get(to) || 0) + 1);
+        }
+
+        for(const node of this._graph.nodes){
+            if(inDegrees.get(node.id) === 0){
+                queue.enqueue(node.id);
+            }
+        }
+
+        while(!queue.isEmpty){
+            const currentNodeId = queue.dequeue()!;
+            numberOfNodesToBeProcessed--;
+            
+            const currentNode = this._graph.getNode(currentNodeId)!;
+            
+            for(const neighbourId of currentNode.AdjacencyList){
+                const newInDegree = inDegrees.get(neighbourId)! - 1;
+                inDegrees.set(neighbourId, newInDegree);
+
+                if(newInDegree === 0){
+                    queue.enqueue(neighbourId);
+                }
+            }
+        }
+        return numberOfNodesToBeProcessed !== 0;
+    }
+    
     run(): animationState[] {
         const animationStates: animationState[] = [];
         const queue = new Queue<number>(this._graph.nodes.length);
@@ -130,11 +170,9 @@ export default class TopologicalSort extends Algorithm{
             information: `Algorithm finished running!<hr>Topological sort completed successfully. The graph has been ordered.`
         };
         animationStates.push(currentState);
-        if(numberOfNodesToBeprocessed !== 0){
-            return [];
-        }
         return animationStates;
     }
+    
     private getLabelsForQueueRepresentation(ids: number[]):string[]{
         return ids.map(id => this._graph.getNode(id)!.label);
     }    

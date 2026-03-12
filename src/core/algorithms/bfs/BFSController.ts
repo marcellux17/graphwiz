@@ -28,6 +28,7 @@ export default class BFSController {
     private changeCanvasState(newState: canvasState): void {
         if ( (this._canvasState === "animation-running" || this._canvasState === "pre-animation") && newState === "idle" ){
             this._animation.escapeAnimation();
+            this._network.graph = this._graph;
             makeInvisible(algorithmInformationBox);
             makeInvisible(speedBox);
             makeInvisible(playBox);
@@ -72,6 +73,10 @@ export default class BFSController {
                 makeVisible(speedBox);
                 this._network.fitGraphIntoAnimationSpace();
                 this._network.disableEverything();
+
+                const states = this._algorithm.run(this._startingNodeId!);
+                this._animation.setAnimationStates(states);
+                
                 this._animation.start();
                 break;
         }
@@ -102,8 +107,7 @@ export default class BFSController {
     private selectNodeHandle= (id: number): void =>{
         if (this._canvasState !== "pre-animation") return;
         this._startingNodeId = id;
-        const states = this._algorithm.run(this._startingNodeId);
-        this._animation.setAnimationStates(states);
+        
         this.changeCanvasState("animation-running");
         
     }

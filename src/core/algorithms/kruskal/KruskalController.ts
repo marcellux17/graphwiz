@@ -29,6 +29,7 @@ export default class KruskalController {
     private changeCanvasState(newState: canvasState): void {
         if ( (this._canvasState === "animation-running" || this._canvasState === "pre-animation") && newState === "idle" ){
             this._animation.escapeAnimation();
+            this._network.graph = this._graph;
             this.enableAllButtons();
             makeInvisible(algorithmInformationBox);
             makeInvisible(speedBox);
@@ -75,6 +76,10 @@ export default class KruskalController {
                 makeVisible(speedBox);
                 this._network.fitGraphIntoAnimationSpace();
                 this._network.disableEverything();
+
+                const states = this._algorithm.run(this._componentNodeId!);
+                this._animation.setAnimationStates(states);
+
                 this._animation.start();
                 break;
         }
@@ -106,9 +111,6 @@ export default class KruskalController {
         if (this._canvasState !== "pre-animation") return;
         
         this._componentNodeId = id;
-        
-        const states = this._algorithm.run(this._componentNodeId);
-        this._animation.setAnimationStates(states);
         
         this.changeCanvasState("animation-running");
     }
@@ -175,7 +177,8 @@ export default class KruskalController {
         weightInput!.addEventListener("input", () => {
             const newValue = Number.parseInt(weightInput!.value);
             const selectedElementId = this._selectedEdgeId!;
-            this._network.updateEdge({ id: selectedElementId, weight: newValue, });
+            this._graph.getEdge(selectedElementId)!.weight = newValue;
+            this._network.drawCanvas();
         });
         clearGraphButton.addEventListener("click", () => {
             this._network.clearGraph();
