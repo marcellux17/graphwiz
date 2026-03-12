@@ -8,13 +8,13 @@ import { Preset, presetEdge, presetNode } from "../types/preset";
 type networkMode = "addEdgeMode" | "addNodeMode" | "idle" | "delete" | "disabled";
 export default class Network{
     private readonly _ctx = canvas.getContext("2d")!;
-    private readonly _graph: Graph;
     private readonly _negativeEdges: boolean;
     private readonly _nodeSize = 30;
     private readonly _nodeContourWidth = 4;
     private readonly _euclideanWeights: boolean;
     private readonly _fontSize = 17;
     private readonly _edgeWidth = 2;
+    private _graph: Graph;
     private _isDown = false;
     private _dragging = false;
     private _isPanning = false;
@@ -54,6 +54,11 @@ export default class Network{
     }
     get scale(): number {
         return this._scale;
+    }
+    set graph(graph: Graph){
+        this._graph = graph;
+        this._nodeIds = this._graph.nodes.map(node => node.id);
+        this.drawCanvas();
     }
     saveGraphToJSON():void{
         const jsonOjbect:Preset = {
@@ -149,62 +154,6 @@ export default class Network{
 
         this.drawCanvas();
     }
-    updateEdge(edge :{id: number, color?: string, weight?: number, width?: number}):void{
-        const edgeToModified = this._graph.getEdge(edge.id)!;
-        if(edge.color){
-            edgeToModified.color = edge.color;
-        }
-        if(edge.weight){
-            edgeToModified.weight = edge.weight;
-        }
-        if(edge.width){
-            edgeToModified.width = edge.width;
-        }
-        this.drawCanvas();
-    }
-    updateEdges(edges: {id: number, color?: string, weight?: number, width?: number}[]): void {
-        edges.forEach(edge => {
-            const edgeToModify = this._graph.getEdge(edge.id)!;
-            
-            if (edge.color !== undefined) {
-                edgeToModify.color = edge.color;
-            }
-            if (edge.weight !== undefined) {
-                edgeToModify.weight = edge.weight;
-            }
-            if(edge.width){
-                edgeToModify.width = edge.width;
-            }
-        });
-        this.drawCanvas();
-    }
-    updateNodes(nodes: { id: number; color?: string; label?: string }[]): void {
-        nodes.forEach(node => {
-            const nodeToModify = this._graph.getNode(node.id)!;
-
-            if (node.color !== undefined) {
-                nodeToModify.color = node.color;
-            }
-            if (node.label !== undefined) {
-                nodeToModify.label = node.label;
-            }
-        });
-        this.drawCanvas();
-    }
-    updateNode(node: { id: number; color?: string; label?: string }): void {
-        const nodeToModify = this._graph.getNode(node.id)!;
-
-        if (node.color !== undefined) {
-            nodeToModify.color = node.color;
-        }
-        if (node.label !== undefined) {
-            nodeToModify.label = node.label;
-        }
-        this.drawCanvas();
-    }
-    resetGraphToOriginal(): void {
-        this._graph.resetGraphToOriginalVisual();
-    }
     loadPreset(preset: Preset): void {
         this._graph.clearGraph();
         
@@ -271,6 +220,27 @@ export default class Network{
             }
         }
         
+        return -1;
+    }
+    private hitEdge(x: number, y: number): number {
+        for (const edge of this._graph.edges) {
+            const fromNode = this._graph.getNode(edge.from)!;
+            
+            const fromX = fromNode.x;
+            const fromY = fromNode.y;
+            
+            const toNode = this._graph.getNode(edge.to)!;
+            const toX = toNode.x;
+            const toY = toNode.y;
+            
+            const hasAPair = this._graph.edgeHasParallel(edge)
+            if(hasAPair && this.checkIfOnArc(x, y, fromX, fromY, toX, toY, edge.width)){
+                return edge.id;
+            }
+            if((!this._graph.isDirected || !hasAPair) && this.checkIfOnLine(x, y, fromX, fromY, toX, toY, edge.width)){
+                return edge.id;
+            }
+        }
         return -1;
     }
     private measureDistance( x1: number, y1: number, x2: number, y2: number ): number {
@@ -405,14 +375,14 @@ export default class Network{
         const edgeVectorNormalizedX = (toX - fromX) / lengthOfEdge;
         const edgeVectorNormalizedY = (toY - fromY) / lengthOfEdge;
         
-        let edgeVectorNormalVectorX = edgeVectorNormalizedY * -1;
+        let edgeVectorNormalVectorX = -edgeVectorNormalizedY;
         let edgeVectorNormalVectorY = edgeVectorNormalizedX;
         
         const circleCenterX = (fromX + toX) / 2 + edgeVectorNormalVectorX * lengthOfEdge;
         const circleCenterY = (fromY + toY) / 2 + edgeVectorNormalVectorY * lengthOfEdge;
 
-        const angleA = this.getAngleNormalized(fromX - circleCenterX, (fromY - circleCenterY) * -1);
-        const angleB = this.getAngleNormalized(toX - circleCenterX, (toY - circleCenterY) * -1);
+        const angleA = this.getAngleNormalized(fromX - circleCenterX, -(fromY - circleCenterY));
+        const angleB = this.getAngleNormalized(toX - circleCenterX, -(toY - circleCenterY));
         let startAngle = Math.min(angleA, angleB);
         let endAngle = Math.max(angleA, angleB);
         const radius = this.measureDistance(circleCenterX, circleCenterY, toX, toY);
@@ -431,7 +401,7 @@ export default class Network{
         }
     }
     private getAngleNormalized(vectorX: number, vectorY: number): number {
-        return (Math.atan2(vectorY * -1, vectorX) + Math.PI * 2) % (Math.PI * 2);
+        return (Math.atan2(-vectorY, vectorX) + Math.PI * 2) % (Math.PI * 2);
     }
     private drawTriangleTo(x:number, y:number, directionVectorX:number, directionVectorY:number, color: string):void{
         const lengthOfVector = this.measureDistance(0, 0, directionVectorX , directionVectorY);
@@ -439,7 +409,7 @@ export default class Network{
         directionVectorY = directionVectorY / lengthOfVector;
         
         const normalVectorX = directionVectorY;
-        const normalVectorY = directionVectorX * -1;
+        const normalVectorY = -directionVectorX;
         
         const triangleHeight = 13 * this._scale;
         const halfBaseLength = 7  * this._scale;
@@ -452,41 +422,20 @@ export default class Network{
         this._ctx.fillStyle = color;
         this._ctx.fill();
     }
-    private hitEdge(x: number, y: number): number {
-        for (const edge of this._graph.edges) {
-            const fromNode = this._graph.getNode(edge.from)!;
-            
-            const fromX = fromNode.x;
-            const fromY = fromNode.y;
-            
-            const toNode = this._graph.getNode(edge.to)!;
-            const toX = toNode.x;
-            const toY = toNode.y;
-            
-            const hasAPair = this._graph.edgeHasParallel(edge)
-            if(hasAPair && this.checkIfOnArc(x, y, fromX, fromY, toX, toY, edge.width)){
-                return edge.id;
-            }
-            if((!this._graph.isDirected || !hasAPair) && this.checkIfOnLine(x, y, fromX, fromY, toX, toY, edge.width)){
-                return edge.id;
-            }
-        }
-        return -1;
-    }
     private checkIfOnArc(x: number, y: number, fromX: number, fromY: number, toX: number, toY: number, arcWidth: number):boolean{
         const threshold = (arcWidth / 2) * this._scale + this._scale;
 
         const lengthOfEdge = this.measureDistance(fromX, fromY, toX, toY);
-        const circleCenterX = (fromX + toX) / 2 + ((toY - fromY) * -1 / lengthOfEdge) * lengthOfEdge;
+        const circleCenterX = (fromX + toX) / 2 + ((-(toY - fromY)) / lengthOfEdge) * lengthOfEdge;
         const circleCenterY = (fromY + toY) / 2 + ((toX - fromX) / lengthOfEdge) * lengthOfEdge;
 
         const radius = this.measureDistance(circleCenterX, circleCenterY, toX, toY);
         const distanceFromCenterToMouse = this.measureDistance(circleCenterX, circleCenterY, x, y);
         if (Math.abs(distanceFromCenterToMouse - radius) >= threshold) return false;
 
-        const mouseAngle = this.getAngleNormalized(x - circleCenterX, (y - circleCenterY) * -1);
-        const angleA = this.getAngleNormalized(fromX - circleCenterX, (fromY - circleCenterY) * -1);
-        const angleB = this.getAngleNormalized(toX - circleCenterX, (toY - circleCenterY) * -1);
+        const mouseAngle = this.getAngleNormalized(x - circleCenterX, -(y - circleCenterY));
+        const angleA = this.getAngleNormalized(fromX - circleCenterX, -(fromY - circleCenterY));
+        const angleB = this.getAngleNormalized(toX - circleCenterX, -(toY - circleCenterY));
         const startAngle = Math.min(angleA, angleB);
         const endAngle = Math.max(angleA, angleB);
         let betweenAngles = startAngle < mouseAngle && mouseAngle < endAngle;
@@ -531,7 +480,7 @@ export default class Network{
         let lineVectorNormalizedX = (x1 - x2) / length;
         let lineVectorNormalizedY = (y1 - y2) / length;
 
-        let normalVectorX = lineVectorNormalizedY * -1;
+        let normalVectorX = -lineVectorNormalizedY;
         let normalVectorY = lineVectorNormalizedX;
 
         if (normalVectorY > 0) {
@@ -555,10 +504,10 @@ export default class Network{
     }
     private measureGraphRectangle(): { topLeftX: number; topLeftY: number; width: number; height: number; } {
         let minX = Infinity;
-        let maxX = Infinity * -1;
+        let maxX = -Infinity;
         
         let minY = Infinity;
-        let maxY = Infinity * -1;
+        let maxY = -Infinity;
         
         for (const nodeId of this._nodeIds) {
             const node = this._graph.getNode(nodeId)!;        

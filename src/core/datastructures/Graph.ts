@@ -142,14 +142,6 @@ export default class Graph {
         if(!toNode)return false;
         
         return toNode.hasEdgeToNode(edge.from);
-    }
-    resetGraphToOriginalVisual():void{
-        for(const node of this._nodes.values()){
-            node.reset();
-        }
-        for(const edge of this._edges.values()){
-            edge.reset();
-        }
     }   
     clearGraph(): void {
         this._nodes.clear();
@@ -157,6 +149,21 @@ export default class Graph {
         this._nextNodeId = 0;
         this._nextEdgeId = 0;
         this._nextLabel = 1;
+    }
+    clone(): Graph {
+        const cloned = new Graph(this._weighted, this._directed);
+        cloned._nextNodeId = this._nextNodeId;
+        cloned._nextEdgeId = this._nextEdgeId;
+        cloned._nextLabel = this._nextLabel;
+
+        this._nodes.forEach((node, id) => {
+            cloned._nodes.set(id, node.clone());
+        });
+        this._edges.forEach((edge, id) => {
+            cloned._edges.set(id, edge.clone());
+        });
+
+        return cloned;
     }
 }
 

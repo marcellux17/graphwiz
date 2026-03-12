@@ -1,6 +1,7 @@
+import Graph from "../datastructures/Graph";
+
 export type animationState = {
-    nodes: Map<number, animationNodeInformation>;
-    edges: Map<number, animationEdgeInformation>;
+    graph: Graph;
     algorithmInfobox?: algorithmInfoBoxState;
 }
 export type animationNodeInformation = {

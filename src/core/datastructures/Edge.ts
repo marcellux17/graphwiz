@@ -40,8 +40,9 @@ export default class Edge {
     get id(): number {
         return this._id;
     }
-    reset(): void {
-        this._color = "black";
-        this._width = 2;
+    clone(): Edge {
+        const cloned = new Edge(this._id, this._to, this._from, this._width, this._weight);
+        cloned._color = this._color;
+        return cloned;
     }
 }

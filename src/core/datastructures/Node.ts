@@ -59,4 +59,15 @@ export default class Node {
         this._label = this._originalLabel;
         this._color = "white";
     }
+    clone(): Node {
+        const cloned = new Node(this._id, this._originalLabel);
+        cloned._label = this._label;
+        cloned._x = this._x;
+        cloned._y = this._y;
+        cloned._color = this._color;
+        this._adjacencyList.forEach((edgeId, neighbourId) => {
+            cloned._adjacencyList.set(neighbourId, edgeId);
+        });
+        return cloned;
+    }
 }
