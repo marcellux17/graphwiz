@@ -13,8 +13,7 @@ link: https://marcellux17.github.io/graphwiz/
 - Move nodes around
 - Delete nodes and edges
 - Zoom and pan
-- Upload/download graphs you have created
--Algorithms step by step
+- Algorithms step by step
 
 ## Algorithms Implemented
 
