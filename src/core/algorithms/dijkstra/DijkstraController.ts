@@ -1,6 +1,6 @@
 import Animation from "../../animation/Animation";
 import Graph from "../../datastructures/Graph";
-import { playBox, pauseButton, playButton, startingNodeInfo, destinationNodeInfo, pathInfoBox, inputGroup, label, weightInput, speedRangeInput, speedInfo, backButton, forwardButton, resetButton, runAnimationButton, escapeModeButton, deleteModeButton, addNodeButton, addEdgeButton, presetInput, algorithmInformationBox, speedBox, downloadGraphButton, uploadGraphInput, clearGraphButton, closeAnimationButton, } from "../../dom/elements";
+import { playBox, pauseButton, playButton, startingNodeInfo, destinationNodeInfo, pathInfoBox, inputGroup, label, weightInput, speedRangeInput, speedInfo, backButton, forwardButton, resetButton, runAnimationButton, escapeModeButton, deleteModeButton, addNodeButton, addEdgeButton, presetInput, algorithmInformationBox, speedBox, clearGraphButton, closeAnimationButton, } from "../../dom/elements";
 import { changeMessageBox, disableElement, enableElement, makeInvisible, makeVisible, resetWeightChangeInput, } from "../../dom/helpers";
 import Network from "../../network/Network";
 import Dijkstra from "./DijkstraAlgorithm";

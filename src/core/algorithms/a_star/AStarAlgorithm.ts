@@ -1,7 +1,7 @@
 import Graph from "../../datastructures/Graph";
 import Node from "../../datastructures/Node";
 import { MinPriorityQueue } from "../../datastructures/Queue";
-import { algorithmInfoBoxState, animationEdgeInformation, animationNodeInformation, animationState} from "../../types/animation";
+import { algorithmInfoBoxState, animationState} from "../../types/animation";
 import Algorithm from "../Algorithm";
 
 export default class AStar extends Algorithm{  
@@ -184,25 +184,13 @@ export default class AStar extends Algorithm{
         return newState;
     }
     override createInitialState(from: number): animationState {
-        const nodes = new Map<number, animationNodeInformation>();
-        const edges = new Map<number, animationEdgeInformation>();
-
-        this._graph.nodes.forEach((node) => {
-            nodes.set(node.id, {
-                id: node.id,
-                state: "normal",
-                label: node.id === from ? node.label : `${node.label}(∞)`
-            });
-        });
-        this._graph.edges.forEach((edge) => {
-            edges.set(edge.id, {
-                id: edge.id,
-                state: "normal",
-                label: `${edge.weight}`
-            });
+        const state:animationState = {graph: this._graph.clone()};
+        
+        state.graph.nodes.forEach((node) => {
+            node.label = node.id === from ? node.label : `${node.label}(∞)`;
         });
 
-        return { nodes, edges };
+        return state;
     }
     private measureDistancesFromAllNodesToDestinationNode(to:number, heuristics: Map<number, number>, scale: number):void{
         for(const node of this._graph.nodes){
