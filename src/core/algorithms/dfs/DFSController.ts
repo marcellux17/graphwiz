@@ -3,7 +3,6 @@ import Graph from "../../datastructures/Graph";
 import { playBox, pauseButton, playButton, speedRangeInput, speedInfo, backButton, forwardButton, resetButton, runAnimationButton, escapeModeButton, deleteModeButton, addNodeButton, addEdgeButton, presetInput, algorithmInformationBox, speedBox, downloadGraphButton, uploadGraphInput, clearGraphButton, closeAnimationButton, } from "../../dom/elements";
 import { changeMessageBox, disableElement, enableElement, makeInvisible, makeVisible, } from "../../dom/helpers";
 import Network from "../../network/Network";
-import { isPreset } from "../../types/preset";
 import DFS from "./DFSAlgorithm";
 
 type canvasState = "add-edge-mode" | "idle" | "delete" | "add-node-mode" | "pre-animation" | "step-by-step" | "animation-running";
@@ -86,8 +85,6 @@ export default class DFSController {
             enableElement(clearGraphButton);
             enableElement(escapeModeButton);
             enableElement(runAnimationButton);
-            enableElement(downloadGraphButton);
-            enableElement(uploadGraphInput);
             enableElement(presetInput);
             
         }
@@ -98,8 +95,6 @@ export default class DFSController {
             disableElement(deleteModeButton);
             disableElement(escapeModeButton);
             disableElement(runAnimationButton);
-            disableElement(downloadGraphButton);
-            disableElement(uploadGraphInput);
             disableElement(presetInput);
         }
     private selectNodeHandle = (id: number): void => {
@@ -114,27 +109,8 @@ export default class DFSController {
         this._network.onSelectNode(this.selectNodeHandle);
     }
     private setUpUiEventListeners(): void {
-        uploadGraphInput.addEventListener("change", async () => {
-            const file = uploadGraphInput!.files![0];
-            
-            if(!file || file.type !== "application/json")return;
-            try{
-                const text = await file.text();
-                const json = await JSON.parse(text);
-                
-                if(!isPreset(json))throw new Error("wrong graph format");
-                if(json.info.directed || json.info.weighted)throw new Error("the graph is not suitable for the algorithm")
-                
-                    this._network.loadPreset(json);
-            }catch(e:any){
-                alert(e.message)
-            }
-        })
         closeAnimationButton.addEventListener("click", () => {
             this.changeCanvasState("idle");
-        })
-        downloadGraphButton.addEventListener("click", () => {
-            this._network.saveGraphToJSON();
         })
         addEdgeButton.addEventListener("click", () => {
             this.changeCanvasState("add-edge-mode");

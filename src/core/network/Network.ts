@@ -2,8 +2,7 @@ import Graph from "../datastructures/Graph";
 import Edge from "../datastructures/Edge";
 import Node from "../datastructures/Node";
 import { algorithmInformationBox, canvas, editingPanel } from "../dom/elements";
-import { saveAs } from "file-saver"
-import { Preset, presetEdge, presetNode } from "../types/preset";
+import { Preset} from "../types/preset";
 
 type networkMode = "addEdgeMode" | "addNodeMode" | "idle" | "delete" | "disabled";
 export default class Network{
@@ -59,47 +58,6 @@ export default class Network{
         this._graph = graph;
         this._nodeIds = this._graph.nodes.map(node => node.id);
         this.drawCanvas();
-    }
-    saveGraphToJSON():void{
-        const jsonOjbect:Preset = {
-            info: {
-                weighted: this._graph.isWeighted,
-                directed: this._graph.isDirected,
-                scale: this._scale
-                }, 
-            nodes: [], 
-            edges: []
-        };
-
-        for(const node of this._graph.nodes){
-            const nodeObj: presetNode = {
-                id: node.id,
-                x: node.x,
-                y: node.y,
-                color: node.color,
-            }
-            jsonOjbect.nodes.push(nodeObj);
-        }
-        
-        const edges = this._graph.edges;
-        for(let edgeId = 0; edgeId < edges.length; edgeId++){
-            const edge = edges[edgeId]
-            const edgeOjb:presetEdge = {
-                from: edge.from,
-                to: edge.to,
-            }
-            if(this._graph.isWeighted){
-                edgeOjb.weight = edge.weight!
-            }
-            jsonOjbect.edges.push(edgeOjb);
-            
-        }
-        const blob = new Blob([JSON.stringify(jsonOjbect)], { type: "application/json;charset=utf-8" });
-        const now = new Date();
-        const date = now.toISOString().split("T")[0];
-        const time = now.toTimeString() .split(" ")[0] .replace(/:/g, "-");
-        const filename = `graphwiz-${date}_${time}.json`;
-        saveAs(blob, filename);
     }
     deleteElementModeOn(): void {
         this._mode = "delete";
