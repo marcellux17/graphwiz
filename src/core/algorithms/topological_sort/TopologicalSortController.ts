@@ -76,6 +76,7 @@ export default class TopologicalSortController {
                 makeInvisible(playButton);
                 makeVisible(algorithmInformationBox);
                 makeVisible(speedBox);
+                this._network.fitGraphIntoAnimationSpace();
                 this._network.disableEverything();
 
                 const animationStates = this._algorithm.run();
