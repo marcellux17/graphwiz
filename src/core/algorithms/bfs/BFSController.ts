@@ -1,177 +1,213 @@
 import Animation from "../../animation/Animation";
 import Graph from "../../datastructures/Graph";
-import { playBox, pauseButton, playButton, speedRangeInput, speedInfo, backButton, forwardButton, resetButton, runAnimationButton, escapeModeButton, deleteModeButton, addNodeButton, addEdgeButton, presetInput, algorithmInformationBox, speedBox, clearGraphButton, closeAnimationButton, } from "../../dom/elements";
-import { changeMessageBox, makeInvisible, makeVisible, disableElement, enableElement } from "../../dom/helpers";
+import {
+  playBox,
+  pauseButton,
+  playButton,
+  speedRangeInput,
+  speedInfo,
+  backButton,
+  forwardButton,
+  resetButton,
+  runAnimationButton,
+  escapeModeButton,
+  deleteModeButton,
+  addNodeButton,
+  addEdgeButton,
+  presetInput,
+  algorithmInformationBox,
+  speedBox,
+  clearGraphButton,
+  closeAnimationButton,
+} from "../../dom/elements";
+import {
+  changeMessageBox,
+  makeInvisible,
+  makeVisible,
+  disableElement,
+  enableElement,
+} from "../../dom/helpers";
 import Network from "../../network/Network";
 import BFS from "./BFSAlgorithm";
 
-type canvasState = "add-edge-mode" | "idle" | "delete" | "add-node-mode" | "pre-animation" | "step-by-step" | "animation-running";
+type canvasState =
+  | "add-edge-mode"
+  | "idle"
+  | "delete"
+  | "add-node-mode"
+  | "pre-animation"
+  | "animation-running";
 export default class BFSController {
-    private readonly _network: Network;
-    private readonly _animation: Animation;
-    private readonly _algorithm: BFS;
-    private readonly _graph: Graph;
-    private _startingNodeId?: number;
-    private _canvasState: canvasState = "idle";
+  private readonly _network: Network;
+  private readonly _animation: Animation;
+  private readonly _algorithm: BFS;
+  private readonly _graph: Graph;
+  private _startingNodeId?: number;
+  private _canvasState: canvasState = "idle";
 
-    constructor() {
-        this._graph = new Graph(false, false);
-        this._network = new Network(this._graph, false, false);
-        this._animation = new Animation(this._network);
-        this._algorithm = new BFS(this._graph);
-        
-        this.setUpNetworkEventListeners();
-        this.setUpUiEventListeners();
-    }
-    
-    private changeCanvasState(newState: canvasState): void {
-        if ( (this._canvasState === "animation-running" || this._canvasState === "pre-animation") && newState === "idle" ){
-            this._animation.escapeAnimation();
-            this._network.graph = this._graph;
-            makeInvisible(algorithmInformationBox);
-            makeInvisible(speedBox);
-            makeInvisible(playBox);
-            this.enableAllButtons();
-            this._startingNodeId = undefined;
-        }
-        this._canvasState = newState;
-        switch (newState) {
-            case "add-edge-mode":
-                changeMessageBox( "to create an edge click and drag from one node to the other" );
-                this._network.addEdgeModeOn();
-                break;
-            case "add-node-mode":
-                changeMessageBox("click on the canvas to create a node");
-                this._network.addNodeModeOn();
-                break;
-            case "delete":
-                changeMessageBox("select an element to delete");
-                this._network.deleteElementModeOn();
-                break;
-            case "idle":
-                changeMessageBox( "idle mode" );
-                this._network.resetToIdle();
-                break;
-            case "pre-animation":
-                if(this._graph.isEmpty){
-                    changeMessageBox("no nodes to run algorithm on.");
-                    setTimeout(() => {
-                        this.changeCanvasState("idle");
-                    }, 1500);
-                    break;
-                }
-                changeMessageBox("select starting node");
-                this.disableAllButtons();
-                this._network.resetToIdle();
-                break;
-            case "animation-running":
-                makeVisible(playBox);
-                makeVisible(pauseButton);
-                makeInvisible(playButton);
-                makeVisible(algorithmInformationBox);
-                makeVisible(speedBox);
-                this._network.fitGraphIntoAnimationSpace();
-                this._network.disableEverything();
+  constructor() {
+    this._graph = new Graph(false, false);
+    this._network = new Network(this._graph, false, false);
+    this._animation = new Animation(this._network);
+    this._algorithm = new BFS(this._graph);
 
-                const states = this._algorithm.run(this._startingNodeId!);
-                this._animation.setAnimationStates(states);
-                
-                this._animation.start();
-                break;
-        }
+    this.setUpNetworkEventListeners();
+    this.setUpUiEventListeners();
+  }
+
+  private changeCanvasState(newState: canvasState): void {
+    if (
+      (this._canvasState === "animation-running" ||
+        this._canvasState === "pre-animation") &&
+      newState === "idle"
+    ) {
+      this._animation.escapeAnimation();
+      this._network.graph = this._graph;
+      makeInvisible(algorithmInformationBox);
+      makeInvisible(speedBox);
+      makeInvisible(playBox);
+      this.enableAllButtons();
+      this._startingNodeId = undefined;
     }
-    private enableAllButtons() {
-        enableElement(addEdgeButton);
-        enableElement(addNodeButton);
-        enableElement(deleteModeButton);
-        enableElement(clearGraphButton);
-        enableElement(escapeModeButton);
-        enableElement(runAnimationButton);
-        enableElement(presetInput);
-        
-    }
-    private disableAllButtons() {
-        disableElement(addEdgeButton);
-        disableElement(addNodeButton);
-        disableElement(clearGraphButton);
-        disableElement(deleteModeButton);
-        disableElement(escapeModeButton);
-        disableElement(runAnimationButton);
-        disableElement(presetInput);
-    }
-    private selectNodeHandle= (id: number): void =>{
-        if (this._canvasState !== "pre-animation") return;
-        this._startingNodeId = id;
-        
-        this.changeCanvasState("animation-running");
-        
-    }
-    private setUpNetworkEventListeners(): void {
-        this._network.onSelectNode(this.selectNodeHandle);
-    }
-    private setUpUiEventListeners(): void {
-        closeAnimationButton.addEventListener("click", () => {
+    this._canvasState = newState;
+    switch (newState) {
+      case "add-edge-mode":
+        changeMessageBox(
+          "to create an edge click and drag from one node to the other",
+        );
+        this._network.addEdgeModeOn();
+        break;
+      case "add-node-mode":
+        changeMessageBox("click on the canvas to create a node");
+        this._network.addNodeModeOn();
+        break;
+      case "delete":
+        changeMessageBox("select an element to delete");
+        this._network.deleteElementModeOn();
+        break;
+      case "idle":
+        changeMessageBox("idle mode");
+        this._network.resetToIdle();
+        break;
+      case "pre-animation":
+        if (this._graph.isEmpty) {
+          changeMessageBox("no nodes to run algorithm on.");
+          setTimeout(() => {
             this.changeCanvasState("idle");
-        })
-        addEdgeButton.addEventListener("click", () => {
-            this.changeCanvasState("add-edge-mode");
-        });
-        addNodeButton.addEventListener("click", () => {
-            this.changeCanvasState("add-node-mode");
-        });
-        deleteModeButton.addEventListener("click", () => {
-            this.changeCanvasState("delete");
-        });
-        clearGraphButton.addEventListener("click", () => {
-            this._network.clearGraph();
-            
-        });
-        escapeModeButton.addEventListener("click", () => {
-            this.changeCanvasState("idle");
-        });
+          }, 1500);
+          break;
+        }
+        changeMessageBox("select starting node");
+        this.disableAllButtons();
+        this._network.resetToIdle();
+        break;
+      case "animation-running":
+        makeVisible(playBox);
+        makeVisible(pauseButton);
+        makeInvisible(playButton);
+        makeVisible(algorithmInformationBox);
+        makeVisible(speedBox);
+        this._network.fitGraphIntoAnimationSpace();
+        this._network.disableEverything();
 
-        runAnimationButton.addEventListener("click", () => {
-            this.changeCanvasState("pre-animation");
-        });
-        resetButton.addEventListener("click", () => {
-            this._animation.resetAnimation();
-            makeInvisible(pauseButton);
-            makeVisible(playButton);
-        });
-        pauseButton.addEventListener("click", () => {
-            this._animation.pause();
-            makeInvisible(pauseButton);
-            makeVisible(playButton);
-        });
-        forwardButton.addEventListener("click", () => {
-            this._animation.setAnimationStateForward();
-            this._animation.animateCurrentState();
-        });
-        backButton.addEventListener("click", () => {
-            this._animation.setAnimationStateBackward();
-            this._animation.animateCurrentState();
-        });
-        playButton.addEventListener("click", () => {
-            this._animation.continueAnimation();
-            makeInvisible(playButton);
-            makeVisible(pauseButton);
-        });
-        speedRangeInput.addEventListener("input", () => {
-            const newspeed = Number.parseInt(speedRangeInput!.value);
-            speedInfo.textContent = `speed: ${newspeed}x`;
-            this._animation.setAnimationSpeedChange(1000 / newspeed);
-        });
-        presetInput.addEventListener("input", () => {
-            if(presetInput!.value !== "load a graph"){
-                const request = new Request(`./graph_presets/bfs/${presetInput!.value}.json`);
-                fetch(request)
-                    .then((res) => {
-                        return res.json();
-                    })
-                    .then((preset) => {
-                        this._network.loadPreset(preset);
-                    });
-            }
-        })
+        const states = this._algorithm.run(this._startingNodeId!);
+        this._animation.setAnimationStates(states);
+
+        this._animation.start();
+        break;
     }
+  }
+  private enableAllButtons() {
+    enableElement(addEdgeButton);
+    enableElement(addNodeButton);
+    enableElement(deleteModeButton);
+    enableElement(clearGraphButton);
+    enableElement(escapeModeButton);
+    enableElement(runAnimationButton);
+    enableElement(presetInput);
+  }
+  private disableAllButtons() {
+    disableElement(addEdgeButton);
+    disableElement(addNodeButton);
+    disableElement(clearGraphButton);
+    disableElement(deleteModeButton);
+    disableElement(escapeModeButton);
+    disableElement(runAnimationButton);
+    disableElement(presetInput);
+  }
+  private selectNodeHandle = (id: number): void => {
+    if (this._canvasState !== "pre-animation") return;
+    this._startingNodeId = id;
+
+    this.changeCanvasState("animation-running");
+  };
+  private setUpNetworkEventListeners(): void {
+    this._network.onSelectNode(this.selectNodeHandle);
+  }
+  private setUpUiEventListeners(): void {
+    closeAnimationButton.addEventListener("click", () => {
+      this.changeCanvasState("idle");
+    });
+    addEdgeButton.addEventListener("click", () => {
+      this.changeCanvasState("add-edge-mode");
+    });
+    addNodeButton.addEventListener("click", () => {
+      this.changeCanvasState("add-node-mode");
+    });
+    deleteModeButton.addEventListener("click", () => {
+      this.changeCanvasState("delete");
+    });
+    clearGraphButton.addEventListener("click", () => {
+      this._network.clearGraph();
+    });
+    escapeModeButton.addEventListener("click", () => {
+      this.changeCanvasState("idle");
+    });
+
+    runAnimationButton.addEventListener("click", () => {
+      this.changeCanvasState("pre-animation");
+    });
+    resetButton.addEventListener("click", () => {
+      this._animation.resetAnimation();
+      makeInvisible(pauseButton);
+      makeVisible(playButton);
+    });
+    pauseButton.addEventListener("click", () => {
+      this._animation.pause();
+      makeInvisible(pauseButton);
+      makeVisible(playButton);
+    });
+    forwardButton.addEventListener("click", () => {
+      this._animation.setAnimationStateForward();
+      this._animation.animateCurrentState();
+    });
+    backButton.addEventListener("click", () => {
+      this._animation.setAnimationStateBackward();
+      this._animation.animateCurrentState();
+    });
+    playButton.addEventListener("click", () => {
+      this._animation.continueAnimation();
+      makeInvisible(playButton);
+      makeVisible(pauseButton);
+    });
+    speedRangeInput.addEventListener("input", () => {
+      const newspeed = Number.parseInt(speedRangeInput!.value);
+      speedInfo.textContent = `speed: ${newspeed}x`;
+      this._animation.setAnimationSpeedChange(1000 / newspeed);
+    });
+    presetInput.addEventListener("input", () => {
+      if (presetInput!.value !== "load a graph") {
+        const request = new Request(
+          `./graph_presets/bfs/${presetInput!.value}.json`,
+        );
+        fetch(request)
+          .then((res) => {
+            return res.json();
+          })
+          .then((preset) => {
+            this._network.loadPreset(preset);
+          });
+      }
+    });
+  }
 }

@@ -5,7 +5,7 @@ import { changeMessageBox, disableElement, enableElement, makeInvisible, makeVis
 import Network from "../../network/Network";
 import Prim from "./PrimAlgorithm";
 
-type canvasState = "add-edge-mode" | "idle" | "delete" | "add-node-mode" | "pre-animation" | "step-by-step" | "animation-running";
+type canvasState = "add-edge-mode" | "idle" | "delete" | "add-node-mode" | "pre-animation" |  "animation-running";
 export default class PrimController {
     private readonly _network: Network;
     private readonly _algorithm: Prim;

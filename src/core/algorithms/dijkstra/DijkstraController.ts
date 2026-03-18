@@ -5,7 +5,7 @@ import { changeMessageBox, disableElement, enableElement, makeInvisible, makeVis
 import Network from "../../network/Network";
 import Dijkstra from "./DijkstraAlgorithm";
 
-type canvasState = "add-edge-mode" | "idle" | "delete" | "add-node-mode" | "pre-animation" | "step-by-step" | "animation-running";
+type canvasState = "add-edge-mode" | "idle" | "delete" | "add-node-mode" | "pre-animation" |  "animation-running";
 export default class DijkstraController {
     private readonly _network: Network;
     private readonly _graph: Graph;

@@ -5,7 +5,7 @@ import { changeMessageBox, disableElement, enableElement, makeInvisible, makeVis
 import Network from "../../network/Network";
 import Kruskal from "./KruskalAlgorithm";
 
-type canvasState = "add-edge-mode" | "idle" | "delete" | "add-node-mode" | "step-by-step" | "animation-running" | "pre-animation";
+type canvasState = "add-edge-mode" | "idle" | "delete" | "add-node-mode" |  "animation-running" | "pre-animation";
 
 export default class KruskalController {
     private readonly _network: Network;

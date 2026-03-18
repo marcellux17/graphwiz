@@ -5,7 +5,7 @@ import { changeMessageBox, disableElement, enableElement, makeInvisible, makeVis
 import Network from "../../network/Network";
 import AStar from "./AStarAlgorithm";
 
-type canvasState = "add-edge-mode" | "idle" | "delete" | "add-node-mode" | "pre-animation" | "step-by-step" | "animation-running";
+type canvasState = "add-edge-mode" | "idle" | "delete" | "add-node-mode" | "pre-animation" |  "animation-running";
 export default class AStarController {
     private readonly _network: Network;
     private readonly _algorithm: AStar;
