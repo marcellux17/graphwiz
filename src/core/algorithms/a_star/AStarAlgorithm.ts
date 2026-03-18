@@ -198,7 +198,7 @@ export default class AStar extends Algorithm{
         }
     }
     private measureDistance(nodeA: Node, nodeB: Node, scale: number):number{
-        return Math.floor(Math.sqrt((nodeA.x - nodeB.x) ** 2 + (nodeA.y - nodeB.y) ** 2) / (10 * scale));
+        return Math.floor(nodeA.position.subtract(nodeB.position).length / (10 * scale));
     }
     private getLabelsForQueueRepresentation(ids: number[]):string[]{
         return ids.map(id => this._graph.getNode(id)!.label);
