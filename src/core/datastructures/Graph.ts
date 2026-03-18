@@ -1,3 +1,4 @@
+import Vector from "../network/Vector";
 import Edge from "./Edge";
 import Node from "./Node";
 
@@ -41,7 +42,7 @@ export default class Graph {
         this._nextLabel++;
         return id;
     }
-    addExistingNode(id: number, x: number, y: number, color: string): void {
+    addExistingNode(id: number, position: Vector, color: string): void {
         if(id >= this._nextNodeId){
             this._nextNodeId = id + 1;
         }
@@ -49,8 +50,7 @@ export default class Graph {
         const node = new Node(id, label);
         
         node.color = color;
-        node.x = x;
-        node.y = y;
+        node.position = position;
         
         this._nodes.set(id, node);
         this._nextLabel++;

@@ -1,10 +1,11 @@
+import Vector from "../network/Vector";
+
 export default class Node {
     private readonly _id: number;
     private readonly _adjacencyList: Map<number, number>;
     private readonly _originalLabel: string;
     private _label: string;
-    private _x = 0;
-    private _y = 0;
+    private _Position = new Vector(0, 0);
     private _color = "white";
 
     constructor(id: number, label: string) {
@@ -25,17 +26,11 @@ export default class Node {
     set label(newLabel: string) {
         this._label = newLabel;
     }
-    set x(newX: number) {
-        this._x = newX;
+    set position(newPosition: Vector) {
+        this._Position = newPosition;
     }
-    set y(newY: number) {
-        this._y = newY;
-    }
-    get x(): number {
-        return this._x;
-    }
-    get y(): number {
-        return this._y;
+    get position(): Vector {
+        return this._Position;
     }
     get id(): number {
         return this._id;
@@ -62,8 +57,7 @@ export default class Node {
     clone(): Node {
         const cloned = new Node(this._id, this._originalLabel);
         cloned._label = this._label;
-        cloned._x = this._x;
-        cloned._y = this._y;
+        cloned._Position = new Vector(this._Position.x, this._Position.y);
         cloned._color = this._color;
         this._adjacencyList.forEach((edgeId, neighbourId) => {
             cloned._adjacencyList.set(neighbourId, edgeId);
