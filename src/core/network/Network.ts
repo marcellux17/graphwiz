@@ -139,14 +139,19 @@ export default class Network{
     }
     drawCanvas = (): void => {
         this._ctx.clearRect(0, 0, canvas.width, canvas.height);
-        
+
+        this._ctx.save();
+        this._ctx.translate(this._offset.x, this._offset.y);
+
         this.drawEdges();
         this.drawNodes();
-        
+
         if (this._pendingEdge) {
             this.drawPendingEdge();
             this.drawNode(this._graph.getNode(this._firstNodeId!)!);
         }
+
+        this._ctx.restore();
     };
     private canvasScaleDown(): void {
         if (this._scale < 0.5) return;
@@ -236,26 +241,20 @@ export default class Network{
     private screenToCanvas(screenPos: Vector): Vector {
         return screenPos.subtract(this._offset);
     }
-    private canvasToScreen(canvasPos: Vector): Vector {
-        return canvasPos.add(this._offset);
-    }
     private drawLine(from: Vector, to: Vector, lineWidth: number, color: string): void {
-        const screenFrom = this.canvasToScreen(from);
-        const screenTo = this.canvasToScreen(to);
         this._ctx.beginPath();
         this._ctx.lineWidth = lineWidth * this._scale;
         this._ctx.strokeStyle = color;
-        this._ctx.moveTo(screenFrom.x, screenFrom.y);
-        this._ctx.lineTo(screenTo.x, screenTo.y);
+        this._ctx.moveTo(from.x, from.y);
+        this._ctx.lineTo(to.x, to.y);
         this._ctx.stroke();
         this._ctx.closePath();
     }
     private drawArc(center: Vector, radius: number, startingAngle: number, endAngle: number, contour: string, lineWidth: number, color?: string): void {
-        const screenCenter = this.canvasToScreen(center);
         this._ctx.beginPath();
         this._ctx.lineWidth = lineWidth * this._scale;
         this._ctx.strokeStyle = contour;
-        this._ctx.arc(screenCenter.x, screenCenter.y, radius, startingAngle, endAngle);
+        this._ctx.arc(center.x, center.y, radius, startingAngle, endAngle);
         this._ctx.stroke();
         if (color) {
             this._ctx.fillStyle = color;
@@ -264,12 +263,11 @@ export default class Network{
         this._ctx.closePath();
     }
     private drawText(pos: Vector, text: string, fontFamily: string, fontColor: string): void {
-        const screenPos = this.canvasToScreen(pos);
         this._ctx.font = `${this._fontSize * this._scale}px ${fontFamily}`;
         this._ctx.textAlign = "center";
         this._ctx.textBaseline = "middle";
         this._ctx.fillStyle = fontColor;
-        this._ctx.fillText(text, screenPos.x, screenPos.y);
+        this._ctx.fillText(text, pos.x, pos.y);
     }
     private drawNode(node: Node): void {
         this.drawArc(node.position, node.size * this._scale, 0, Math.PI * 2, "black", node.nodeBorderWidth, node.color ? node.color : "white");
@@ -339,14 +337,13 @@ export default class Network{
         const halfBaseLength = 7 * this._scale;
 
         const base = tip.subtract(dir.scale(triangleHeight));
-        const screenTip = this.canvasToScreen(tip);
-        const screenLeft = this.canvasToScreen(base.add(normal.scale(halfBaseLength)));
-        const screenRight = this.canvasToScreen(base.subtract(normal.scale(halfBaseLength)));
+        const left = base.add(normal.scale(halfBaseLength));
+        const right = base.subtract(normal.scale(halfBaseLength));
 
         this._ctx.beginPath();
-        this._ctx.moveTo(screenLeft.x, screenLeft.y);
-        this._ctx.lineTo(screenRight.x, screenRight.y);
-        this._ctx.lineTo(screenTip.x, screenTip.y);
+        this._ctx.moveTo(left.x, left.y);
+        this._ctx.lineTo(right.x, right.y);
+        this._ctx.lineTo(tip.x, tip.y);
         this._ctx.closePath();
         this._ctx.fillStyle = color;
         this._ctx.fill();
