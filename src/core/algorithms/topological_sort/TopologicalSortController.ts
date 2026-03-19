@@ -60,7 +60,7 @@ export default class TopologicalSortController {
                     break;
                 }
                 if(this._algorithm.cyclesExist){
-                    changeMessageBox("Graph contains cycle(s). Remove them to run algorithm.");
+                    changeMessageBox("graph contains cycle(s), remove them to run algorithm");
                     setTimeout(() => {
                         this.changeCanvasState("idle");
                     }, 1500);
