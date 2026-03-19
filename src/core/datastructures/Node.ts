@@ -7,12 +7,26 @@ export default class Node {
     private _label: string;
     private _Position = new Vector(0, 0);
     private _color = "white";
+    private _size = 27;
+    private _nodeBorderWidth = 4;
 
     constructor(id: number, label: string) {
         this._originalLabel = label;
         this._label = label;
         this._id = id;
         this._adjacencyList = new Map<number, number>();
+    }
+    get size(): number {
+        return this._size;
+    }
+    set size(newSize: number) {
+        this._size = newSize;
+    }
+    get nodeBorderWidth(): number {
+        return this._nodeBorderWidth;
+    }
+    set nodeBorderWidth(newWidth: number) {
+        this._nodeBorderWidth = newWidth;
     }
     get color(): string {
         return this._color;

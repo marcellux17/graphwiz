@@ -9,8 +9,6 @@ type networkMode = "addEdgeMode" | "addNodeMode" | "idle" | "delete" | "disabled
 export default class Network{
     private readonly _ctx = canvas.getContext("2d")!;
     private readonly _negativeEdges: boolean;
-    private readonly _nodeSize = 27;
-    private readonly _nodeContourWidth = 4;
     private readonly _euclideanWeights: boolean;
     private readonly _fontSize = 17;
     private readonly _edgeWidth = 2;
@@ -182,7 +180,7 @@ export default class Network{
             const node = this._graph.getNode(this._nodeIds[i])!;
             const nodePos = node.position;
 
-            if (pos.subtract(nodePos).length < this._nodeSize * this._scale + (this._nodeContourWidth * this._scale / 2)) {
+            if (pos.subtract(nodePos).length < node.size * this._scale + (node.nodeBorderWidth * this._scale / 2)) {
                 return i;
             }
         }
@@ -213,7 +211,7 @@ export default class Network{
         const to = this.screenToCanvas(this._mousePosition);
 
         const directionNormalized = to.subtract(from).normalize();
-        const offset = directionNormalized.scale(this._nodeSize * this._scale + this._nodeContourWidth * this._scale / 2);
+        const offset = directionNormalized.scale(firstNode.size * this._scale + firstNode.nodeBorderWidth * this._scale / 2);
         const start = from.add(offset);
 
         this.drawLine(start, to, 2, "black");
@@ -274,13 +272,15 @@ export default class Network{
         this._ctx.fillText(text, screenPos.x, screenPos.y);
     }
     private drawNode(node: Node): void {
-        this.drawArc(node.position, this._nodeSize * this._scale, 0, Math.PI * 2, "black", this._nodeContourWidth, node.color ? node.color : "white");
+        this.drawArc(node.position, node.size * this._scale, 0, Math.PI * 2, "black", node.nodeBorderWidth, node.color ? node.color : "white");
         this.drawText(node.position, `${node.label}`, "arial", "black");
     }
     private drawEdge(edge: Edge): void {
-        const from = this._graph.getNode(edge.from)!.position;
-        const to = this._graph.getNode(edge.to)!.position;
+        const fromNode = this._graph.getNode(edge.from)!;
+        const toNode = this._graph.getNode(edge.to)!;
 
+        const from = fromNode.position;
+        const to = toNode.position;
         if (this._graph.isDirected) {
             if (this._graph.edgeHasParallel(edge)) {
                 this.drawCurvedEdge(from, to, edge.width, edge.color, edge.weight);
@@ -288,7 +288,7 @@ export default class Network{
                 this.drawStraightEdge(from, to, edge.width, edge.color, edge.weight);
                 const edgeVec = to.subtract(from);
                 const edgeNormalized = edgeVec.normalize();
-                const arrowOffset = edgeVec.length - this._nodeSize * this._scale - this._nodeContourWidth * this._scale / 2;
+                const arrowOffset = edgeVec.length - toNode.size * this._scale - toNode.nodeBorderWidth * this._scale / 2;
                 const arrowTip = from.add(edgeNormalized.scale(arrowOffset));
                 this.drawTriangleTo(arrowTip, edgeNormalized, edge.color);
             }
@@ -431,8 +431,9 @@ export default class Network{
                 maxY = node.position.y;
             }
         }
-        const nodeRadius = this._nodeSize * this._scale;
-        const contourOffset = this._nodeContourWidth * this._scale;
+        const node = this._graph.getNode(this._nodeIds[0])!;
+        const nodeRadius = node.size * this._scale;
+        const contourOffset = node.nodeBorderWidth * this._scale;
         const padding = nodeRadius + contourOffset / 2;
 
         return { topLeft: new Vector(minX - padding, minY - padding), width: maxX - minX + nodeRadius * 2 + contourOffset, height: maxY - minY + nodeRadius * 2 + contourOffset };
