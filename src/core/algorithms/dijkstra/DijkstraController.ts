@@ -186,11 +186,9 @@ export default class DijkstraController {
         });
         forwardButton.addEventListener("click", () => {
             this._animation.setAnimationStateForward();
-            this._animation.animateCurrentState();
         });
         backButton.addEventListener("click", () => {
             this._animation.setAnimationStateBackward();
-            this._animation.animateCurrentState();
         });
         playButton.addEventListener("click", () => {
             this._animation.continueAnimation();

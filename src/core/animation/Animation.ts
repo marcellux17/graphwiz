@@ -17,6 +17,9 @@ export default class Animation {
     constructor(network: Network) {
         this._network = network;
     }
+    private get isLastState():boolean{
+        return this._currentAnimationStateNumber === this._states!.length - 1;
+    }
     setAnimationSpeedChange(speed: number): void {
         this._animationSpeedChange = speed;
     }
@@ -33,11 +36,12 @@ export default class Animation {
     setAnimationStateForward(): void {
         if (this._animationPhase !== "paused") return;
         this.moveAnimationStateForward();
+        this.animateCurrentState();
     }
     setAnimationStateBackward(): void {
-        if (this._animationPhase !== "paused") return;
-        if (this._currentAnimationStateNumber <= 0) return;
+        if (this._animationPhase !== "paused" || this._currentAnimationStateNumber <= 0) return;
         this._currentAnimationStateNumber--;
+        this.animateCurrentState();
     }
     setAnimationPhase(state: animationPhase): void {
         this._animationPhase = state;
@@ -55,7 +59,7 @@ export default class Animation {
                 } else {
                     this.moveAnimationStateForward();
                     this.animateCurrentState();
-                    if (this.isLastState()) {
+                    if (this.isLastState) {
                         clearInterval(this._interval!);
                         this.setAnimationPhase("paused");
                         makeInvisible(pauseButton);
@@ -79,7 +83,7 @@ export default class Animation {
         this._currentAnimationStateNumber = 0;
         this.animateCurrentState();
     }
-    animateCurrentState(): void {
+    private animateCurrentState(): void {
         if (this._currentAnimationStateNumber === -1) return;
         
         const currentState = this._states![this._currentAnimationStateNumber];        
@@ -138,13 +142,10 @@ export default class Animation {
         }
     }
     private moveAnimationStateForward(): void {
-        if (this.isLastState())return;
+        if (this.isLastState)return;
         this._currentAnimationStateNumber++;
     }
     private clearInfoBox(): void {
         algorithmInfoBox.innerHTML = "";
-    }
-    private isLastState():boolean{
-        return this._currentAnimationStateNumber === this._states!.length - 1;
     }
 }
