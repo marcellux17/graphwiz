@@ -10,7 +10,7 @@ html, body{
     font-family: 'Open Sans', Helvetica, sans-serif;
 }
 body {
-    background: linear-gradient(283deg,rgba(44, 62, 80, 1) 0%, rgba(44, 62, 80, 1) 39%, rgba(225, 243, 255, 1) 100%);
+    background: rgb(255, 255, 255);
 }
 #links{
     margin: auto;
@@ -38,13 +38,14 @@ body {
     white-space: nowrap;
     text-decoration: none;
     text-align: center;
-    color: white;
+    color: var(--main-color);
     margin-bottom: 1rem;
 }
 .card img{
     width: var(--image-width);
     height: var(--image-height);
     border-radius: 5px;
+    box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
 }
 header{
     padding-top: 1rem;
