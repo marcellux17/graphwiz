@@ -27,6 +27,7 @@ export default class Network{
     private _firstNodeId?: number;
     private _dpr:number = 1;
     private _pendingEdge = false;
+    private _rafPending = false;
     private _canvasWidth = 0;
     private _canvasHeight = 0;
     private _selectNodeCallback?: (nodeId:number) => void;
@@ -138,20 +139,25 @@ export default class Network{
         this.drawCanvas();
     }
     drawCanvas = (): void => {
-        this._ctx.clearRect(0, 0, canvas.width, canvas.height);
+        if (this._rafPending) return;
+        this._rafPending = true;
+        requestAnimationFrame(() => {
+            this._rafPending = false;
+            this._ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        this._ctx.save();
-        this._ctx.translate(this._offset.x, this._offset.y);
+            this._ctx.save();
+            this._ctx.translate(this._offset.x, this._offset.y);
 
-        this.drawEdges();
-        this.drawNodes();
+            this.drawEdges();
+            this.drawNodes();
 
-        if (this._pendingEdge) {
-            this.drawPendingEdge();
-            this.drawNode(this._graph.getNode(this._firstNodeId!)!);
-        }
+            if (this._pendingEdge) {
+                this.drawPendingEdge();
+                this.drawNode(this._graph.getNode(this._firstNodeId!)!);
+            }
 
-        this._ctx.restore();
+            this._ctx.restore();
+        });
     };
     private canvasScaleDown(): void {
         if (this._scale < 0.5) return;
