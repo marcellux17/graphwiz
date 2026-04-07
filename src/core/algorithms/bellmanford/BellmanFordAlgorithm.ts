@@ -96,7 +96,7 @@ export default class BellmanFord extends Algorithm{
                     }
                     animationStates.push(currentState);
                     if(distanceThroughFrom < currentEstimate.get(to)!){
-                        currentState = this.updateNodeLabel(currentState, to, `${this._graph.getNode(to)!.label}(${distanceThroughFrom})`)
+                        currentState = this.updateNodeLabel(currentState, to, `${this._graph.getNode(to)!.label}:${distanceThroughFrom}`)
                         currentState.algorithmInfobox = {
                             information: `it holds: (${distanceThroughFrom} < ${currentEstimate.get(to)! == Infinity ? "∞": currentEstimate.get(to)!})
                             <hr>d[u] + w(e) < d[v]`
@@ -162,7 +162,7 @@ export default class BellmanFord extends Algorithm{
         const state:animationState = {graph: this._graph.clone()};
         
         state.graph.nodes.forEach((node) => {
-            node.label = node.id === from ? node.label : `${node.label}(∞)`;
+            node.label = node.id === from ? node.label : `${node.label}:∞`;
         });
 
         return state;

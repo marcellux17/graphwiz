@@ -95,7 +95,7 @@ export default class AStar extends Algorithm{
 
                     previousNode.set(neighbourId, currentElement.id);
 
-                    currentState = this.updateNodeLabel(currentState, neighbourId, `${this._graph.getNode(neighbourId)!.label}(${gThroughCurrent + neighbourHeusristic})`);    
+                    currentState = this.updateNodeLabel(currentState, neighbourId, `${this._graph.getNode(neighbourId)!.label}:${gThroughCurrent + neighbourHeusristic}`);    
                     currentState.algorithmInfobox = {
                         information: `distance through current node < current smallest distance to neighbour<br> (${gThroughCurrent} < ${gScoreNeighbor == Infinity ? "∞": gScoreNeighbor})
                         <br>update the value held by the node to the new f(x) = g(x) + h(x)
@@ -187,7 +187,7 @@ export default class AStar extends Algorithm{
         const state:animationState = {graph: this._graph.clone()};
         
         state.graph.nodes.forEach((node) => {
-            node.label = node.id === from ? node.label : `${node.label}(∞)`;
+            node.label = node.id === from ? node.label : `${node.label}: ∞`;
         });
 
         return state;
@@ -198,7 +198,7 @@ export default class AStar extends Algorithm{
         }
     }
     private measureDistance(nodeA: Node, nodeB: Node, scale: number):number{
-        return Math.floor(nodeA.position.subtract(nodeB.position).length / (10 * scale));
+        return Math.round(nodeA.position.subtract(nodeB.position).length / (40 * scale));
     }
     private getLabelsForQueueRepresentation(ids: number[]):string[]{
         return ids.map(id => this._graph.getNode(id)!.label);

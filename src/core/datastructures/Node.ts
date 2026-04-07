@@ -7,8 +7,8 @@ export default class Node {
     private _label: string;
     private _Position = new Vector(0, 0);
     private _color = "white";
-    private _size = 27;
-    private _nodeBorderWidth = 4;
+    private _size = 20;
+    private _nodeBorderWidth = 3;
 
     constructor(id: number, label: string) {
         this._originalLabel = label;

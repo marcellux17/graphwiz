@@ -162,7 +162,7 @@ export default class TopologicalSort extends Algorithm{
                 currentState = this.markEdgeAsDeselected(currentState, edgeId);
             }
             currentState = this.markNodeAsDeselected(currentState, currentNodeId);
-            currentState = this.updateNodeLabel(currentState, currentNodeId, `${this._graph.getNode(currentNodeId)!.label}(${topologicalOrder})`)
+            currentState = this.updateNodeLabel(currentState, currentNodeId, `${this._graph.getNode(currentNodeId)!.label}:${topologicalOrder}`)
             animationStates.push(currentState);
         }
         currentState = this.copyAnimationState(currentState);

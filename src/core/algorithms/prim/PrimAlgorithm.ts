@@ -61,7 +61,7 @@ export default class Prim extends Algorithm {
                     if (w < currentCost) {
                         priorityQueue.update(nodeId, w);
                         edgesConnectingNodesToMST.set(nodeId, edgeId);
-                        currentState = this.updateNodeLabel(currentState, nodeId, `${this._graph.getNode(nodeId)!.label}(${w})`);
+                        currentState = this.updateNodeLabel(currentState, nodeId, `${this._graph.getNode(nodeId)!.label}:${w}`);
                         currentState.algorithmInfobox = {
                             information: `We can improve the cost of connecting the adjacent node to the MST.<hr>
                             ${w} < ${currentCost === Infinity ? `∞` : currentCost}`
@@ -109,7 +109,7 @@ export default class Prim extends Algorithm {
         const state:animationState = {graph: this._graph.clone()};
 
         state.graph.nodes.forEach((node) => {
-            node.label = node.id === from ? node.label : `${node.label}(∞)`;
+            node.label = node.id === from ? node.label : `${node.label}:∞`;
         });
 
         return state;

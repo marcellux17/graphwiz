@@ -10,7 +10,7 @@ export default class Network{
     private readonly _ctx = canvas.getContext("2d")!;
     private readonly _negativeEdges: boolean;
     private readonly _euclideanWeights: boolean;
-    private readonly _fontSize = 17;
+    private readonly _fontSize = 15;
     private readonly _edgeWidth = 2;
     private _graph: Graph;
     private _isDown = false;
@@ -600,7 +600,7 @@ export default class Network{
         this.drawCanvas();
     };
     private calculateEuclideanWeight(from: Vector, to: Vector): number {
-        return Math.floor(from.subtract(to).length / (10 * this._scale));
+        return Math.round(from.subtract(to).length / (40 * this._scale));
     }
     private resizeHandler = ():void =>{
         const editingPanelRect = editingPanel!.getBoundingClientRect();

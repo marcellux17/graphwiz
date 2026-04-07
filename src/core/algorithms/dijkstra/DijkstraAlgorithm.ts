@@ -74,7 +74,7 @@ export default class Dijkstra extends Algorithm{
                     
                     if (distanceThroughCurrentNode < estimatedDistance) {
                         previousNode.set(neighbourId, currentNode.id);
-                        currentState = this.updateNodeLabel(currentState, neighbourId, `${this._graph.getNode(neighbourId)!.label}(${distanceThroughCurrentNode})`)
+                        currentState = this.updateNodeLabel(currentState, neighbourId, `${this._graph.getNode(neighbourId)!.label}:${distanceThroughCurrentNode}`)
                         currentState.algorithmInfobox = {
                             information: `distance through current node < current smallest distance to neighbour (${distanceThroughCurrentNode} < ${estimatedDistance == Infinity ? "∞": estimatedDistance})`,
                             dataStructure: {
@@ -146,7 +146,7 @@ export default class Dijkstra extends Algorithm{
         const state:animationState = {graph: this._graph.clone()};
         
         state.graph.nodes.forEach((node) => {
-            node.label = node.id === from ? node.label : `${node.label}(∞)`;
+            node.label = node.id === from ? node.label : `${node.label}:∞`;
         });
 
         return state;

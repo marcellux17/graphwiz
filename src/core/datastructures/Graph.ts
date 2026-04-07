@@ -32,9 +32,21 @@ export default class Graph {
     get nodes(): ReadonlyArray<Node>{
         return Array.from(this._nodes.values());
     }
+    private createNodeLabel(labelIndex: number): string {
+        const alphabetSize = 26;
+        const zeroBasedIndex = labelIndex - 1;
+        const letterIndex = zeroBasedIndex % alphabetSize;
+        const cycle = Math.floor(zeroBasedIndex / alphabetSize);
+        const letter = String.fromCharCode(97 + letterIndex);
+
+        if (cycle === 0) {
+            return letter;
+        }
+        return `${letter}${cycle + 1}`;
+    }
     addNode(): number {
         const id = this._nextNodeId;
-        const label = `${this._nextLabel}`;
+        const label = this.createNodeLabel(this._nextLabel);
        
         this._nodes.set(id, new Node(id, label));
        
@@ -46,7 +58,7 @@ export default class Graph {
         if(id >= this._nextNodeId){
             this._nextNodeId = id + 1;
         }
-        const label = `${this._nextLabel}`;
+        const label = this.createNodeLabel(this._nextLabel);
         const node = new Node(id, label);
         
         node.color = color;
