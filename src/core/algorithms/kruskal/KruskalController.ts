@@ -26,15 +26,6 @@ export default class KruskalController {
         this.setUpUiEventListeners();
     }
     private changeCanvasState(newState: canvasState): void {
-        if ( (this._canvasState === "animation-running" || this._canvasState === "pre-animation") && newState === "idle" ){
-            this._animation.escapeAnimation();
-            this._network.graph = this._graph;
-            this.enableAllButtons();
-            makeInvisible(algorithmInformationBox);
-            makeInvisible(speedBox);
-            makeInvisible(playBox);
-            this._componentNodeId = undefined;
-        }
         this._canvasState = newState;
         resetWeightChangeInput();
         switch (newState) {
@@ -51,6 +42,7 @@ export default class KruskalController {
                 this._network.deleteElementModeOn();
                 break;
             case "pre-animation":
+                this.disableAllButtons();
                 if(this._graph.isEmpty){
                     changeMessageBox("no nodes to run algorithm on.");
                     setTimeout(() => {
@@ -58,12 +50,12 @@ export default class KruskalController {
                     }, 1500);
                     break;
                 }
-                this.disableAllButtons();
                 changeMessageBox("select a node from a component");
                 this._selectedEdgeId = undefined;
                 this._network.resetToIdle();
                 break;
             case "idle":
+                this.escapeAnimation();
                 changeMessageBox( "idle mode (click on edges to modify weights)" );
                 this._network.resetToIdle();
                 break;
@@ -82,6 +74,15 @@ export default class KruskalController {
                 this._animation.start();
                 break;
         }
+    }
+    private escapeAnimation(): void {
+        this._animation.escapeAnimation();
+        this._network.graph = this._graph;
+        this.enableAllButtons();
+        makeInvisible(algorithmInformationBox);
+        makeInvisible(speedBox);
+        makeInvisible(playBox);
+        this._componentNodeId = undefined;
     }
     private enableAllButtons() {
         enableElement(addEdgeButton);
@@ -182,16 +183,12 @@ export default class KruskalController {
             speedInfo.textContent = `speed: ${newspeed}x`;
             this._animation.setAnimationSpeedChange(1000 / newspeed);
         });
-        presetInput.addEventListener("input", () => {
+        presetInput.addEventListener("input", async () => {
             if(presetInput!.value !== "load a graph"){
                 const request = new Request(`./graph_presets/kruskal/${presetInput!.value}.json`);
-                fetch(request)
-                    .then((res) => {
-                        return res.json();
-                    })
-                    .then((preset) => {
-                        this._network.loadPreset(preset);
-                    });
+                const response = await fetch(request);
+                const preset = await response.json();
+                this._network.loadPreset(preset);
             }
         })
     }

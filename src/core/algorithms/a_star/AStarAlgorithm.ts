@@ -28,18 +28,19 @@ export default class AStar extends Algorithm{
         
         let currentState = this.createInitialState(from);
         currentState.algorithmInfobox = {
-            information: `We assign each node a value of ∞, except for the starting node which will get a value of 0. It denotes the distance from the starting node plus the heuristic estimate.
-            Inside the loop we retrieve the element that has the smallest possible value of g(x) + h(x). With the retrieval the the shortest distance to the node is finalized.
+            information: `We assign each node x a value of ∞, except for the starting node which will get a value of 0. It denotes the distance from the starting node to node x plus the heuristic estimate.
+            Inside the loop we retrieve the element that has the smallest possible value of f(x). With the retrieval the the shortest distance to the node is finalized.
             We also check if a shorter distance is possible through the current node to the adjacent nodes. If so we update the priority-queue. We repeat this until the destination node is retrieved.
             <hr>
-            h(x): heuristic, in our case its euclidean distance<br>
-            g(x): shortest distance known from source node`
+            h(x): heuristic estimate: euclidean distance from node x to the destination node<br>
+            g(x): shortest distance known from source node to node x, initial values are set to ∞<br>
+            f(x) = h(x) + g(x) `
             
         };
         animationStates.push(currentState);
         currentState = this.copyAnimationState(currentState);
         currentState.algorithmInfobox = {
-            information: "Selecting node from priority queue with the smallest distance",
+            information: "Selecting node from priority queue with the smallest f(x)",
             dataStructure: {
                 type: "priority-queue",
                 ds: this.getLabelsForQueueRepresentation(fScores.toArray())
@@ -52,7 +53,11 @@ export default class AStar extends Algorithm{
         
         currentState = this.markNodeAsVisited(currentState, currentElement.id);
         currentState.algorithmInfobox = {
-            information: "Node with the smallest g(x) + h(x) selected from priority queue.",
+            information: `Node with the smallest f(x) selected from priority queue.
+            <hr>
+            h(x): heuristic estimate: euclidean distance from node x to the destination node<br>
+            g(x): shortest distance known from source node to node x, initial values are set to ∞<br>
+            f(x) = h(x) + g(x) `,
             dataStructure: {
                 type: "priority-queue",
                 ds: this.getLabelsForQueueRepresentation(fScores.toArray())
@@ -98,8 +103,12 @@ export default class AStar extends Algorithm{
                     currentState = this.updateNodeLabel(currentState, neighbourId, `${this._graph.getNode(neighbourId)!.label}:${gThroughCurrent + neighbourHeusristic}`);    
                     currentState.algorithmInfobox = {
                         information: `distance through current node < current smallest distance to neighbour<br> (${gThroughCurrent} < ${gScoreNeighbor == Infinity ? "∞": gScoreNeighbor})
-                        <br>update the value held by the node to the new f(x) = g(x) + h(x)
-                        <br>update the value held by the node to: ${gThroughCurrent} + ${neighbourHeusristic} = ${gThroughCurrent + neighbourHeusristic}`,
+                        <br>update the value held by the node to the new f(x)
+                        <br>update the value held by the node to: ${gThroughCurrent} + ${neighbourHeusristic} = ${gThroughCurrent + neighbourHeusristic}
+                        <hr>
+            h(x): heuristic estimate: euclidean distance from node x to the destination node<br>
+            g(x): shortest distance known from source node to node x, initial values are set to ∞<br>
+            f(x) = h(x) + g(x) `,
                         dataStructure: {
                             type: "priority-queue",
                             ds: this.getLabelsForQueueRepresentation(fScores.toArray())
@@ -132,9 +141,11 @@ export default class AStar extends Algorithm{
 
             currentState = this.copyAnimationState(currentState);
             currentState.algorithmInfobox = {
-                information: `Selecting node from priority queue with the smallest g(x) + h(x)<br>
-                h(x): heuristic, in our case its euclidean distance<br>
-                g(x): shortest distance known from source node`,
+                information: `Selecting node x from priority queue with the smallest f(x)<br>
+                <hr>
+            h(x): heuristic estimate: euclidean distance from node x to the destination node<br>
+            g(x): shortest distance known from source node to node x, initial values are set to ∞<br>
+            f(x) = h(x) + g(x) `,
                 dataStructure: {
                     type: "priority-queue",
                     ds: this.getLabelsForQueueRepresentation(fScores.toArray())
@@ -146,7 +157,11 @@ export default class AStar extends Algorithm{
             
             currentState = this.markNodeAsVisited(currentState, currentElement.id);
             currentState.algorithmInfobox = {
-                information: "Node with the smallest g(x) + h(x) selected from priority queue.",
+                information: `Node x with the smallest f(x) selected from priority queue.
+                <hr>
+            h(x): heuristic estimate: euclidean distance from node x to the destination node<br>
+            g(x): shortest distance known from source node to node x, initial values are set to ∞<br>
+            f(x) = h(x) + g(x) `,
                 dataStructure: {
                     type: "priority-queue",
                     ds: this.getLabelsForQueueRepresentation(fScores.toArray())

@@ -26,19 +26,6 @@ export default class DijkstraController {
         this.setUpUiEventListeners();
     }
     private changeCanvasState(newState: canvasState): void {
-        if ( (this._canvasState === "pre-animation" || this._canvasState === "animation-running") && newState === "idle" ){
-            this._animation.escapeAnimation();
-            this._network.graph = this._graph;
-            this.enableAllButtons();
-            makeInvisible(algorithmInformationBox);
-            makeInvisible(speedBox);
-            makeInvisible(playBox);
-            this._startingNodeId = undefined;
-            this._destinationNodeId = undefined;
-            startingNodeInfo!.textContent = "start: ";
-            destinationNodeInfo!.textContent = "dest: ";
-            makeInvisible(pathInfoBox!);
-        }
         this._canvasState = newState;
         resetWeightChangeInput();
         switch (newState) {
@@ -55,10 +42,12 @@ export default class DijkstraController {
                 this._network.deleteElementModeOn();
                 break;
             case "idle":
+                this.escapeAnimation();
                 changeMessageBox( "idle mode (click on edges to modify weights)" );
                 this._network.resetToIdle();
                 break;
             case "pre-animation":
+                this.disableAllButtons();
                 if(this._graph.isEmpty){
                     changeMessageBox("no nodes to run algorithm on.");
                     setTimeout(() => {
@@ -66,7 +55,6 @@ export default class DijkstraController {
                     }, 1500);
                     break;
                 }
-                this.disableAllButtons();
                 changeMessageBox("select starting node");
                 makeVisible(pathInfoBox!);
                 this._selectedEdgeId = undefined;
@@ -87,6 +75,19 @@ export default class DijkstraController {
                 this._animation.start();
                 break;
         }
+    }
+    private escapeAnimation(): void {
+        this._animation.escapeAnimation();
+        this._network.graph = this._graph;
+        this.enableAllButtons();
+        makeInvisible(algorithmInformationBox);
+        makeInvisible(speedBox);
+        makeInvisible(playBox);
+        this._startingNodeId = undefined;
+        this._destinationNodeId = undefined;
+        startingNodeInfo!.textContent = "start: ";
+        destinationNodeInfo!.textContent = "dest: ";
+        makeInvisible(pathInfoBox!);
     }
     private enableAllButtons() {
         enableElement(addEdgeButton);
@@ -200,16 +201,12 @@ export default class DijkstraController {
             speedInfo.textContent = `speed: ${newspeed}x`;
             this._animation.setAnimationSpeedChange(1000 / newspeed);
         });
-        presetInput.addEventListener("input", () => {
+        presetInput.addEventListener("input", async () => {
             if(presetInput!.value !== "load a graph"){
                 const request = new Request(`./graph_presets/dijkstra/${presetInput!.value}.json`);
-                fetch(request)
-                    .then((res) => {
-                        return res.json();
-                    })
-                    .then((preset) => {
-                        this._network.loadPreset(preset);
-                    });
+                const response = await fetch(request);
+                const preset = await response.json();
+                this._network.loadPreset(preset);
             }
         })
     }

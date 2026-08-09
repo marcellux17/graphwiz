@@ -24,15 +24,6 @@ export default class DFSController {
         this.setUpUiEventListeners();
     }
     private changeCanvasState(newState: canvasState): void {
-        if ((this._canvasState === "animation-running" || this._canvasState === "pre-animation") && newState === "idle" ){
-            this._animation.escapeAnimation();
-            this._network.graph = this._graph;
-            this.enableAllButtons();
-            makeInvisible(algorithmInformationBox);
-            makeInvisible(speedBox);
-            makeInvisible(playBox);
-            this._startingNodeId = undefined;
-        }
         this._canvasState = newState;
         switch (newState) {
             case "add-edge-mode":
@@ -48,10 +39,12 @@ export default class DFSController {
                 this._network.deleteElementModeOn();
                 break;
             case "idle":
+                this.escapeAnimation();
                 changeMessageBox( "idle mode" );
                 this._network.resetToIdle();
                 break;
             case "pre-animation":
+                this.disableAllButtons();
                 if(this._graph.isEmpty){
                     changeMessageBox("no nodes to run algorithm on.");
                     setTimeout(() => {
@@ -60,7 +53,6 @@ export default class DFSController {
                     break;
                 }
                 changeMessageBox("select starting node");
-                this.disableAllButtons();
                 this._network.resetToIdle();
                 break;
             case "animation-running":
@@ -78,25 +70,34 @@ export default class DFSController {
                 break;
         }
     }
+    private escapeAnimation(): void {
+        this._animation.escapeAnimation();
+        this._network.graph = this._graph;
+        this.enableAllButtons();
+        makeInvisible(algorithmInformationBox);
+        makeInvisible(speedBox);
+        makeInvisible(playBox);
+        this._startingNodeId = undefined;
+    }
     private enableAllButtons() {
-            enableElement(addEdgeButton);
-            enableElement(addNodeButton);
-            enableElement(deleteModeButton);
-            enableElement(clearGraphButton);
-            enableElement(escapeModeButton);
-            enableElement(runAnimationButton);
-            enableElement(presetInput);
-            
-        }
-        private disableAllButtons() {
-            disableElement(addEdgeButton);
-            disableElement(addNodeButton);
-            disableElement(clearGraphButton);
-            disableElement(deleteModeButton);
-            disableElement(escapeModeButton);
-            disableElement(runAnimationButton);
-            disableElement(presetInput);
-        }
+        enableElement(addEdgeButton);
+        enableElement(addNodeButton);
+        enableElement(deleteModeButton);
+        enableElement(clearGraphButton);
+        enableElement(escapeModeButton);
+        enableElement(runAnimationButton);
+        enableElement(presetInput);
+        
+    }
+    private disableAllButtons() {
+        disableElement(addEdgeButton);
+        disableElement(addNodeButton);
+        disableElement(clearGraphButton);
+        disableElement(deleteModeButton);
+        disableElement(escapeModeButton);
+        disableElement(runAnimationButton);
+        disableElement(presetInput);
+    }
     private selectNodeHandle = (id: number): void => {
         if (this._canvasState !== "pre-animation") return;
         
@@ -157,16 +158,12 @@ export default class DFSController {
             speedInfo.textContent = `speed: ${newspeed}x`;
             this._animation.setAnimationSpeedChange(1000 / newspeed);
         });
-        presetInput.addEventListener("input", () => {
+        presetInput.addEventListener("input", async () => {
             if(presetInput!.value !== "load a graph"){
                 const request = new Request(`./graph_presets/dfs/${presetInput!.value}.json`);
-                fetch(request)
-                    .then((res) => {
-                        return res.json();
-                    })
-                    .then((preset) => {
-                        this._network.loadPreset(preset);
-                    });
+                const response = await fetch(request);
+                const preset = await response.json();
+                this._network.loadPreset(preset);
             }
         })
     }

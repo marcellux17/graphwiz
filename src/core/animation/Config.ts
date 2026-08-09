@@ -1,4 +1,4 @@
-export const VisualConfig = Object.freeze({
+export const VisualConfig = {
     nodeColors: {
         normal: "#ffffff",
         queue: "#2e77ff",
@@ -7,16 +7,14 @@ export const VisualConfig = Object.freeze({
         deselected: "#e4e4e4",
         path: "#c00000",
     },
-
     edgeColors: {
         normal: "black",
         selected: "blue",
         deselected: "#e4e4e4",
         path: "#c00000",
     },
-
     edgeWidths: {
         selected: 3,
         path: 4,
     },
-});
+};

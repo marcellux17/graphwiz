@@ -10,8 +10,8 @@ export function changeMessageBox(newMessage: string): void {
     messageBox.textContent = newMessage;
 }
 export function resetWeightChangeInput(): void {
-    label!.textContent = "";
-    weightInput!.value = "";
+    if (label) label.textContent = "";
+    if (weightInput) weightInput.value = "";
     makeInvisible(inputGroup);
 }
 export function disableElement(element: HTMLButtonElement|HTMLSelectElement|HTMLInputElement):void{

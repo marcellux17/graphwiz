@@ -25,19 +25,6 @@ export default class AStarController {
         this.setUpUiEventListeners();
     }
     private changeCanvasState(newState: canvasState): void {
-        if ( (this._canvasState === "animation-running" || this._canvasState === "pre-animation") && newState === "idle" ){
-            this._animation.escapeAnimation();
-            this._network.graph = this._graph;
-            this.enableAllButtons();
-            makeInvisible(algorithmInformationBox);
-            makeInvisible(speedBox);
-            this._startingNodeId = undefined;
-            this._destinationNodeId = undefined;
-            startingNodeInfo!.textContent = "start: ";
-            destinationNodeInfo!.textContent = "dest: ";
-            makeInvisible(pathInfoBox!);
-            makeInvisible(playBox);
-        }
         this._canvasState = newState;
         switch (newState) {
             case "add-edge-mode":
@@ -53,10 +40,12 @@ export default class AStarController {
                 this._network.deleteElementModeOn();
                 break;
             case "idle":
+                this.escapeAnimation();
                 changeMessageBox( "idle mode");
                 this._network.resetToIdle();
                 break;
             case "pre-animation":
+                this.disableAllButtons();
                 if(this._graph.isEmpty){
                     changeMessageBox("no nodes to run algorithm on.");
                     setTimeout(() => {
@@ -66,7 +55,6 @@ export default class AStarController {
                 }
                 changeMessageBox("select starting node");
                 makeVisible(pathInfoBox!);
-                this.disableAllButtons();
                 this._network.resetToIdle();
                 break;
             case "animation-running":
@@ -84,6 +72,19 @@ export default class AStarController {
                 this._animation.start();
                 break;
         }
+    }
+    private escapeAnimation(): void{
+        this._animation.escapeAnimation();
+        this._network.graph = this._graph;
+        this._startingNodeId = undefined;
+        this._destinationNodeId = undefined;
+        startingNodeInfo!.textContent = "start: ";
+        destinationNodeInfo!.textContent = "dest: ";
+        this.enableAllButtons();
+        makeInvisible(pathInfoBox!);
+        makeInvisible(playBox);
+        makeInvisible(algorithmInformationBox);
+        makeInvisible(speedBox);
     }
     private enableAllButtons() {
         enableElement(addEdgeButton);
@@ -179,17 +180,13 @@ export default class AStarController {
             speedInfo.textContent = `speed: ${newspeed}x`;
             this._animation.setAnimationSpeedChange(1000 / newspeed);
         });
-        presetInput.addEventListener("input", () => {
+        presetInput.addEventListener("input", async () => {
             if(presetInput!.value !== "load a graph"){
                 const request = new Request(`./graph_presets/a_star/${presetInput!.value}.json`);
-                fetch(request)
-                    .then((res) => {
-                        return res.json();
-                    })
-                    .then((preset) => {
-                        this._network.loadPreset(preset);
-                    });
-                }
+                const response = await fetch(request);
+                const preset = await response.json();
+                this._network.loadPreset(preset);
+            }
         })
     }
 }

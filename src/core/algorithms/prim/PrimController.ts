@@ -24,15 +24,6 @@ export default class PrimController {
         this.setUpUiEventListeners();
     }
     private changeCanvasState(newState: canvasState): void {
-        if ( (this._canvasState === "animation-running" || this._canvasState === "pre-animation") && newState === "idle" ){
-            this._animation.escapeAnimation();
-            this._network.graph = this._graph;
-            this.enableAllButtons();
-            makeInvisible(algorithmInformationBox);
-            makeInvisible(speedBox);
-            makeInvisible(playBox);
-            this._startingNodeId = undefined;
-        }
         this._canvasState = newState;
         resetWeightChangeInput();
         switch (newState) {
@@ -49,10 +40,12 @@ export default class PrimController {
                 this._network.deleteElementModeOn();
                 break;
             case "idle":
+                this.escapeAnimation();
                 changeMessageBox( "idle mode (click on edges to modify weights)" );
                 this._network.resetToIdle();
                 break;
             case "pre-animation":
+                this.disableAllButtons();
                 if(this._graph.isEmpty){
                     changeMessageBox("no nodes to run algorithm on.");
                     setTimeout(() => {
@@ -60,7 +53,6 @@ export default class PrimController {
                     }, 1500);
                     break;
                 }
-                this.disableAllButtons();
                 changeMessageBox("select starting node");
                 this._selectedEdgeId = undefined;
                 this._network.resetToIdle();
@@ -81,6 +73,15 @@ export default class PrimController {
                 break;
         }
         
+    }
+    private escapeAnimation(): void {
+        this._animation.escapeAnimation();
+        this._network.graph = this._graph;
+        this.enableAllButtons();
+        makeInvisible(algorithmInformationBox);
+        makeInvisible(speedBox);
+        makeInvisible(playBox);
+        this._startingNodeId = undefined;
     }
     private enableAllButtons() {
         enableElement(addEdgeButton);
@@ -181,16 +182,12 @@ export default class PrimController {
             speedInfo.textContent = `speed: ${newspeed}x`;
             this._animation.setAnimationSpeedChange(1000 / newspeed);
         });
-        presetInput.addEventListener("input", () => {
+        presetInput.addEventListener("input", async () => {
             if(presetInput!.value !== "load a graph"){    
                 const request = new Request(`./graph_presets/prim/${presetInput!.value}.json`);
-                fetch(request)
-                    .then((res) => {
-                        return res.json();
-                    })
-                    .then((preset) => {
-                        this._network.loadPreset(preset);
-                    });
+                const response = await fetch(request);
+                const preset = await response.json();
+                this._network.loadPreset(preset);
             }
         })
     }

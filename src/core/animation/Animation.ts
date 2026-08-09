@@ -18,7 +18,7 @@ export default class Animation {
         this._network = network;
     }
     private get isLastState():boolean{
-        return this._currentAnimationStateNumber === this._states!.length - 1;
+        return !!this._states && this._currentAnimationStateNumber === this._states.length - 1;
     }
     setAnimationSpeedChange(speed: number): void {
         this._animationSpeedChange = speed;
@@ -54,13 +54,13 @@ export default class Animation {
 
                 if (this._animationSpeed !== this._animationSpeedChange) {
                     this._animationSpeed = this._animationSpeedChange;
-                    clearInterval(this._interval!);
+                    clearInterval(this._interval);
                     this.continueAnimation();
                 } else {
                     this.moveAnimationStateForward();
                     this.animateCurrentState();
                     if (this.isLastState) {
-                        clearInterval(this._interval!);
+                        clearInterval(this._interval);
                         this.setAnimationPhase("paused");
                         makeInvisible(pauseButton);
                         makeVisible(playButton);
@@ -72,7 +72,7 @@ export default class Animation {
     }
     pause(): void {
         this.setAnimationPhase("paused");
-        clearInterval(this._interval!);
+        clearInterval(this._interval);
     }
     start(): void {
         this.setAnimationPhase("running");
@@ -84,9 +84,9 @@ export default class Animation {
         this.animateCurrentState();
     }
     private animateCurrentState(): void {
-        if (this._currentAnimationStateNumber === -1) return;
-        
-        const currentState = this._states![this._currentAnimationStateNumber];        
+        if (this._currentAnimationStateNumber === -1 || !this._states) return;
+
+        const currentState = this._states[this._currentAnimationStateNumber];
         this._network.graph = currentState.graph;
 
         this.renderInfoBox(currentState.algorithmInfobox);

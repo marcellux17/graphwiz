@@ -11,7 +11,7 @@ export default class TopologicalSortController {
     private readonly _animation: Animation;
     private readonly _algorithm: TopologicalSort;
     private readonly _graph: Graph;
-    private _canvasState: canvasState = "idle"; 
+    // private _canvasState: canvasState = "idle"; 
     
     constructor() {
         this._graph = new Graph(false, true);
@@ -22,17 +22,7 @@ export default class TopologicalSortController {
         this.setUpUiEventListeners();
     }
     private changeCanvasState(newState: canvasState): void {
-        if ((this._canvasState === "animation-running" || this._canvasState === "pre-animation") && newState === "idle" ){
-            this.enableAllButtons();
-            this._animation.escapeAnimation();
-            this._network.graph = this._graph;
-            makeInvisible(algorithmInformationBox);
-            makeInvisible(speedBox);
-            makeInvisible(playBox);
-            makeInvisible(playButton);
-            makeInvisible(pauseButton);
-        }
-        this._canvasState = newState;
+        // this._canvasState = newState;
         switch (newState) {
             case "add-edge-mode":
                 changeMessageBox( "to create an edge click and drag from one node to the other" );
@@ -47,11 +37,13 @@ export default class TopologicalSortController {
                 this._network.deleteElementModeOn();
                 break;
             case "idle":
+                this.escapeAnimation();
                 changeMessageBox( "idle mode" );
                 this._network.resetToIdle();
                 break;
             case "pre-animation":
                 this._network.resetToIdle();
+                this.disableAllButtons();
                 if(this._graph.isEmpty){
                     changeMessageBox("no nodes to run algorithm on.");
                     setTimeout(() => {
@@ -66,7 +58,6 @@ export default class TopologicalSortController {
                     }, 1500);
                     break;
                 }
-                this.disableAllButtons();
                 
                 this.changeCanvasState("animation-running");
                 break;
@@ -84,6 +75,16 @@ export default class TopologicalSortController {
                 this._animation.start();
                 break;
         }
+    }
+    private escapeAnimation(): void {
+        this.enableAllButtons();
+        this._animation.escapeAnimation();
+        this._network.graph = this._graph;
+        makeInvisible(algorithmInformationBox);
+        makeInvisible(speedBox);
+        makeInvisible(playBox);
+        makeInvisible(playButton);
+        makeInvisible(pauseButton);
     }
     private enableAllButtons() {
         enableElement(addEdgeButton);
@@ -154,16 +155,12 @@ export default class TopologicalSortController {
             speedInfo.textContent = `speed: ${newspeed}x`;
             this._animation.setAnimationSpeedChange(1000 / newspeed);
         });
-        presetInput.addEventListener("input", () => {
+        presetInput.addEventListener("input", async () => {
             if(presetInput!.value !== "load a graph"){
                 const request = new Request(`./graph_presets/topological_sort/${presetInput!.value}.json`);
-                fetch(request)
-                    .then((res) => {
-                        return res.json();
-                    })
-                    .then((preset) => {
-                        this._network.loadPreset(preset);
-                    });
+                const response = await fetch(request);
+                const preset = await response.json();
+                this._network.loadPreset(preset);
             }
         })
     }
